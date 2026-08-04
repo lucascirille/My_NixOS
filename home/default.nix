@@ -14,7 +14,6 @@
   brave
   rofi
   pamixer
-  # this-is-a-test-haha
   pavucontrol
   playerctl
   xclip
