@@ -58,9 +58,30 @@ xdg.configFile."nvim".source = ./config/nvim;
       plugins = [ "git" "sudo" ];
       theme = "robbyrussell";
     };
+
+initContent = ''
+    nos() {
+      local orig_dir="$PWD"
+      cd ~/.dotfiles || return 1
+
+      git add .
+
+      if ! git diff-index --quiet HEAD --; then
+        echo "📦 Changes detected! Committing and pushing..."
+        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+        git push
+      else
+        echo "🧹 No changes to commit. Proceeding with rebuild..."
+      fi
+
+      sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw
+
+      cd "$orig_dir"
+    }
+  '';
+
     shellAliases = {
       btw = "echo i use nixos, btw";
-      nos = "sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw";
       not = "sudo nixos-rebuild test --flake ~/.dotfiles#nixos-btw";
       nop = "sudo nix-collect-garbage --delete-older-than 7d && sudo nix store optimise";
       nv = "nvim";
