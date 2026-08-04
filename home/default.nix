@@ -60,8 +60,8 @@ xdg.configFile."nvim".source = ./config/nvim;
     };
     shellAliases = {
       btw = "echo i use nixos, btw";
-      nos = "sudo nixos-rebuild switch --flake /etc/nixos#nixos-btw";
-      not = "sudo nixos-rebuild test --flake /etc/nixos#nixos-btw";
+      nos = "sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw";
+      not = "sudo nixos-rebuild test --flake ~/.dotfiles#nixos-btw";
       nop = "sudo nix-collect-garbage --delete-older-than 7d && sudo nix store optimise";
       nv = "nvim";
     };
