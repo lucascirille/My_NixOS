@@ -1,15 +1,15 @@
 {
   perSystem = { pkgs, ... }: {
-    # 1. Configures the built-in `nix fmt` command
-    formatter = pkgs.nixfmt-rfc-style;
+    # 1. Update the flake formatter to nixfmt-tree
+    formatter = pkgs.nixfmt-tree;
 
-    # 2. Your existing devShell setup
+    # 2. Your maintenance dev shell
     devShells.default = pkgs.mkShell {
       name = "nixos-config-shell";
       packages = with pkgs; [
         git
         nh
-        nixfmt-rfc-style
+        nixfmt-tree
         statix
       ];
     };
