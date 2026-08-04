@@ -2,30 +2,34 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
-
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Use the systemd-boot EFI boot loader.
   boot = {
-  	loader = {
-  	systemd-boot.enable = true;
-  	efi.canTouchEfiVariables = true;
-  	};
-	kernelParams = [
-		"quiet"
-		"loglevel=3"
-		"systemd.show_status=auto"
-		"rd.udev.log_level=3"
-	];
-	consoleLogLevel = 0;
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+    kernelParams = [
+      "quiet"
+      "loglevel=3"
+      "systemd.show_status=auto"
+      "rd.udev.log_level=3"
+    ];
+    consoleLogLevel = 0;
   };
 
-specialisation.VM.configuration = import ./specialisations/vm.nix;
+  specialisation.VM.configuration = import ./specialisations/vm.nix;
 
   networking.hostName = "nixos-btw"; # Define your hostname.
 
@@ -49,42 +53,40 @@ specialisation.VM.configuration = import ./specialisations/vm.nix;
 
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
-services.xserver = {
-	enable = true;
-	autoRepeatDelay = 200;
-	autoRepeatInterval = 35;
-	windowManager.qtile = {
-	  enable = true;
-	  extraPackages = python3Packages: with python3Packages; [
-	    qtile-extras
-	  ];
-	};
-};
-
-services.displayManager.ly = {
-  enable = true;
-  settings = {
-    # Specify the keys Ly listens to
-    brightness_down_key = "F5";
-    brightness_up_key = "F6";
-
-    # Provide the exact path to the brightnessctl package binary
-    brightness_down_cmd = "${pkgs.brightnessctl}/bin/brightnessctl set 20%-";
-    brightness_up_cmd = "${pkgs.brightnessctl}/bin/brightnessctl set 20%+";
+  services.xserver = {
+    enable = true;
+    autoRepeatDelay = 200;
+    autoRepeatInterval = 35;
+    windowManager.qtile = {
+      enable = true;
+      extraPackages =
+        python3Packages: with python3Packages; [
+          qtile-extras
+        ];
+    };
   };
-};
 
-# config for bluetooth
-hardware.bluetooth = {
-  enable = true;
-  powerOnBoot = false;
-  settings.General.AutoEnable = "false";
-};
-services.blueman.enable = true;
-systemd.services.bluetooth.wantedBy = lib.mkForce [ ]; # Don't start at boot
+  services.displayManager.ly = {
+    enable = true;
+    settings = {
+      # Specify the keys Ly listens to
+      brightness_down_key = "F5";
+      brightness_up_key = "F6";
 
+      # Provide the exact path to the brightnessctl package binary
+      brightness_down_cmd = "${pkgs.brightnessctl}/bin/brightnessctl set 20%-";
+      brightness_up_cmd = "${pkgs.brightnessctl}/bin/brightnessctl set 20%+";
+    };
+  };
 
-
+  # config for bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = false;
+    settings.General.AutoEnable = "false";
+  };
+  services.blueman.enable = true;
+  systemd.services.bluetooth.wantedBy = lib.mkForce [ ]; # Don't start at boot
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
@@ -104,67 +106,74 @@ systemd.services.bluetooth.wantedBy = lib.mkForce [ ]; # Don't start at boot
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
-# This enables Zsh at the system level and allows it to be used as a login shell
-   programs.zsh.enable = true;
+  # This enables Zsh at the system level and allows it to be used as a login shell
+  programs.zsh.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-   users.users.neo = {
-     isNormalUser = true;
-     extraGroups = [ "wheel" "networkmanager" "video" ]; # Enable ‘sudo’ for the user.
-     shell = pkgs.zsh;
-     packages = with pkgs; [
-       tree
-     ];
-   };
-
-programs.dconf.enable = true;
-
-  programs.thunar = let
-    xfce = pkgs.xfce.overrideScope (final: prev: {
-      thunar-archive-plugin = prev.thunar-archive-plugin.overrideAttrs (old: {
-        postInstall = (old.postInstall or "") + ''
-          mkdir -p $out/libexec/thunar-archive-plugin
-          cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
-            $out/libexec/thunar-archive-plugin/
-        '';
-      });
-    });
-  in {
-    enable = true;
-
-    plugins = [
-      xfce.thunar-volman
-      xfce.thunar-archive-plugin
+  users.users.neo = {
+    isNormalUser = true;
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "video"
+    ]; # Enable ‘sudo’ for the user.
+    shell = pkgs.zsh;
+    packages = with pkgs; [
+      tree
     ];
   };
 
+  programs.dconf.enable = true;
+
+  programs.thunar =
+    let
+      xfce = pkgs.xfce.overrideScope (
+        final: prev: {
+          thunar-archive-plugin = prev.thunar-archive-plugin.overrideAttrs (old: {
+            postInstall = (old.postInstall or "") + ''
+              mkdir -p $out/libexec/thunar-archive-plugin
+              cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
+                $out/libexec/thunar-archive-plugin/
+            '';
+          });
+        }
+      );
+    in
+    {
+      enable = true;
+
+      plugins = [
+        xfce.thunar-volman
+        xfce.thunar-archive-plugin
+      ];
+    };
 
   # Enable gvfs for mounting, trash, and other functionalities
   # Note: You must logout and login again for gvfs to activate in Thunar
   services.gvfs.enable = true;
   services.udisks2.enable = true; # Often required for gvfs to work for users
 
-
   # Enable tumbler for image thumbnail support
   services.tumbler.enable = true;
 
   # Enable xfconf if you want Thunar preferences to be saved
   # (Thunar uses xfconf for settings; without this, preferences are discarded)
-  programs.xfconf.enable = true;  
+  programs.xfconf.enable = true;
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
-   environment.systemPackages = with pkgs; [
-     brightnessctl
-     xarchiver
-   ];
+  environment.systemPackages = with pkgs; [
+    brightnessctl
+    xarchiver
+  ];
 
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+  ];
 
-   fonts.packages = with pkgs; [
-	nerd-fonts.jetbrains-mono
-   ];
-
-   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -210,4 +219,3 @@ programs.dconf.enable = true;
   system.stateVersion = "25.11"; # Did you read the comment?
 
 }
-

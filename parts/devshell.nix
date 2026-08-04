@@ -1,22 +1,17 @@
 {
   perSystem = { pkgs, ... }: {
-    # Defines the shell entered when you run `nix develop`
+    # 1. Configures the built-in `nix fmt` command
+    formatter = pkgs.nixfmt-rfc-style;
+
+    # 2. Your existing devShell setup
     devShells.default = pkgs.mkShell {
       name = "nixos-config-shell";
-
-      # Packages loaded temporarily inside the shell
       packages = with pkgs; [
         git
-        nh                  # Convenient NixOS rebuild helper (nh os switch)
-        nixfmt-rfc-style    # Nix file formatter
-        statix              # Nix code linter
+        nh
+        nixfmt-rfc-style
+        statix
       ];
-
-      # Commands to run automatically when entering the shell
-      shellHook = ''
-        echo "🔧 NixOS Config Maintenance Shell Loaded"
-        echo "Tools available: nh, nixfmt, statix"
-      '';
     };
   };
 }
