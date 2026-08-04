@@ -1,5 +1,5 @@
 {
-  description = "NixOS from Scratch";
+  description = "NixOS & Home Manager with flake-parts";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
@@ -7,23 +7,16 @@
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
-    nixosConfigurations.nixos-btw = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        ./configuration.nix
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            users.neo = import ./home/default.nix;
-            backupFileExtension = "backup";
-          };
-        }
+  outputs = inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
+
+      imports = [
+        ./parts/nixos.nix
+        ./parts/devshell.nix
       ];
     };
-  };
 }
