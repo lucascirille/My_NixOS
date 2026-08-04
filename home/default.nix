@@ -64,22 +64,32 @@ initContent = ''
       local orig_dir="$PWD"
       cd ~/.dotfiles || return 1
 
+      # 1. Stage all untracked files (REQUIRED for Flakes to see new files)
       git add .
 
-      if ! git diff-index --quiet HEAD --; then
-        echo "📦 Changes detected! Committing and pushing..."
-        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-        git push
-      else
-        echo "🧹 No changes to commit. Proceeding with rebuild..."
-      fi
+      # 2. Try to rebuild the system FIRST
+      echo "🔨 Building NixOS configuration..."
+      if sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw; then
+        echo "✅ Build successful!"
 
-      sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw
+        # 3. Only commit & push IF the rebuild succeeded
+        if ! git diff-index --quiet HEAD --; then
+          echo "📦 Committing and pushing working configuration to Git..."
+          git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+          git push
+        else
+          echo "🧹 Working tree clean. Nothing to commit."
+        fi
+      else
+        echo "❌ Rebuild failed! Aborting Git commit and push."
+        cd "$orig_dir"
+        return 1
+      fi
 
       cd "$orig_dir"
     }
   '';
-
+  
     shellAliases = {
       btw = "echo i use nixos, btw";
       not = "sudo nixos-rebuild test --flake ~/.dotfiles#nixos-btw";
