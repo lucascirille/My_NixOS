@@ -57,13 +57,22 @@
     };
   };
 
+  # Enable the OpenSSH daemon
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false; # Recommended for security
+    };
+  };
+
+  services.blueman.enable = true;
 
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
     settings.General.AutoEnable = "false";
   };
-  services.blueman.enable = true;
   systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
 
   # System User & Shell
