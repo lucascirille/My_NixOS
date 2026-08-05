@@ -111,5 +111,16 @@
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Automatic cleanup
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+
+  # Automatic store optimization
+  nix.settings.auto-optimise-store = true;
+
   system.stateVersion = "25.11";
 }

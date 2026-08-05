@@ -104,7 +104,7 @@ nos() {
     shellAliases = {
       btw = "echo i use nixos, btw";
       not = "sudo nixos-rebuild test --flake ~/.dotfiles#nixos-btw";
-      nop = "sudo nix-collect-garbage --delete-older-than 7d && sudo nix store optimise";
+      nop = "sudo nix-collect-garbage --delete-older-than 14d && sudo nix store optimise";
       nv = "nvim";
     };
     enableCompletion = true;
