@@ -1,8 +1,10 @@
 keys:
-  - &nixos_btw "age1xpzytgl37lrwtn4a67cja7jccjtwtu3gfzusdtp23hu54hdlrqaqlexk88" # Paste your Age key here
+  - &nixos_btw "age1xpzytgl37lrwtn4a67cja7jccjtwtu3gfzusdtp23hu54hdlrqaqlexk88"
+  - &master    "age1jxg7esut03as8rc4yn2ql3zusfgshfg2vhhyem5tc3a9t0jlw4qqqlt5f5"
 
 creation_rules:
   - path_regex: secrets/secrets\.yaml$
     key_groups:
       - age:
           - *nixos_btw
+          - *master
