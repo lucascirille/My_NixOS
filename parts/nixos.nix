@@ -4,7 +4,7 @@
   flake.nixosConfigurations.nixos-btw = inputs.nixpkgs.lib.nixosSystem {
     specialArgs = { inherit inputs; };
     modules = [
-      ../configuration.nix
+      ../hosts/nixos-btw/default.nix
       inputs.home-manager.nixosModules.home-manager
       {
         home-manager = {

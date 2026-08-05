@@ -14,6 +14,7 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
+  # Universal storage & USB kernel modules
   boot.initrd.availableKernelModules = [
     "xhci_pci"
     "thunderbolt"
@@ -23,9 +24,12 @@
     "sd_mod"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+
+  # KVM virtualization support for BOTH Intel and AMD hosts
+  boot.kernelModules = [ "kvm-intel" "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
+  # USB drive partitions (DO NOT CHANGE THESE UUIDs)
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/3c854b40-9b21-4d4c-9d4f-5d1041da3795";
     fsType = "ext4";
@@ -46,4 +50,5 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
