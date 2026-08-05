@@ -1,8 +1,10 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
     ./hardware-configuration.nix
+    ../../modules/git-deploy-key.nix
+    inputs.sops-nix.nixosModules.sops # Imports the systemd sops decryption service
   ];
 
   nixpkgs.config.allowUnfree = true;
