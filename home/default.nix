@@ -63,45 +63,42 @@
     };
 
   initContent = ''
-    nos() {
-      local orig_dir="$PWD"
+nos() {
+  local orig_dir="$PWD"
+  cd ~/.dotfiles || return 1
 
-      (
-        set -euo pipefail
+  # 1. Pull latest changes from remote, autostashing any local edits
+  echo "📥 Fetching and integrating remote changes..."
+  if ! git pull --rebase --autostash origin main; then
+    echo "❌ Git pull failed! Please resolve merge conflicts before building."
+    cd "$orig_dir"
+    return 1
+  fi
 
-        cd ~/.dotfiles
+  # 2. Stage all untracked/modified files (REQUIRED for Flakes to see new files)
+  git add .
 
-        echo "📥 Syncing with remote..."
-        git fetch origin
-        git pull --rebase
+  # 3. Try to rebuild the system FIRST
+  echo "🔨 Building NixOS configuration..."
+  if sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw; then
+    echo "✅ Build successful!"
 
-        echo "📦 Staging files for flakes..."
-        git add -A
+    # 4. Only commit & push IF the rebuild succeeded and there are changes
+    if ! git diff-index --quiet HEAD --; then
+      echo "📦 Committing and pushing working configuration to Git..."
+      git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+      git push
+    else
+      echo "🧹 Working tree clean. Nothing to commit."
+    fi
+  else
+    echo "❌ Rebuild failed! Aborting Git commit and push."
+    cd "$orig_dir"
+    return 1
+  fi
 
-        echo "🔨 Rebuilding NixOS..."
-        sudo nixos-rebuild switch --flake .#nixos-btw
-
-        echo "📦 Staging any new changes..."
-        git add -A
-
-        if git diff --cached --quiet; then
-          echo "🧹 Nothing to commit."
-          exit 0
-        fi
-
-        echo "💾 Creating commit..."
-        git commit -m "nixos: $(date '+%Y-%m-%d %H:%M:%S')"
-
-        echo "🚀 Pushing..."
-        git push
-
-        echo "✅ NixOS successfully rebuilt and synced."
-      )
-
-      local status=$?
-      cd "$orig_dir"
-      return $status
-    }
+  cd "$orig_dir"
+}
   '';
 
     shellAliases = {
