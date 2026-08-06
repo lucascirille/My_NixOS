@@ -116,7 +116,6 @@
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
-    restic
   ];
 
   fonts.packages = with pkgs; [

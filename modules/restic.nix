@@ -5,6 +5,20 @@
   sops.secrets."restic_password" = { };
   sops.secrets."restic_env" = { };
 
+  # Add restic and a custom helper wrapper
+  environment.systemPackages = [
+    pkgs.restic
+    (pkgs.writeShellScriptBin "restic-daily" ''
+      set -a
+      source "${config.sops.secrets."restic_env".path}"
+      set +a
+      exec ${pkgs.restic}/bin/restic \
+        -r "${config.services.restic.backups.daily.repository}" \
+        --password-file "${config.sops.secrets."restic_password".path}" \
+        "$@"
+    '')
+  ];
+
   # 2. Configure Restic Backup Service
   services.restic.backups.daily = {
     initialize = true; # <-- Automatically initializes R2 repository if it doesn't exist
