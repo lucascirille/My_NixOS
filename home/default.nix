@@ -10,7 +10,7 @@ in
   home.sessionVariables = {
     SUDO_EDITOR = "nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
-    FLAKE = "${config.home.homeDirectory}/.dotfiles";
+    NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
     nh
