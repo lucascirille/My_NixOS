@@ -13,6 +13,9 @@
           nh
           nixfmt-tree
           statix
+	  sops
+	  age
+	  ssh-to-age
         ];
       };
     };
