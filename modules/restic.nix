@@ -7,6 +7,8 @@
 
   # 2. Configure Restic Backup Service
   services.restic.backups.daily = {
+    initialize = true; # <-- Automatically initializes R2 repository if it doesn't exist
+
     repository = "s3:https://708aebc1307b24a58bb55b911786fe4e.r2.cloudflarestorage.com/fallout-shelter";  
     passwordFile = config.sops.secrets."restic_password".path;
     environmentFile = config.sops.secrets."restic_env".path;
