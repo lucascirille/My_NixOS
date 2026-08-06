@@ -5,8 +5,12 @@
   home.homeDirectory = "/home/neo";
   home.sessionVariables = {
     SUDO_EDITOR = "nvim";
+    # Tells 'nh' where your flake lives so you don't need to pass paths manually
+    FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+    nh
+    nix-output-monitor
     btop
     fastfetch
     ghostty
@@ -22,7 +26,7 @@
     zip
     p7zip
   ];
-  home.stateVersion = "25.05";
+  home.stateVersion = "25.11";
   gtk = {
     enable = true;
 
@@ -64,47 +68,44 @@
 
   initContent = ''
 nos() {
-  local orig_dir="$PWD"
-  cd ~/.dotfiles || return 1
+        local orig_dir="$PWD"
+        cd ~/.dotfiles || return 1
 
-  # 1. Pull latest changes from remote, autostashing any local edits
-  echo "📥 Fetching and integrating remote changes..."
-  if ! git pull --rebase --autostash origin main; then
-    echo "❌ Git pull failed! Please resolve merge conflicts before building."
-    cd "$orig_dir"
-    return 1
-  fi
+        echo "📥 Fetching and integrating remote changes..."
+        if ! git pull --rebase --autostash origin main; then
+          echo "❌ Git pull failed! Please resolve merge conflicts before building."
+          cd "$orig_dir"
+          return 1
+        fi
 
-  # 2. Stage all untracked/modified files (REQUIRED for Flakes to see new files)
-  git add .
+        git add .
 
-  # 3. Try to rebuild the system FIRST
-  echo "🔨 Building NixOS configuration..."
-  if sudo nixos-rebuild switch --flake ~/.dotfiles#nixos-btw; then
-    echo "✅ Build successful!"
+        echo "🔨 Building NixOS configuration with nh..."
+        # nh automatically uses nix-output-monitor for pretty tree output
+        if nh os switch; then
+          echo "✅ Build successful!"
 
-    # 4. Only commit & push IF the rebuild succeeded and there are changes
-    if ! git diff-index --quiet HEAD --; then
-      echo "📦 Committing and pushing working configuration to Git..."
-      git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-      git push
-    else
-      echo "🧹 Working tree clean. Nothing to commit."
-    fi
-  else
-    echo "❌ Rebuild failed! Aborting Git commit and push."
-    cd "$orig_dir"
-    return 1
-  fi
+          if ! git diff-index --quiet HEAD --; then
+            echo "📦 Committing and pushing working configuration to Git..."
+            git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+            git push
+          else
+            echo "🧹 Working tree clean. Nothing to commit."
+          fi
+        else
+          echo "❌ Rebuild failed! Aborting Git commit and push."
+          cd "$orig_dir"
+          return 1
+        fi
 
-  cd "$orig_dir"
-}
+        cd "$orig_dir"
+      }
   '';
 
     shellAliases = {
       btw = "echo i use nixos, btw";
-      not = "sudo nixos-rebuild test --flake ~/.dotfiles#nixos-btw";
-      nop = "sudo nix-collect-garbage --delete-older-than 14d && sudo nix store optimise";
+      not = "nh os test";  # Uses nh to test changes cleanly
+      nop = "nh clean all --keep 5"; # Clean garbage safely
       nv = "nvim";
     };
     enableCompletion = true;
