@@ -1,8 +1,12 @@
-{ config, pkgs, ... }:
+{ config, pkgs, username, ... }:
 
+let
+  # Define the absolute path to your dotfiles directory
+  dotfiles = "${config.home.homeDirectory}/.dotfiles";
+in
 {
-  home.username = "neo";
-  home.homeDirectory = "/home/neo";
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.sessionVariables = {
     SUDO_EDITOR = "nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
@@ -40,9 +44,9 @@
       package = pkgs.gnome-themes-extra;
     };
   };
-  xdg.configFile."qtile".source = ./config/qtile;
-  xdg.configFile."ghostty".source = ./config/ghostty;
-  xdg.configFile."nvim".source = ./config/nvim;
+xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
+  xdg.configFile."ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
+  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
   programs.git = {
     enable = true;
 

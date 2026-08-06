@@ -1,18 +1,23 @@
 { inputs, ... }:
 
+let
+  username = "neo";
+in
 {
   flake.nixosConfigurations.nixos-btw = inputs.nixpkgs.lib.nixosSystem {
-    specialArgs = { inherit inputs; };
+    specialArgs = { inherit inputs username; };
     modules = [
       ../hosts/nixos-btw/default.nix
+      ../modules
       inputs.home-manager.nixosModules.home-manager
+      inputs.sops-nix.nixosModules.sops
       {
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
           users.neo = import ../home/default.nix;
           backupFileExtension = "backup";
-          extraSpecialArgs = { inherit inputs; };
+          extraSpecialArgs = { inherit inputs username; };
         };
       }
     ];

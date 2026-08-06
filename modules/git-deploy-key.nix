@@ -1,10 +1,5 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username, ... }:
 
-let
-  # Toma el primer usuario normal definido en el sistema dinámicamente
-  normalUsers = lib.filterAttrs (_: u: u.isNormalUser) config.users.users;
-  username = builtins.head (builtins.attrNames normalUsers);
-in
 {
   sops = {
     defaultSopsFile = ../secrets/secrets.yaml;
