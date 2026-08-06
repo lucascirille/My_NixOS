@@ -8,14 +8,13 @@ in
     specialArgs = { inherit inputs username; };
     modules = [
       ../hosts/nixos-btw/default.nix
-      ../modules
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
       {
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
-          users.neo = import ../home/default.nix;
+          users.${username} = import ../home/default.nix;
           backupFileExtension = "backup";
           extraSpecialArgs = { inherit inputs username; };
         };

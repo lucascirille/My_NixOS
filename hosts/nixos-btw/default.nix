@@ -3,9 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/git-deploy-key.nix
-    ../../modules/restic.nix
-    inputs.sops-nix.nixosModules.sops # Imports the systemd sops decryption service
+    ../../modules
   ];
 
   nixpkgs.config.allowUnfree = true;
