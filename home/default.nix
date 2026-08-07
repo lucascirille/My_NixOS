@@ -111,7 +111,7 @@ nos() {
       not = "nh os test";  # Uses nh to test changes cleanly
       nop = "nh clean all --keep 5"; # Clean garbage safely
       nv = "nvim";
-      sops-edit = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
+      better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
     };
     enableCompletion = true;
     autosuggestion.enable = true;
