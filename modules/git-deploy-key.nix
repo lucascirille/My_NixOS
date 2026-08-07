@@ -1,10 +1,6 @@
 { config, pkgs, lib, username, ... }:
 
 {
-  sops = {
-    defaultSopsFile = ../secrets/secrets.yaml;
-    age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  };
 
   sops.secrets.git_deploy_key = {
     path = "/home/${username}/.ssh/github-myproject-deploy";

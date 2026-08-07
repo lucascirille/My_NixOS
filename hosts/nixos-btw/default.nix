@@ -6,6 +6,12 @@
     ../../modules
   ];
 
+  # Secret manager using ssh host key
+  sops = {
+    defaultSopsFile = ../../secrets/secrets.yaml;
+    age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  };
+
   nixpkgs.config.allowUnfree = true;
 
   # Bootloader & Quiet Boot
