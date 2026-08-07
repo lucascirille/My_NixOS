@@ -6,7 +6,7 @@ keys:
   # Live USB
   - &nixos_btw    "age1xpzytgl37lrwtn4a67cja7jccjtwtu3gfzusdtp23hu54hdlrqaqlexk88"
 
-  # - &desktop    "age1..."
+  # - &desktop    "age1..." # Uncomment when added
 
 creation_rules:
   # 1. Common secrets (Readable by all your machines + master)
