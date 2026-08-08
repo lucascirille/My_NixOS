@@ -6,13 +6,6 @@
     ../../modules
   ];
 
-  # Secret manager using ssh host key
-  sops = {
-    defaultSopsFile = ../../secrets/hosts/nixos-btw.yaml;
-    age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  };
-
-  nixpkgs.config.allowUnfree = true;
 
   # Bootloader & Quiet Boot
   boot = {
@@ -28,6 +21,18 @@
     ];
     consoleLogLevel = 0;
   };
+  
+  # Enable PAM authentication for both lockers so passwords work on both Wayland and X11
+  security.pam.services.swaylock = {};
+  security.pam.services.i3lock = {};
+
+  # Secret manager using ssh host key
+  sops = {
+    defaultSopsFile = ../../secrets/hosts/nixos-btw.yaml;
+    age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  };
+
+  nixpkgs.config.allowUnfree = true;
 
   # Hostname & Universal Hardware Support
   networking.hostName = "nixos-btw";
