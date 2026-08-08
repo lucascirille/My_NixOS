@@ -31,6 +31,7 @@ in
     p7zip
   ];
   home.stateVersion = "25.11";
+
   gtk = {
     enable = true;
 

@@ -22,9 +22,6 @@
     consoleLogLevel = 0;
   };
   
-  # 1. Enable PAM authentication rules for both lockers
-  security.pam.services.swaylock = {};
-  security.pam.services.i3lock = {};
 
   # Secret manager using ssh host key
   sops = {
@@ -121,11 +118,17 @@
     ];
   };
 
+  programs.xss-lock = {
+    enable = true;
+    lockerCommand = "${pkgs.swaylock}/bit/swaylock";
+  };
+
+  security.pam.services.swaylock = {};
+
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
-    i3lock     # Installed at system level for PAM binding
     swaylock
   ];
 
@@ -142,8 +145,6 @@
     options = "--delete-older-than 14d";
   };
 
-  # Automatic store optimization
-  nix.settings.auto-optimise-store = true;
 
   system.stateVersion = "25.11";
 }
