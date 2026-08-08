@@ -22,7 +22,7 @@
     consoleLogLevel = 0;
   };
   
-  # Enable PAM authentication for both lockers so passwords work on both Wayland and X11
+  # 1. Enable PAM authentication rules for both lockers
   security.pam.services.swaylock = {};
   security.pam.services.i3lock = {};
 
@@ -42,7 +42,7 @@
   time.timeZone = "America/Argentina/Buenos_Aires";
 
   # Specialisations (Boot choices in GRUB)
-  specialisation.VM.configuration = {
+  specialisation.vm.configuration = {
     imports = [ ../../specialisations/vm.nix ];
   };
 
@@ -125,6 +125,8 @@
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
+    i3lock     # Installed at system level for PAM binding
+    swaylock
   ];
 
   fonts.packages = with pkgs; [

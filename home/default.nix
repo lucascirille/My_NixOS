@@ -13,8 +13,6 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    swaylock  # Lock screen for Wayland
-    i3lock    # Lock screen for X11
     nh
     nix-output-monitor
     btop
