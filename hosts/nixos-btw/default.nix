@@ -119,15 +119,14 @@
   };
 
 
-  security.pam.services.swaylock = {};
-  security.pam.services.i3lock-color = {};
+  security.pam.services.i3lock = {};
+
+  programs.i3lock.enable = true;
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
-    swaylock
-    i3lock-color
   ];
 
   fonts.packages = with pkgs; [
