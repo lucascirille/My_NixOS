@@ -152,7 +152,7 @@ def create_bar(primary=True):
             **get_decoration(colors["ok"]),
             foreground=colors["bg"]
         ),
-        # Universal Dual-Backend Power Menu
+       # Universal Dual-Backend Power Menu
         widget.TextBox(
             text="󰐥",
             fontsize=14,
@@ -164,15 +164,14 @@ def create_bar(primary=True):
                     "\"󰐥 Power Off\") systemctl poweroff ;; "
                     "\"󰜉 Reboot\") systemctl reboot ;; "
                     "\"󰤄 Suspend\") loginctl suspend ;; "
-                    "\"󰌾 Lock\") [ -n \"$WAYLAND_DISPLAY\" ] && swaylock -f -c 000000 || i3lock -c 000000 ;; "
+                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock -c 000000; fi ;; "
                     "\"󰍃 Logout\") loginctl terminate-session self ;; "
                     "esac'"
                 )
             },
             **get_decoration(colors["critical"]),
             foreground=colors["bg"],
-        ),
-        
+        ), 
     ])
 
 
@@ -244,15 +243,15 @@ keys = [
 
     # Manage Power ON/OF
     Key([mod, "shift"], "e", lazy.spawn(
-        "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
-        "rofi -dmenu -i -p \"Power\") && "
-        "case \"$choice\" in "
-        "\"󰐥 Power Off\") systemctl poweroff ;; "
-        "\"󰜉 Reboot\") systemctl reboot ;; "
-        "\"󰤄 Suspend\") loginctl suspend ;; "
-        "\"󰌾 Lock\") [ -n \"$WAYLAND_DISPLAY\" ] && swaylock -f -c 000000 || i3lock -c 000000 ;; "
-        "\"󰍃 Logout\") loginctl terminate-session self ;; "
-        "esac'"
+            "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
+                    "rofi -dmenu -i -p \"Power\") && "
+                    "case \"$choice\" in "
+                    "\"󰐥 Power Off\") systemctl poweroff ;; "
+                    "\"󰜉 Reboot\") systemctl reboot ;; "
+                    "\"󰤄 Suspend\") loginctl suspend ;; "
+                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock -c 000000; fi ;; "
+                    "\"󰍃 Logout\") loginctl terminate-session self ;; "
+                    "esac'"
     ), desc="Open Power Menu"),
 
 ]
