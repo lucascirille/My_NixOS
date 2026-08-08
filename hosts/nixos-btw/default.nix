@@ -119,14 +119,15 @@
   };
 
 
-  security.pam.services.i3lock = {};
+  security.pam.services.i3lock-color = {};
 
-  programs.i3lock.enable = true;
+  # programs.i3lock.enable = true;
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
+    i3lock-color
   ];
 
   fonts.packages = with pkgs; [
