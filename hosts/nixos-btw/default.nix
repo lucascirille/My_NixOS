@@ -118,18 +118,16 @@
     ];
   };
 
-  programs.xss-lock = {
-    enable = true;
-    lockerCommand = "${pkgs.swaylock}/bit/swaylock";
-  };
 
   security.pam.services.swaylock = {};
+  security.pam.services.i3lock-color = {};
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
     swaylock
+    i3lock-color
   ];
 
   fonts.packages = with pkgs; [
