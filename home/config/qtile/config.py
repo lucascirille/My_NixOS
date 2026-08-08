@@ -15,7 +15,7 @@ terminal = guess_terminal()
 # -------------------------------------------------------------------------
 colors = {
     "bg": "#1a1b26",
-    "surface": "#24283b",  # Moved from inline widgets to the global map
+    "surface": "#24283b",
     "fg": "#a9b1d6",
     "accent": "#7aa2f7",
     "critical": "#f7768e",
@@ -30,8 +30,24 @@ widget_defaults = dict(
 extension_defaults = widget_defaults.copy()
 
 # -------------------------------------------------------------------------
-# 2. Functional Helpers
+# 2. Functional & Hardware Detection Helpers
 # -------------------------------------------------------------------------
+def has_battery():
+    """Checks if a battery device exists in sysfs (Laptops)."""
+    sys_power = "/sys/class/power_supply"
+    if os.path.exists(sys_power):
+        return any(dev.startswith("BAT") for dev in os.listdir(sys_power))
+    return False
+
+def get_backlight_name():
+    """Detects available backlight device name (Intel, AMD, ACPI, etc.)."""
+    sys_backlight = "/sys/class/backlight"
+    if os.path.exists(sys_backlight):
+        devices = os.listdir(sys_backlight)
+        if devices:
+            return devices[0]
+    return None
+
 def volume_osd(action):
     """Generates complex shell sequences safely for dunst volume bars."""
     if action == "up":
@@ -45,10 +61,8 @@ def volume_osd(action):
 def brightness_osd(action):
     """Generates complex shell sequences safely for dunst brightness bars."""
     if action == "up":
-        # Increases brightness by 5% and grabs the updated percentage integer for Dunst
         cmd = "brightnessctl set +5% && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
     elif action == "down":
-        # Decreases brightness by 5% safely
         cmd = "brightnessctl set 5%- && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
     return f"sh -c \"{cmd}\""
 
@@ -62,79 +76,95 @@ def get_decoration(color, is_group=True):
     }
 
 # -------------------------------------------------------------------------
-# 3. Bar Instance Generator (Prevents Multi-Monitor Crashes)
+# 3. Universal Bar Instance Generator
 # -------------------------------------------------------------------------
-def create_bar():
-    """Returns a fresh Bar instance for multi-head safety."""
-    return bar.Bar(
-        [
-            widget.GroupBox(
-                highlight_method='line',
-                highlight_color=[colors["bg"], colors["accent"]],
-                active=colors["ok"],
-                inactive=colors["fg"],
-                **get_decoration(colors["bg"])
-            ),
-            widget.Spacer(length=8),
-            widget.WindowName(
-                foreground=colors["accent"],
-                max_chars=40,
-                **get_decoration(colors["bg"])
-            ),
-            widget.Spacer(),
-            widget.CPU(
-                format='  {load_percent}%',
-                update_interval=5.0,
-                mouse_callbacks={'Button1': lazy.spawn("ghostty -e btop")},
-                **get_decoration(colors["surface"])
-            ),
-            widget.Memory(
-                format='  {MemUsed: .0f}MB',
-                update_interval=5.0,
-                **get_decoration(colors["surface"])
-            ),
-            widget.Backlight(
-                backlight_name='intel_backlight',
-                format='󰃟  {percent:2.0%}',
-                update_interval=2.0,  # Bumped to 2s to reduce micro-polling
-                **get_decoration(colors["surface"])
-            ),
+def create_bar(primary=True):
+    """Returns a fresh Bar instance customized for any hardware or display backend."""
+    
+    # Core widgets for all systems (Desktop, Laptop, VM)
+    bar_widgets = [
+        widget.GroupBox(
+            highlight_method='line',
+            highlight_color=[colors["bg"], colors["accent"]],
+            active=colors["ok"],
+            inactive=colors["fg"],
+            **get_decoration(colors["bg"])
+        ),
+        widget.Spacer(length=8),
+        widget.WindowName(
+            foreground=colors["accent"],
+            max_chars=40,
+            **get_decoration(colors["bg"])
+        ),
+        widget.Spacer(),
+        widget.CPU(
+            format='  {load_percent}%',
+            update_interval=5.0,
+            mouse_callbacks={'Button1': lazy.spawn("ghostty -e btop")},
+            **get_decoration(colors["surface"])
+        ),
+        widget.Memory(
+            format='  {MemUsed: .0f}MB',
+            update_interval=5.0,
+            **get_decoration(colors["surface"])
+        ),
+    ]
 
-           # Clean, natively dynamic battery status layout
+    # Conditionally add Backlight widget (Laptops only)
+    backlight_dev = get_backlight_name()
+    if backlight_dev:
+        bar_widgets.append(
+            widget.Backlight(
+                backlight_name=backlight_dev,
+                format='󰃟  {percent:2.0%}',
+                update_interval=2.0,
+                **get_decoration(colors["surface"])
+            )
+        )
+
+    # Conditionally add Battery widget (Laptops only)
+    if has_battery():
+        bar_widgets.append(
             widget.Battery(
-                # The format layout for charging and discharging states
                 format='{char} {percent:2.0%}',
-                
-                # Forces the module to stick to the formatting template instead of returning text strings
                 show_short_text=False,
-                
-                # Assign icons directly to standard runtime states
-                charge_char='󱐋 󰁹',       # Lightning icon when power is connected
-                discharge_char='󰁹',      # Normal battery icon when running on power cell
-                full_char='󰁹 Full',      # Retains icon next to text when completely full
-                
-                # Triggers standard alert styling when low (e.g., lower than 20%)
+                charge_char='󱐋 󰁹',
+                discharge_char='󰁹',
+                full_char='󰁹 Full',
                 low_percentage=0.2,
                 low_foreground=colors["critical"],
-                
                 update_interval=15,
                 **get_decoration(colors["surface"])
-            ), 
-            widget.PulseVolume(
-                fmt='󰕾 {}',
-                limit_max_volume=True,
-                # Clicking the volume icon pops up a full interactive volume dashboard/slider panel
-                mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
-                **get_decoration(colors["accent"]),
-                foreground=colors["bg"]
-            ),
-            widget.Clock(
-                format='󰃭 %d/%m %H:%M',
-                **get_decoration(colors["ok"]),
-                foreground=colors["bg"]
-            ),
-            widget.Systray(padding=5),
-        ],
+            )
+        )
+
+    # Append volume and clock
+    bar_widgets.extend([
+        widget.PulseVolume(
+            fmt='󰕾 {}',
+            limit_max_volume=True,
+            mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
+            **get_decoration(colors["accent"]),
+            foreground=colors["bg"]
+        ),
+        widget.Clock(
+            format='󰃭 %d/%m %H:%M',
+            **get_decoration(colors["ok"]),
+            foreground=colors["bg"]
+        ),
+    ])
+
+    # System tray handling (Only on primary monitor to avoid multi-monitor crashes)
+    if primary:
+        if getattr(qtile, "core", None) and qtile.core.name == "wayland":
+            # StatusNotifier works natively on Wayland
+            bar_widgets.append(widget.StatusNotifier(padding=5))
+        else:
+            # Systray for X11
+            bar_widgets.append(widget.Systray(padding=5))
+
+    return bar.Bar(
+        bar_widgets,
         34,
         margin=[6, 10, 6, 10],
         background="#00000000",
@@ -170,11 +200,11 @@ keys = [
     Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
     
     # App Launchers
     Key([mod], "b", lazy.spawn("brave")),
-    Key([mod], "d", lazy.spawn("rofi -show drun")),
+    Key([mod], "d", lazy.spawn("rofi -show drun"), desc="Launch application launcher"),
+    Key([mod], "r", lazy.spawn("rofi -show run"), desc="Run terminal command"),
 
     # Dunst Control
     Key(["control"], "space", lazy.spawn("dunstctl close"), desc="Close latest notification"),
@@ -186,18 +216,18 @@ keys = [
     Key([], "XF86AudioLowerVolume", lazy.spawn(volume_osd("down"))),
     Key([], "XF86AudioMute", lazy.spawn(volume_osd("mute"))),
 
-    # Hardware Brightness Keys (Fn combos mapped automatically)
+    # Hardware Brightness Keys
     Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness with OSD"),
     Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness with OSD"),
 ]
 
-# Virtual Console Mappings (Wayland)
+# Virtual Console Mappings (Wayland safe)
 for vt in range(1, 8):
     keys.append(
         Key(
             ["control", "mod1"],
             f"f{vt}",
-            lazy.core.change_vt(vt).when(func=lambda: qtile.core.name == "wayland"),
+            lazy.core.change_vt(vt).when(func=lambda: getattr(qtile, "core", None) and qtile.core.name == "wayland"),
             desc=f"Switch to VT{vt}",
         )
     )
@@ -220,7 +250,7 @@ layouts = [
 logo = os.path.join(os.path.dirname(libqtile.resources.__file__), "logo.png")
 screens = [
     Screen(
-        top=create_bar(),  # Safely generating a single isolated instance here
+        top=create_bar(primary=True),
         background="#000000",
         wallpaper=logo,
         wallpaper_mode="center",
