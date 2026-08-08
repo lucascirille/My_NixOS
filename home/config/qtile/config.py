@@ -152,7 +152,29 @@ def create_bar(primary=True):
             **get_decoration(colors["ok"]),
             foreground=colors["bg"]
         ),
+        # Universal Power Menu Launcher
+        widget.TextBox(
+            text="󰐥",
+            fontsize=14,
+            mouse_callbacks={
+                'Button1': lazy.spawn(
+                    "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
+                    "rofi -dmenu -i -p \"Power\") && "
+                    "case \"$choice\" in "
+                    "\"󰐥 Power Off\") systemctl poweroff ;; "
+                    "\"󰜉 Reboot\") systemctl reboot ;; "
+                    "\"󰤄 Suspend\") loginctl suspend ;; "
+                    "\"󰌾 Lock\") swaylock -f -c 000000 || i3lock-color -c 000000 || loginctl lock-session ;; "
+                    "\"󰍃 Logout\") loginctl terminate-session self ;; "
+                    "esac'"
+                )
+            },
+            **get_decoration(colors["critical"]),
+            foreground=colors["bg"],
+        ),
+
     ])
+
 
     # System tray handling (Only on primary monitor to avoid multi-monitor crashes)
     if primary:
@@ -219,7 +241,22 @@ keys = [
     # Hardware Brightness Keys
     Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness with OSD"),
     Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness with OSD"),
+
+    # Manage Power ON/OF
+    Key([mod, "shift"], "e", lazy.spawn(
+    "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
+                        "rofi -dmenu -i -p \"Power\") && "
+                        "case \"$choice\" in "
+                        "\"󰐥 Power Off\") systemctl poweroff ;; "
+                        "\"󰜉 Reboot\") systemctl reboot ;; "
+                        "\"󰤄 Suspend\") loginctl suspend ;; "
+                        "\"󰌾 Lock\") swaylock -f -c 000000 || i3lock-color -c 000000 || loginctl lock-session ;; "
+                        "\"󰍃 Logout\") loginctl terminate-session self ;; "
+                        "esac'"
+    ), desc="Open Power Menu"),
 ]
+
+
 
 # Virtual Console Mappings (Wayland safe)
 for vt in range(1, 8):
