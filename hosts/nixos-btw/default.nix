@@ -119,7 +119,7 @@
   };
 
 
-  security.pam.services.i3lock-color = {};
+  security.pam.services.i3lock = {};
 
   # programs.i3lock.enable = true;
 
