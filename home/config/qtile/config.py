@@ -163,8 +163,8 @@ def create_bar(primary=True):
                     "case \"$choice\" in "
                     "\"󰐥 Power Off\") systemctl poweroff ;; "
                     "\"󰜉 Reboot\") systemctl reboot ;; "
-                    "\"󰤄 Suspend\") loginctl suspend ;; "
-                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock -c 000000; fi ;; "
+                    "\"󰤄 Suspend\") systemctl suspend ;; "
+                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock-color --blur=5; fi ;; "
                     "\"󰍃 Logout\") loginctl terminate-session self ;; "
                     "esac'"
                 )
@@ -248,8 +248,8 @@ keys = [
                     "case \"$choice\" in "
                     "\"󰐥 Power Off\") systemctl poweroff ;; "
                     "\"󰜉 Reboot\") systemctl reboot ;; "
-                    "\"󰤄 Suspend\") loginctl suspend ;; "
-                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock -c 000000; fi ;; "
+                    "\"󰤄 Suspend\") systemctl suspend ;; "
+                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock-color --blur=5; fi ;; "
                     "\"󰍃 Logout\") loginctl terminate-session self ;; "
                     "esac'"
     ), desc="Open Power Menu"),
