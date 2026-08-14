@@ -15,11 +15,10 @@
     };
     kernelParams = [
       "quiet"
-      "loglevel=3"
-      "systemd.show_status=auto"
-      "rd.udev.log_level=3"
+      "loglevel=4"
+      "systemd.show_status=true"
     ];
-    consoleLogLevel = 0;
+    consoleLogLevel = 4;
   };
   
 
