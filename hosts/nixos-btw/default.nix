@@ -100,24 +100,19 @@
   services.udisks2.enable = true;
   services.tumbler.enable = true;
 
-  programs.thunar = let
-    xfce = pkgs.xfce.overrideScope (final: prev: {
-      thunar-archive-plugin = prev.thunar-archive-plugin.overrideAttrs (old: {
+programs.thunar = {
+    enable = true;
+    plugins = [
+      pkgs.thunar-volman
+      (pkgs.thunar-archive-plugin.overrideAttrs (old: {
         postInstall = (old.postInstall or "") + ''
           mkdir -p $out/libexec/thunar-archive-plugin
           cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
             $out/libexec/thunar-archive-plugin/
         '';
-      });
-    });
-  in {
-    enable = true;
-    plugins = [
-      xfce.thunar-volman
-      xfce.thunar-archive-plugin
+      }))
     ];
   };
-
 
 
   programs.i3lock = {
