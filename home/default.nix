@@ -9,10 +9,12 @@ in
   home.homeDirectory = "/home/${username}";
   home.sessionVariables = {
     SUDO_EDITOR = "nvim";
+    EDITOR="nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+    neovim
     nh
     nix-output-monitor
     btop
@@ -48,6 +50,7 @@ in
 xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
+
   programs.git = {
     enable = true;
 
@@ -117,10 +120,6 @@ nos() {
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-  };
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
   };
   programs.starship = {
     enable = true;
