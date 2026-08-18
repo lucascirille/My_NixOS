@@ -26,7 +26,14 @@
   sops = {
     defaultSopsFile = ../../secrets/hosts/nixos-btw.yaml;
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    # Define the secret for the neo user password
+    secrets."neo_password" = {
+      neededForUsers = true;
+    };
   };
+
+  # Prevent manual password modifications (requires sops to manage it)
+  users.mutableUsers = false;
 
   nixpkgs.config.allowUnfree = true;
 
@@ -90,6 +97,8 @@
     extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
+    # Point to the hashed password inside sops
+    hashedPasswordFile = config.sops.secrets."neo_password".path;
   };
 
   # Desktop Integration & Thunar File Manager

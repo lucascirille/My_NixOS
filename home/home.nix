@@ -21,7 +21,6 @@ in
     fastfetch
     ghostty
     wget
-    brave
     rofi
     pamixer
     pavucontrol
@@ -161,6 +160,36 @@ nos() {
       };
     };
   };
+
+# --- User Space Hardening ---
+  # GPG configuration with minimal key leakage
+  programs.gpg = {
+    enable = true;
+    settings = {
+      no-emit-version = true;
+      no-comments = true;
+      keyid-format = "0xlong";
+      with-fingerprint = true;
+      personal-cipher-preferences = "AES256 AES192 AES";
+      personal-digest-preferences = "SHA512 SHA384 SHA256";
+    };
+  };
+
+  # Harden Brave Browser execution via Home-Manager (Optional)
+  # This adds sandboxing flags to your Brave shortcut
+programs.chromium = {
+    enable = true;
+    package = pkgs.brave;
+    commandLineArgs = [
+      "--enable-features=UseOzonePlatform"
+      "--ozone-platform=x11"
+      "--no-default-browser-check"
+      "--disable-reading-from-canvas"
+      "--no-pings"
+      "--password-store=basic"
+    ];
+  };
+
   services.dunst = {
     enable = true;
     settings = {
