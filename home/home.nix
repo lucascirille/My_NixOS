@@ -183,6 +183,7 @@ programs.chromium = {
     commandLineArgs = [
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=x11"
+      "--password-store=gnome-libsecret"
       "--no-default-browser-check"
       "--disable-reading-from-canvas"
       "--no-pings"

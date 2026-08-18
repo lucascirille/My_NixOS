@@ -83,6 +83,12 @@
 
   services.blueman.enable = true;
 
+  # Enable GNOME Keyring daemon
+  services.gnome.gnome-keyring.enable = true;
+
+  # Automatically unlock the keyring when loggin in through Ly
+  security.pam.services.ly.enableGnomeKeyring = true;
+
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
