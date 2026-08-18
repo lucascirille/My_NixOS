@@ -186,7 +186,6 @@ programs.chromium = {
       "--no-default-browser-check"
       "--disable-reading-from-canvas"
       "--no-pings"
-      "--password-store=basic"
     ];
   };
 

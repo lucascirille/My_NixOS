@@ -112,9 +112,9 @@
   programs.chromium = {
     enable = true;
     extraOpts = {
-      "PasswordManagerEnabled" = false;
-      "AutofillAddressEnabled" = false;
-      "AutofillCreditCardEnabled" = false;
+      "PasswordManagerEnabled" = true;
+      "AutofillAddressEnabled" = true;
+      "AutofillCreditCardEnabled" = true;
     };
   };
 
