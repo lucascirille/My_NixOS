@@ -189,7 +189,7 @@
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
     brightnessctl
-    file-roller
+    xarchiver
     zip
     unzip
     p7zip
