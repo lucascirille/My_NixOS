@@ -10,9 +10,15 @@
   # Bootloader & Quiet Boot
   boot = {
     loader = {
-      systemd-boot.enable = true;
+      systemd-boot.enable = lib.mkForce false; # Must be disabled when using lanzaboote
       efi.canTouchEfiVariables = true;
     };
+
+    lanzaboote = {
+    enable = true;
+    pkiBundle = "/var/lib/sbctl";
+    };
+
     kernelParams = [
       "quiet"
       "loglevel=4"
@@ -20,6 +26,7 @@
     ];
     consoleLogLevel = 4;
   };
+
   
 
   # Secret manager using ssh host key
@@ -82,6 +89,14 @@
   };
 
   services.blueman.enable = true;
+
+  # Enable Flatpak service and portal integration
+  services.flatpak.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "gtk";
+  };
 
   # Enable GNOME Keyring daemon
   services.gnome.gnome-keyring.enable = true;

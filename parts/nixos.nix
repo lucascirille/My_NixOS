@@ -10,6 +10,7 @@ in
       ../hosts/nixos-btw/nixos-btw.nix
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
+      inputs.lanzaboote.nixosModules.lanzaboote
       {
         home-manager = {
           useGlobalPkgs = true;

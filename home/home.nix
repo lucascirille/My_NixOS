@@ -30,6 +30,7 @@ in
     unzip
     zip
     p7zip
+    bubblewrap
   ];
   home.stateVersion = "25.11";
 
