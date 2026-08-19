@@ -104,6 +104,18 @@
   # Automatically unlock the keyring when loggin in through Ly
   security.pam.services.ly.enableGnomeKeyring = true;
 
+  # Allow ubridge to set network permissions (packet capture / tap devices)
+  security.wrappers.ubridge = {
+    source = "${pkgs.ubridge}/bin/ubridge";
+    capabilities = "cap_net_admin,cap_net_raw=ep";
+    owner = "root";
+    group = "ubridge";
+    permissions = "u+rx,g+rx,o+rx";
+  };
+
+  # Create the ubridge group
+  users.groups.ubridge = {};
+
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
@@ -122,7 +134,7 @@
  
   users.users.neo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark"];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark" "ubridge" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     # Point to the hashed password inside sops
@@ -170,6 +182,11 @@ programs.thunar = {
   environment.systemPackages = with pkgs; [
     brightnessctl
     xarchiver
+
+    ubridge     # Required for connecting virtual nodes together
+    vpcs        # Lightweight virtual PC simulator
+    dynamips    # Cisco IOS router emulator (optional)
+    inetutils   # Provides telnet client for console access
   ];
 
   fonts.packages = with pkgs; [

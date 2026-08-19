@@ -23,6 +23,9 @@ in
     virtio-win
     win-spice
 
+    gns3-gui
+    gns3-server
+
     neovim
     nh
     nix-output-monitor
