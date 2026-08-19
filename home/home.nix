@@ -87,16 +87,15 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
     };
   };
 
-programs.tmux = {
+  programs.tmux = {
     enable = true;
     mouse = true;
     baseIndex = 1;
     keyMode = "vi";
     terminal = "tmux-256color";
-    shortcut = "Space"; # Prefix: Ctrl-Space
+    prefix = "C-Space"; # Explicitly set prefix to Ctrl-Space
 
     plugins = with pkgs.tmuxPlugins; [
-      sensible
       yank
       {
         plugin = catppuccin;
@@ -108,6 +107,10 @@ programs.tmux = {
     ];
 
     extraConfig = ''
+      # Ensure prefix is cleanly bound
+      unbind C-b
+      bind C-Space send-prefix
+
       # General & Status bar
       set -g status-position top
       set -g renumber-windows on
@@ -118,13 +121,13 @@ programs.tmux = {
       unbind-key -T root C-l
       bind-key -n C-l send-keys C-l
 
-      # Vim pane navigation
+      # Vim pane navigation (with prefix)
       bind h select-pane -L
       bind j select-pane -D
       bind k select-pane -U
       bind l select-pane -R
 
-      # Alt + hjkl to switch panes without prefix
+      # Alt + hjkl to switch panes directly without prefix
       bind -n M-h select-pane -L
       bind -n M-j select-pane -D
       bind -n M-k select-pane -U
