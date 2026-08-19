@@ -93,7 +93,7 @@ programs.tmux = {
     baseIndex = 1;
     keyMode = "vi";
     terminal = "tmux-256color";
-    prefix = "C-Space";
+    prefix = "C-a"; # Set to standard Ctrl-a
 
     plugins = with pkgs.tmuxPlugins; [
       yank
@@ -107,34 +107,18 @@ programs.tmux = {
     ];
 
     extraConfig = ''
-      # Support Ctrl+Space across all terminal types
       unbind C-b
-      set -g prefix C-Space
-      bind C-Space send-prefix
-      bind -N "Send the prefix key" C-Space send-prefix
-      bind -N "Send the prefix key" C-@ send-prefix
+      bind C-a send-prefix
 
-      # General & Status bar
+      # General
       set -g status-position top
       set -g renumber-windows on
       set -s escape-time 0
 
-      # Window splits
+      # Easy splits
       bind | split-window -h -c "#{pane_current_path}"
       bind - split-window -v -c "#{pane_current_path}"
       bind c new-window -c "#{pane_current_path}"
-
-      # Vim pane navigation
-      bind h select-pane -L
-      bind j select-pane -D
-      bind k select-pane -U
-      bind l select-pane -R
-
-      # Alt + hjkl pane navigation without prefix
-      bind -n M-h select-pane -L
-      bind -n M-j select-pane -D
-      bind -n M-k select-pane -U
-      bind -n M-l select-pane -R
     '';
   };
 

@@ -1,6 +1,6 @@
 # Start or attach to a default tmux session on launch
 # command = tmux new-session -A -s main
-command = tmux
+# command = tmux
 
 keybind = ctrl+space=text:\x00
 
