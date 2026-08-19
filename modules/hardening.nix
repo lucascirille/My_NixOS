@@ -13,6 +13,8 @@
     "page_alloc.shuffle=1"
     "slab_nomerge"
 
+    "audit_backlog_limit=8192"
+
     # Restrict debug access and module loading
     "debugfs=off"
     "oops=panic"
@@ -63,6 +65,7 @@
 
   # Blacklist uncommon/obsolete protocols and filesystems
   boot.blacklistedKernelModules = [
+    "b43" "bcma" # Prevents probe failure logs for unsupported Wi-Fi PHY
     "cramfs" "freevxfs" "jffs2" "hfs" "hfsplus" "squashfs" "udf"
     "dccp" "sctp" "rds" "tipc" 
     "firewire-core" "thunderbolt"
