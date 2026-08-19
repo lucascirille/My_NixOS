@@ -87,21 +87,31 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
     };
   };
 
-programs.tmux = {
+  programs.tmux = {
     enable = true;
     mouse = true;
     baseIndex = 1;
     keyMode = "vi";
     terminal = "tmux-256color";
-    prefix = "C-a"; # Set to standard Ctrl-a
+    prefix = "C-a";
 
     plugins = with pkgs.tmuxPlugins; [
+      sensible
       yank
       {
         plugin = catppuccin;
         extraConfig = ''
-          set -g @catppuccin_flavor 'mocha'
-          set -g @catppuccin_window_status_style 'rounded'
+          set -g @catppuccin_flavor "mocha"
+          set -g @catppuccin_window_status_style "rounded"
+          set -g @catppuccin_window_number_position "right"
+          set -g @catppuccin_window_default_fill "number"
+          set -g @catppuccin_window_default_text "#W"
+          set -g @catppuccin_window_current_fill "number"
+          set -g @catppuccin_window_current_text "#W"
+          set -g @catppuccin_status_modules_right "directory user host session"
+          set -g @catppuccin_status_fill "icon"
+          set -g @catppuccin_status_connect_separator "no"
+          set -g @catppuccin_directory_text "#{pane_current_path}"
         '';
       }
     ];
@@ -110,15 +120,39 @@ programs.tmux = {
       unbind C-b
       bind C-a send-prefix
 
-      # General
-      set -g status-position top
+      # Window & pane index
+      set -g pane-base-index 1
+      set-window-option -g pane-base-index 1
       set -g renumber-windows on
+      set -g status-position top
       set -s escape-time 0
 
-      # Easy splits
-      bind | split-window -h -c "#{pane_current_path}"
-      bind - split-window -v -c "#{pane_current_path}"
+      # Clear screen
+      unbind-key -T copy-mode-vi C-l
+      unbind-key -T root C-l
+      bind-key -n C-l send-keys C-l
+
+      # Pane navigation (Vim style with prefix)
+      bind h select-pane -L
+      bind j select-pane -D
+      bind k select-pane -U
+      bind l select-pane -R
+
+      # Alt + hjkl to switch panes directly without prefix
+      bind -n M-h select-pane -L
+      bind -n M-j select-pane -D
+      bind -n M-k select-pane -U
+      bind -n M-l select-pane -R
+
+      # Create windows/panes in current working directory
       bind c new-window -c "#{pane_current_path}"
+      bind '"' split-window -v -c "#{pane_current_path}"
+      bind % split-window -h -c "#{pane_current_path}"
+
+      # Copy mode (Vim bindings)
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
+      bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
     '';
   };
 
