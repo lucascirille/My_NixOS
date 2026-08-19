@@ -89,32 +89,66 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
 
   programs.tmux = {
     enable = true;
-    shortcut = "a";             # Changes prefix to Ctrl-a (default is Ctrl-b)
-    baseIndex = 1;              # Start window numbers at 1 instead of 0
-    mouse = true;               # Enable mouse scrolling and pane selection
-    keyMode = "vi";             # Use Vi keys for navigation/copy mode
-    terminal = "tmux-256color"; # Clean terminfo support
-    historyLimit = 10000;       # Scrollback buffer inside tmux
+    mouse = true;
+    baseIndex = 1;
+    keyMode = "vi";
+    terminal = "tmux-256color";
+    shortcut = "Space"; # Sets prefix to Ctrl-Space
+
+    # Native declarative plugins (replaces TPM)
+    plugins = with pkgs.tmuxPlugins; [
+      sensible
+      yank
+      {
+        plugin = catppuccin;
+        extraConfig = ''
+          set -g @catppuccin_flavor "mocha"
+          set -g @catppuccin_window_status_style "rounded"
+          set -g @catppuccin_window_number_position "right"
+          set -g @catppuccin_window_default_fill "number"
+          set -g @catppuccin_window_default_text "#W"
+          set -g @catppuccin_window_current_fill "number"
+          set -g @catppuccin_window_current_text "#W"
+          set -g @catppuccin_status_modules_right "directory user host session"
+          set -g @catppuccin_status_fill "icon"
+          set -g @catppuccin_status_connect_separator "no"
+          set -g @catppuccin_directory_text "#{pane_current_path}"
+        '';
+      }
+    ];
 
     extraConfig = ''
-      # True color / RGB support for Ghostty and modern terminals
-      set -as terminal-features ",xterm-256color:RGB"
-      set -ag terminal-overrides ",xterm-256color:RGB"
+      # General & Status bar
+      set -g status-position top
+      set -g renumber-windows on
+      set -s escape-time 0
 
-      # Split panes using | and - (in current working directory)
-      bind | split-window -h -c "#{pane_current_path}"
-      bind - split-window -v -c "#{pane_current_path}"
-      unbind '"'
-      unbind %
+      # Clear screen
+      unbind-key -T copy-mode-vi C-l
+      unbind-key -T root C-l
+      bind-key -n C-l send-keys C-l
 
-      # Vim-like pane switching
+      # Pane navigation (Vim style)
       bind h select-pane -L
       bind j select-pane -D
       bind k select-pane -U
       bind l select-pane -R
 
-      # Remove delay when pressing Esc (crucial for Vim/Neovim users)
-      set -s escape-time 0
+      # Alt + hjkl to switch panes without prefix
+      bind -n M-h select-pane -L
+      bind -n M-j select-pane -D
+      bind -n M-k select-pane -U
+      bind -n M-l select-pane -R
+
+      # Create windows/panes in current working directory
+      bind c new-window -c "#{pane_current_path}"
+      bind '"' split-window -v -c "#{pane_current_path}"
+      bind % split-window -h -c "#{pane_current_path}"
+
+      # Copy mode (Vim)
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
+      bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
     '';
   };
 

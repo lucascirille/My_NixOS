@@ -1,3 +1,7 @@
+# Start or attach to a default tmux session on launch
+# command = tmux new-session -A -s main
+command = tmux
+
 # Performance & Startup
 gtk-single-instance = true
 scrollback-limit = 10000000
