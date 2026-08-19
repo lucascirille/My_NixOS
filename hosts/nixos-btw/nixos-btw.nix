@@ -158,25 +158,17 @@
   services.udisks2.enable = true;
   services.tumbler.enable = true;
 
-# programs.thunar = {
-#     enable = true;
-#     plugins = [
-#       pkgs.thunar-volman
-#       (pkgs.thunar-archive-plugin.overrideAttrs (old: {
-#         postInstall = (old.postInstall or "") + ''
-#           mkdir -p $out/libexec/thunar-archive-plugin
-#           cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
-#             $out/libexec/thunar-archive-plugin/
-#         '';
-#       }))
-#     ];
-#   };
-
-  programs.thunar = {
+programs.thunar = {
     enable = true;
-    plugins = with pkgs.xfce; [
-      thunar-volman
-      thunar-archive-plugin
+    plugins = [
+      pkgs.thunar-volman
+      (pkgs.thunar-archive-plugin.overrideAttrs (old: {
+        postInstall = (old.postInstall or "") + ''
+          mkdir -p $out/libexec/thunar-archive-plugin
+          cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
+            $out/libexec/thunar-archive-plugin/
+        '';
+      }))
     ];
   };
 
