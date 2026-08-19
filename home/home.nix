@@ -86,6 +86,38 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
       init.defaultBranch = "main";
     };
   };
+
+  programs.tmux = {
+    enable = true;
+    shortcut = "a";             # Changes prefix to Ctrl-a (default is Ctrl-b)
+    baseIndex = 1;              # Start window numbers at 1 instead of 0
+    mouse = true;               # Enable mouse scrolling and pane selection
+    keyMode = "vi";             # Use Vi keys for navigation/copy mode
+    terminal = "tmux-256color"; # Clean terminfo support
+    historyLimit = 10000;       # Scrollback buffer inside tmux
+
+    extraConfig = ''
+      # True color / RGB support for Ghostty and modern terminals
+      set -as terminal-features ",xterm-256color:RGB"
+      set -ag terminal-overrides ",xterm-256color:RGB"
+
+      # Split panes using | and - (in current working directory)
+      bind | split-window -h -c "#{pane_current_path}"
+      bind - split-window -v -c "#{pane_current_path}"
+      unbind '"'
+      unbind %
+
+      # Vim-like pane switching
+      bind h select-pane -L
+      bind j select-pane -D
+      bind k select-pane -U
+      bind l select-pane -R
+
+      # Remove delay when pressing Esc (crucial for Vim/Neovim users)
+      set -s escape-time 0
+    '';
+  };
+
   programs.zsh = {
     enable = true;
     oh-my-zsh = {

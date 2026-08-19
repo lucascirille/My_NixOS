@@ -1,0 +1,15 @@
+# Performance & Startup
+gtk-single-instance = true
+scrollback-limit = 10000000
+
+# Visuals & Compositing (zero transparency/blur overhead)
+background-opacity = 1.0
+background-blur = 0
+
+# Minimalism (no window decorations or tabs)
+window-decoration = false
+gtk-tabs-location = hidden
+window-padding-x = 0
+window-padding-y = 0
+window-padding-balance = false
+
