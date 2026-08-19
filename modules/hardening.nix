@@ -13,8 +13,6 @@
     "page_alloc.shuffle=1"
     "slab_nomerge"
 
-    "audit_backlog_limit=8192"
-
     # Restrict debug access and module loading
     "debugfs=off"
     "oops=panic"
@@ -106,6 +104,9 @@
   security.audit = {
     enable = true;
     rules = [
+      # Set the kernel audit buffer limit to 8192
+      "-b 8192"
+
       "-a exit,always -F arch=b64 -S execve"
       "-w /etc/shadow -p wa -k shadow_access"
       "-w /etc/sudoers -p wa -k sudoers_access"
