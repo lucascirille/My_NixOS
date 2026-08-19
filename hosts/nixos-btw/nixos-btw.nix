@@ -101,6 +101,16 @@
   # Enable GNOME Keyring daemon
   services.gnome.gnome-keyring.enable = true;
 
+  # Enable sound with PipeWire
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
   # Automatically unlock the keyring when loggin in through Ly
   security.pam.services.ly.enableGnomeKeyring = true;
 
