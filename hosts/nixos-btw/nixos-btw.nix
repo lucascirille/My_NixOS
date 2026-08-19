@@ -158,17 +158,25 @@
   services.udisks2.enable = true;
   services.tumbler.enable = true;
 
-programs.thunar = {
+# programs.thunar = {
+#     enable = true;
+#     plugins = [
+#       pkgs.thunar-volman
+#       (pkgs.thunar-archive-plugin.overrideAttrs (old: {
+#         postInstall = (old.postInstall or "") + ''
+#           mkdir -p $out/libexec/thunar-archive-plugin
+#           cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
+#             $out/libexec/thunar-archive-plugin/
+#         '';
+#       }))
+#     ];
+#   };
+
+  programs.thunar = {
     enable = true;
-    plugins = [
-      pkgs.thunar-volman
-      (pkgs.thunar-archive-plugin.overrideAttrs (old: {
-        postInstall = (old.postInstall or "") + ''
-          mkdir -p $out/libexec/thunar-archive-plugin
-          cp ${pkgs.xarchiver}/libexec/thunar-archive-plugin/* \
-            $out/libexec/thunar-archive-plugin/
-        '';
-      }))
+    plugins = with pkgs.xfce; [
+      thunar-volman
+      thunar-archive-plugin
     ];
   };
 
@@ -181,7 +189,11 @@ programs.thunar = {
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
     brightnessctl
-    xarchiver
+    file-roller
+    zip
+    unzip
+    p7zip
+    gnutar
 
     ubridge     # Required for connecting virtual nodes together
     vpcs        # Lightweight virtual PC simulator

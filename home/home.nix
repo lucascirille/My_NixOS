@@ -14,7 +14,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    # Packages of virtualization
+# Virtualization
     virt-manager
     virt-viewer
     spice
@@ -23,9 +23,11 @@ in
     virtio-win
     win-spice
 
+    # Networking lab
     gns3-gui
     gns3-server
 
+    # CLI & Utilities
     neovim
     nh
     nix-output-monitor
@@ -39,9 +41,6 @@ in
     playerctl
     xclip
     libnotify
-    unzip
-    zip
-    p7zip
     bubblewrap
   ];
 
