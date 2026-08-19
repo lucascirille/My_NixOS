@@ -113,9 +113,16 @@
 
   # System User & Shell
   programs.zsh.enable = true;
+  
+  # Enables Wireshark with setcap privileges for dumping packets as a non-root user
+  programs.wireshark = {
+    enable = true;
+    package = pkgs.wireshark; # Provides the Wireshark GUI
+  };
+ 
   users.users.neo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd"];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark"];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     # Point to the hashed password inside sops

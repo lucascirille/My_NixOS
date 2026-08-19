@@ -311,6 +311,8 @@ cursor_warp = False
 floating_layout = layout.Floating(
     float_rules=[
         *layout.Floating.default_float_rules,
+        # Match(wm_class="Thunar"),
+        # Match(wm_class="xdg-desktop-portal-gtk"),
         Match(wm_class="confirmreset"),
         Match(wm_class="makebranch"),
         Match(wm_class="maketag"),
@@ -319,6 +321,7 @@ floating_layout = layout.Floating(
         Match(title="pinentry"),
     ]
 )
+
 
 auto_fullscreen = True
 focus_on_window_activation = "smart"
