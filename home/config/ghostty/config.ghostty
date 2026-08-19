@@ -2,6 +2,8 @@
 # command = tmux new-session -A -s main
 command = tmux
 
+keybind = ctrl+space=text:\x00
+
 # Performance & Startup
 gtk-single-instance = true
 scrollback-limit = 10000000
