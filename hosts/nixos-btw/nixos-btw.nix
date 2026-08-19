@@ -115,11 +115,21 @@
   programs.zsh.enable = true;
   users.users.neo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd"];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     # Point to the hashed password inside sops
     hashedPasswordFile = config.sops.secrets."neo_password".path;
+  };
+
+  # Required system daemon and KVM/QEMU setup
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = true;
+      swtpm.enable = true;
+    };
   };
 
   # Desktop Integration & Thunar File Manager

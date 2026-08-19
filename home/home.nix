@@ -14,6 +14,15 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+    # Packages of virtualization
+    virt-manager
+    virt-viewer
+    spice
+    spice-gtk
+    spice-protocol
+    virtio-win
+    win-spice
+
     neovim
     nh
     nix-output-monitor
@@ -32,6 +41,15 @@ in
     p7zip
     bubblewrap
   ];
+
+  # Configure virt-manager default connection URI via dconf
+  dconf.settings = {
+    "org/virt-manager/virt-manager/connections" = {
+      autoconnect = [ "qemu:///system" ];
+      uris = [ "qemu:///system" ];
+    };
+    };
+
   home.stateVersion = "25.11";
 
   gtk = {
