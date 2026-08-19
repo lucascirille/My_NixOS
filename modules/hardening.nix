@@ -109,12 +109,13 @@
     ];
   };
 
-  # Physical peripheral defense against BadUSB
-  services.usbguard = {
-    enable = true;
-    dbus.enable = true;
-    implicitPolicyTarget = "block"; # Block any newly inserted unrecognized devices
-  };
+  # Use only this when NixOS is used only for fixed machine
+  # # Physical peripheral defense against BadUSB
+  # services.usbguard = {
+  #   enable = true;
+  #   dbus.enable = true;
+  #   implicitPolicyTarget = "block"; # Block any newly inserted unrecognized devices
+  # };
 
   # Change extraOpts to of if you dont want to store your information
   programs.chromium = {
