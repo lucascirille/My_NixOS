@@ -1,14 +1,16 @@
 { ... }:
 
 {
-# 1. Enable Hyper-V guest integration daemons
-  virtualisation.hypervGuest.enable = true;
+virtualisation.hypervGuest.enable = true;
 
-  # 2. Enable XRDP with Qtile and audio redirection
-  services.xrdp = {
+services.xrdp = {
     enable = true;
     defaultWindowManager = "qtile start";
     openFirewall = true;
-    audio.enable = true; # Compiles and enables xrdp-pulseaudio/pipewire sinks
+    audio.enable = true;
+    extraConfDirCommands = ''
+      substituteInPlace $out/xrdp.ini \
+        --replace "port=3389" "port=vsock://-1:3389"
+    '';
   };
 }
