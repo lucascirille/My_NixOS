@@ -14,7 +14,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    loupe      # Actively maintained GTK4/Rust viewer 
+    qview      # Minimalist, distraction-free image viewer
     mpv         # Minimalist, high-performance video player
 
   # Screenshot tools
@@ -84,11 +84,11 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
 xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "image/png" = [ "org.gnome.Loupe.desktop" ];
-      "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
-      "image/webp" = [ "org.gnome.Loupe.desktop" ];
-      "image/gif" = [ "org.gnome.Loupe.desktop" ];
-      "image/svg+xml" = [ "org.gnome.Loupe.desktop" ];
+      "image/png" = [ "qView.desktop" ];
+      "image/jpeg" = [ "qView.desktop" ];
+      "image/webp" = [ "qView.desktop" ];
+      "image/gif" = [ "qView.desktop" ];
+      "image/svg+xml" = [ "qView.desktop" ];
       "video/mp4" = [ "mpv.desktop" ];
       "video/mkv" = [ "mpv.desktop" ];
       "video/webm" = [ "mpv.desktop" ];
