@@ -14,7 +14,10 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    qview      # Minimalist, distraction-free image viewer
+    zathura    # Minimalist PDF viewer
+    foliate    # Dedicated e-book reader
+
+    nsxiv       # Fast, lightweight image viewer with gallery mode
     mpv         # Minimalist, high-performance video player
 
   # Screenshot tools
@@ -81,17 +84,25 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
   xdg.configFile."ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
 
-xdg.mimeApps = {
+  xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "image/png" = [ "qView.desktop" ];
-      "image/jpeg" = [ "qView.desktop" ];
-      "image/webp" = [ "qView.desktop" ];
-      "image/gif" = [ "qView.desktop" ];
-      "image/svg+xml" = [ "qView.desktop" ];
+      "image/png" = [ "nsxiv.desktop" ];
+      "image/jpeg" = [ "nsxiv.desktop" ];
+      "image/gif" = [ "nsxiv.desktop" ];
       "video/mp4" = [ "mpv.desktop" ];
       "video/mkv" = [ "mpv.desktop" ];
-      "video/webm" = [ "mpv.desktop" ];
+      "video/x-matroska" = [ "mpv.desktop" ];
+
+      # PDFs & PostScript
+      "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+      "application/postscript" = [ "org.pwmt.zathura.desktop" ];
+
+      # E-books & Comics
+      "application/epub+zip" = [ "com.github.johnfactotum.Foliate.desktop" ];
+      "application/x-mobipocket-ebook" = [ "com.github.johnfactotum.Foliate.desktop" ];
+      "application/vnd.amazon.ebook" = [ "com.github.johnfactotum.Foliate.desktop" ];
+      "application/vnd.comicbook+zip" = [ "com.github.johnfactotum.Foliate.desktop" ];
     };
   };
 
