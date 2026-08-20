@@ -254,6 +254,15 @@ keys = [
                     "esac'"
     ), desc="Open Power Menu"),
 
+    # Windows-style partial selection (Win + Shift + S) -> opens Flameshot GUI / copied to clipboard
+    Key(["mod4", "shift"], "s", lazy.spawn("flameshot gui")),
+
+    # Full screen capture (PrintScreen) -> copies to clipboard and saves to file
+    Key([], "Print", lazy.spawn("bash -c 'mkdir -p ~/Pictures/Screenshots && maim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | xclip -selection clipboard -t image/png'")),
+
+    # Alternative partial screenshot without GUI using maim (Shift + PrintScreen)
+    Key(["shift"], "Print", lazy.spawn("maim -s | xclip -selection clipboard -t image/png")),
+
 ]
 
 

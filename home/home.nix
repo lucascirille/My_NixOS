@@ -14,6 +14,11 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+  # Screenshot tools
+  flameshot
+    maim
+    xdotool
+
 # Virtualization
     virt-manager
     virt-viewer
