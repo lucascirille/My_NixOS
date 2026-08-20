@@ -61,6 +61,7 @@
     enable = true;
     autoRepeatDelay = 200;
     autoRepeatInterval = 35;
+    updateDbusEnvironment = true;
     windowManager.qtile = {
       enable = true;
       extraPackages = python3Packages: with python3Packages; [
@@ -101,6 +102,11 @@
   # Enable GNOME Keyring daemon
   services.gnome.gnome-keyring.enable = true;
 
+  # Automatically unlock the keyring when loggin in through Ly
+  security.pam.services.ly.enableGnomeKeyring = true;
+  security.pam.services.login.enableGnomeKeyring = true;
+
+
   # Enable sound with PipeWire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -111,8 +117,6 @@
     pulse.enable = true;
   };
 
-  # Automatically unlock the keyring when loggin in through Ly
-  security.pam.services.ly.enableGnomeKeyring = true;
 
   # Allow ubridge to set network permissions (packet capture / tap devices)
   security.wrappers.ubridge = {
