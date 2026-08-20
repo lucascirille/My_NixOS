@@ -14,7 +14,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    nsxiv       # Fast, lightweight image viewer with gallery mode
+    swayimg   # Wayland image viewer
     mpv         # Minimalist, high-performance video player
 
   # Screenshot tools
@@ -81,15 +81,16 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
   xdg.configFile."ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
 
-  xdg.mimeApps = {
+xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "image/png" = [ "nsxiv.desktop" ];
-      "image/jpeg" = [ "nsxiv.desktop" ];
-      "image/gif" = [ "nsxiv.desktop" ];
+      "image/png" = [ "swayimg.desktop" ];
+      "image/jpeg" = [ "swayimg.desktop" ];
+      "image/webp" = [ "swayimg.desktop" ];
+      "image/gif" = [ "swayimg.desktop" ];
       "video/mp4" = [ "mpv.desktop" ];
       "video/mkv" = [ "mpv.desktop" ];
-      "video/x-matroska" = [ "mpv.desktop" ];
+      "video/webm" = [ "mpv.desktop" ];
     };
   };
 
