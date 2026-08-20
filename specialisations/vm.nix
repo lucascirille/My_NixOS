@@ -1,16 +1,17 @@
 { ... }:
 
 {
-virtualisation.hypervGuest.enable = true;
+# --- KVM / QEMU Support ---
+  services.spice-vdagentd.enable = true; # Dynamic resize & clipboard in virt-manager
+  services.qemuGuest.enable = true;      # Guest integration for KVM/QEMU
 
-services.xrdp = {
+  # --- Hyper-V / Universal XRDP Support ---
+  virtualisation.hypervGuest.enable = true;
+
+  services.xrdp = {
     enable = true;
     defaultWindowManager = "qtile start";
     openFirewall = true;
-    audio.enable = true;
-    extraConfDirCommands = ''
-      substituteInPlace $out/xrdp.ini \
-        --replace "port=3389" "port=vsock://-1:3389"
-    '';
+    audio.enable = true; # Audio redirection
   };
 }
