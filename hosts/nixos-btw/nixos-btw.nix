@@ -190,10 +190,8 @@ programs.thunar = {
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
-    # --- GUI Display & Projector Managers ---
-      arandr        # Visual drag-and-drop screen layout & projector tool (X11)
-      lxrandr       # Simple, classic GUI monitor/resolution switcher (X11)
-      wdisplays     # Visual display manager (Wayland / Sway / Hyprland)
+  arandr      # Visual drag-and-drop display & projector manager
+  lxrandr     # Simple GUI resolution selector
 
     brightnessctl
     xarchiver
