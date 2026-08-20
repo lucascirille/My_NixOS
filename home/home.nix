@@ -14,7 +14,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    swayimg   # Wayland image viewer
+    loupe      # Actively maintained GTK4/Rust viewer 
     mpv         # Minimalist, high-performance video player
 
   # Screenshot tools
@@ -84,10 +84,11 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
 xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "image/png" = [ "swayimg.desktop" ];
-      "image/jpeg" = [ "swayimg.desktop" ];
-      "image/webp" = [ "swayimg.desktop" ];
-      "image/gif" = [ "swayimg.desktop" ];
+      "image/png" = [ "org.gnome.Loupe.desktop" ];
+      "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
+      "image/webp" = [ "org.gnome.Loupe.desktop" ];
+      "image/gif" = [ "org.gnome.Loupe.desktop" ];
+      "image/svg+xml" = [ "org.gnome.Loupe.desktop" ];
       "video/mp4" = [ "mpv.desktop" ];
       "video/mkv" = [ "mpv.desktop" ];
       "video/webm" = [ "mpv.desktop" ];
