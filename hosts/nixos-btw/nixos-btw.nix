@@ -163,10 +163,6 @@ hardware.graphics = {
     remotePlay.openFirewall = true; # Open ports for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
-    gamescopeSession.enable = true;
-    extraPackages = with pkgs; [
-    gamescope
-  ];
   };
 
   # Gaming performance booster
@@ -245,10 +241,6 @@ hardware.graphics = {
 
   programs.nix-ld.enable = true;
   
-  programs.gamescope = {
-    enable = true;
-    capSysNice = true;
-  };
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
