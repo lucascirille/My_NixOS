@@ -217,7 +217,8 @@
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
-    # CLI & Utilities
+    seahorse
+
     neovim
 
     arandr # Visual drag-and-drop display & projector manager
