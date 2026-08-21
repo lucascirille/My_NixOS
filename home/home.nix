@@ -441,7 +441,6 @@ systemd.user.services.keepassxc = {
     ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
     ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
     Restart = "on-failure";
-    RestartSec = "3s";
     Environment = [
       "DISPLAY=:0"
       "QT_QPA_PLATFORM=xcb"
