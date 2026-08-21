@@ -233,6 +233,11 @@ xdg.portal = {
 
 
   programs.nix-ld.enable = true;
+  
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
