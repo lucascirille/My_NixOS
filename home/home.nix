@@ -44,6 +44,7 @@ in
     mpv # Minimalist, high-performance video player
 
     # Screenshot tools
+    flameshot
     maim
     xdotool
 
