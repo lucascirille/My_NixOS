@@ -44,7 +44,6 @@ in
     mpv # Minimalist, high-performance video player
 
     # Screenshot tools
-    flameshot
     maim
     xdotool
 
@@ -105,6 +104,11 @@ in
   xdg.configFile."ghostty".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
+
+  xdg.configFile."flameshot/flameshot.ini".text = ''
+    [General]
+    showStartupLaunchMessage=false
+  '';
 
   xdg.mimeApps = {
     enable = true;
@@ -429,13 +433,6 @@ services.dunst = {
         alignment = "center";
       };
 
-      # Style Flameshot popups cleanly inside Dunst
-      "flameshot_custom" = {
-        appname = "Flameshot";
-        timeout = 2;
-        history_ignore = true;
-        frame_color = "#9ece6a"; # Green accent border
-      };
 
     };
   };
