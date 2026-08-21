@@ -435,14 +435,20 @@ programs.chromium = {
 systemd.user.services.keepassxc = {
   Unit = {
     Description = "KeePassXC password manager daemon";
-    After = [ "default.target" ];
+    After = [ "graphical-session.target" ];
   };
   Service = {
+    ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
     ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
     Restart = "on-failure";
+    RestartSec = "3s";
+    Environment = [
+      "DISPLAY=:0"
+      "QT_QPA_PLATFORM=xcb"
+    ];
   };
   Install = {
-    WantedBy = [ "default.target" ];
+    WantedBy = [ "graphical-session.target" ];
   };
 };
 
