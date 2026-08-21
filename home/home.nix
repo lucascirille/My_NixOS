@@ -14,6 +14,10 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+  ouch        # Unified compression/decompression tool
+  delta       # Modern syntax-highlighted git diffs
+  cava        # PipeWire-compatible audio visualizer
+
   vesktop
   spotify
 
