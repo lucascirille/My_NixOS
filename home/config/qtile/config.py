@@ -7,16 +7,16 @@ from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from qtile_extras import widget
 from qtile_extras.widget.decorations import RectDecoration
-import subprocess
-from libqtile import hook
+# import subprocess
+# from libqtile import hook
 
 mod = "mod4"
 terminal = guess_terminal()
 
-@hook.subscribe.startup_once
-def autostart():
-    # Launches KeePassXC in the background
-    subprocess.Popen(["keepassxc"])
+# @hook.subscribe.startup_once
+# def autostart():
+#     # Launches KeePassXC in the background
+#     subprocess.Popen(["keepassxc", "--minimized"])
 
 # -------------------------------------------------------------------------
 # 1. Unified Theme Control
