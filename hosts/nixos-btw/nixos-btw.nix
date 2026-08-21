@@ -148,7 +148,7 @@
  
   users.users.neo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark" "ubridge" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark" "ubridge" "docker" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     # Point to the hashed password inside sops
@@ -162,6 +162,20 @@
       package = pkgs.qemu_kvm;
       runAsRoot = true;
       swtpm.enable = true;
+    };
+  };
+
+  virtualisation.docker = {
+    enable = true;
+    # Prune unused images and containers periodically
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+    };
+    # Enable rootless mode if preferred for security
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
     };
   };
 
@@ -194,6 +208,9 @@ programs.thunar = {
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
+    docker-compose
+    lazydocker # Terminal UI for Docker
+
   arandr      # Visual drag-and-drop display & projector manager
   lxrandr     # Simple GUI resolution selector
 
