@@ -11,6 +11,11 @@ from qtile_extras.widget.decorations import RectDecoration
 mod = "mod4"
 terminal = guess_terminal()
 
+@hook.subscribe.startup_once
+def autostart():
+    # Launches KeePassXC in the background
+    subprocess.Popen(["keepassxc"])
+
 # -------------------------------------------------------------------------
 # 1. Unified Theme Control
 # -------------------------------------------------------------------------

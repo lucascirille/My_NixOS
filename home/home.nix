@@ -195,11 +195,9 @@ programs.vscode = {
   };
 };
 
-xdg.autostart.enable = true;
 
 programs.keepassxc = {
   enable = true;
-  autostart = true; # Starts KeePassXC minimized on login
 };
 
   programs.tmux = {
