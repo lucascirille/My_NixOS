@@ -208,18 +208,15 @@ programs.thunar = {
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
-    docker-compose
-    lazydocker # Terminal UI for Docker
+      # CLI & Utilities
+    neovim
+
 
   arandr      # Visual drag-and-drop display & projector manager
   lxrandr     # Simple GUI resolution selector
 
     brightnessctl
     xarchiver
-    zip
-    unzip
-    p7zip
-    gnutar
 
     ubridge     # Required for connecting virtual nodes together
     vpcs        # Lightweight virtual PC simulator
@@ -231,7 +228,11 @@ programs.thunar = {
     nerd-fonts.jetbrains-mono
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+nix.settings = {
+  experimental-features = [ "nix-command" "flakes" ];
+  auto-optimise-store = true; # Hard-links identical files in the store
+  warn-dirty = false;
+};
 
   # Automatic cleanup
   nix.gc = {

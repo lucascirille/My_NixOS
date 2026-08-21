@@ -18,6 +18,15 @@ in
   delta       # Modern syntax-highlighted git diffs
   cava        # PipeWire-compatible audio visualizer
 
+      docker-compose
+    lazydocker # Terminal UI for Docker
+
+    zip
+    unzip
+    p7zip
+    gnutar
+
+
   vesktop
   spotify
 
@@ -45,8 +54,6 @@ in
     gns3-gui
     gns3-server
 
-    # CLI & Utilities
-    neovim
     nh
     nix-output-monitor
     btop
@@ -113,18 +120,22 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
     };
   };
 
-  programs.git = {
+programs.git = {
+  enable = true;
+  userName = "Lucas Cirille";
+  userEmail = "lucas.cirille@gmail.com";
+  extraConfig = {
+    init.defaultBranch = "main";
+  };
+  delta = {
     enable = true;
-
-    settings = {
-      user = {
-        name = "Lucas Cirille";
-        email = "lucas.cirille@gmail.com";
-      };
-
-      init.defaultBranch = "main";
+    options = {
+      navigate = true;
+      line-numbers = true;
+      syntax-theme = "Catppuccin-mocha";
     };
   };
+};
 
 programs.lazygit = {
   enable = true;
