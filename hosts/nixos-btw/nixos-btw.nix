@@ -148,7 +148,7 @@
  
   users.users.neo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark" "ubridge" "docker" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark" "ubridge" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     # Point to the hashed password inside sops
