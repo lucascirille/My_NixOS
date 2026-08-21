@@ -14,6 +14,8 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+  vesktop
+  spotify
 
     zathura    # Minimalist PDF viewer
     foliate    # Dedicated e-book reader
