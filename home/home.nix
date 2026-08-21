@@ -5,6 +5,8 @@
   ...
 }:
 
+
+
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
@@ -42,7 +44,6 @@ in
     mpv # Minimalist, high-performance video player
 
     # Screenshot tools
-    flameshot
     maim
     xdotool
 
@@ -397,24 +398,21 @@ programs.chromium = {
   ];
 };
 
-  services.dunst = {
+services.dunst = {
     enable = true;
     settings = {
       global = {
         width = 300;
         height = 200;
         origin = "top-right";
-        offset = "20x20"; # Slightly tighter offset
-
-        # The "Modern" look
-        corner_radius = 10; # Rounded corners
-        frame_width = 2; # A thin border
-        padding = 15; # Internal space
+        offset = "20x20";
+        corner_radius = 10;
+        frame_width = 2;
+        padding = 15;
         horizontal_padding = 15;
         separator_height = 2;
-
         font = "JetBrains Mono 10";
-        frame_color = "#61afef"; # A nice blue border (One Dark style)
+        frame_color = "#61afef";
       };
 
       urgency_normal = {
@@ -422,15 +420,26 @@ programs.chromium = {
         foreground = "#abb2bf";
         timeout = 5;
       };
-      # This rule applies only to the volume "stack-tag"
+
       "volume_bar" = {
         stack_tag = "volume";
         summary = "Volume";
-        history_ignore = "yes"; # Don't save volume changes in notification history
+        history_ignore = "yes";
         alignment = "center";
       };
+
+      # Style Flameshot popups cleanly inside Dunst
+      "flameshot_custom" = {
+        appname = "Flameshot";
+        timeout = 2;
+        history_ignore = true;
+        frame_color = "#9ece6a"; # Green accent border
+      };
+
     };
   };
+
+
 
 systemd.user.services.keepassxc = {
   Unit = {
