@@ -196,20 +196,10 @@ programs.git = {
 
 xdg.autostart.enable = true;
 
-  programs.keepassxc = {
-
-enable = true;
-
-settings = {
-
-General.ConfigVersion = 2;
-
-FdoSecrets.Enabled = true;
-
+programs.keepassxc = {
+  enable = true;
+  autostart = true; # Starts KeePassXC minimized on login
 };
-
-}; 
-
 
   programs.tmux = {
     enable = true;
