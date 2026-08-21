@@ -164,6 +164,9 @@ hardware.graphics = {
     dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
     gamescopeSession.enable = true;
+    extraPackages = with pkgs; [
+    gamescope
+  ];
   };
 
   # Gaming performance booster
