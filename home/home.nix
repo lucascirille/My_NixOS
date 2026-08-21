@@ -196,16 +196,6 @@ programs.vscode = {
 };
 
 
-services.flameshot = {
-    enable = true;
-    settings = {
-      General = {
-        showTrayIcon = false;
-        disabledTrayIcon = true;
-        showStartupLaunchMessage = false;
-      };
-    };
-  };
 
 
 programs.keepassxc = {
