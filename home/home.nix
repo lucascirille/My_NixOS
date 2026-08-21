@@ -19,31 +19,6 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-  # --- Neovim Plugin Dependencies ---
-
-  # Pre-compiled Treesitter with ALL languages out of the box
-    vimPlugins.nvim-treesitter.withAllGrammars
-
-    # For copilot.lua
-    nodejs        
-
-    # For nvim_silicon.lua
-    silicon
-
-  # For vimtex.lua (Compiling LaTeX)
-    texliveFull
-
-  # For obsidian, telescope, and neo-tree
-    ripgrep
-    fd
-
-  # --- END Neovim Plugin Dependencies ---
-
-
-
-
-
-
 
     ouch # Unified compression/decompression tool
     cava # PipeWire-compatible audio visualizer
