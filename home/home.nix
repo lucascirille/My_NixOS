@@ -19,6 +19,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+    keepassxc
 
     ouch # Unified compression/decompression tool
     cava # PipeWire-compatible audio visualizer
