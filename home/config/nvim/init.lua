@@ -510,19 +510,20 @@ require('lazy').setup({
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
-    config = function()
-      local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
-      parser_config.plantuml = {
-        install_info = {
-          url = 'https://github.com/plantuml/language-grammar',
-          files = { 'src/parser.c' },
-          branch = 'main',
-          generate_requires_npm = false,
-          requires_generate_from_grammar = false,
-        },
-        filetype = 'plantuml',
-      }
-    end,
+    -- Doesnt work with NixOS idk why
+    -- config = function()
+    --   local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+    --   parser_config.plantuml = {
+    --     install_info = {
+    --       url = 'https://github.com/plantuml/language-grammar',
+    --       files = { 'src/parser.c' },
+    --       branch = 'main',
+    --       generate_requires_npm = false,
+    --       requires_generate_from_grammar = false,
+    --     },
+    --     filetype = 'plantuml',
+    --   }
+    -- end,
   },
 
   require 'kickstart.plugins.debug',
@@ -532,7 +533,7 @@ require('lazy').setup({
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns',
 
-  { import = 'custom.plugins' },
+  -- { import = 'custom.plugins' },
 }, {
   ui = {
     icons = vim.g.have_nerd_font and {} or {

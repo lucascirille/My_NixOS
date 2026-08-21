@@ -21,6 +21,9 @@ in
   home.packages = with pkgs; [
   # --- Neovim Plugin Dependencies ---
 
+  # Pre-compiled Treesitter with ALL languages out of the box
+    vimPlugins.nvim-treesitter.withAllGrammars
+
     # For copilot.lua
     nodejs        
 
