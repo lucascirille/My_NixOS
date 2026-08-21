@@ -24,17 +24,20 @@
   services.restic.backups.daily = {
     initialize = true; # Automatically initializes R2 repository if it doesn't exist
 
-    repository = "s3:https://708aebc1307b24a58bb55b911786fe4e.r2.cloudflarestorage.com/fallout-shelter";  
+    repository = "s3:https://708aebc1307b24a58bb55b911786fe4e.r2.cloudflarestorage.com/fallout-shelter";
     passwordFile = config.sops.secrets.restic_password.path;
     environmentFile = config.sops.secrets.restic_env.path;
 
     # Enable automatic compression for backups
-    extraBackupArgs = [ "--compression" "auto" ];
+    extraBackupArgs = [
+      "--compression"
+      "auto"
+    ];
 
     paths = [
-      "/home"        # User personal data, configs, and documents
-      "/etc/nixos"   # NixOS system configuration
-      "/var/lib"     # Stateful system data (Docker, databases, VMs, sops keys)
+      "/home" # User personal data, configs, and documents
+      "/etc/nixos" # NixOS system configuration
+      "/var/lib" # Stateful system data (Docker, databases, VMs, sops keys)
     ];
 
     exclude = [

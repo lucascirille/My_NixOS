@@ -1,8 +1,13 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   # --- Kernel & Memory Protections ---
-# Use the standard latest kernel or default LTS
+  # Use the standard latest kernel or default LTS
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
   # Equivalent kernel command-line hardening parameters
@@ -45,7 +50,7 @@
     "net.ipv4.tcp_rfc1337" = 1;
     "net.ipv4.conf.all.rp_filter" = 1;
     "net.ipv4.conf.default.rp_filter" = 1;
-    
+
     # Disable ICMP redirects
     "net.ipv4.conf.all.accept_redirects" = 0;
     "net.ipv4.conf.default.accept_redirects" = 0;
@@ -63,10 +68,21 @@
 
   # Blacklist uncommon/obsolete protocols and filesystems
   boot.blacklistedKernelModules = [
-    "b43" "bcma" # Prevents probe failure logs for unsupported Wi-Fi PHY
-    "cramfs" "freevxfs" "jffs2" "hfs" "hfsplus" "squashfs" "udf"
-    "dccp" "sctp" "rds" "tipc" 
-    "firewire-core" "thunderbolt"
+    "b43"
+    "bcma" # Prevents probe failure logs for unsupported Wi-Fi PHY
+    "cramfs"
+    "freevxfs"
+    "jffs2"
+    "hfs"
+    "hfsplus"
+    "squashfs"
+    "udf"
+    "dccp"
+    "sctp"
+    "rds"
+    "tipc"
+    "firewire-core"
+    "thunderbolt"
   ];
 
   # --- Access Control & Sudo ---
@@ -130,6 +146,5 @@
       "AutofillCreditCardEnabled" = true;
     };
   };
-
 
 }

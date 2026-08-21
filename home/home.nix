@@ -1,4 +1,9 @@
-{ config, pkgs, username, ... }:
+{
+  config,
+  pkgs,
+  username,
+  ...
+}:
 
 let
   # Define the absolute path to your dotfiles directory
@@ -9,16 +14,39 @@ in
   home.homeDirectory = "/home/${username}";
   home.sessionVariables = {
     SUDO_EDITOR = "nvim";
-    EDITOR="nvim";
+    EDITOR = "nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-  ouch        # Unified compression/decompression tool
-  delta       # Modern syntax-highlighted git diffs
-  cava        # PipeWire-compatible audio visualizer
+  # --- Neovim Plugin Dependencies ---
 
-      docker-compose
+    # For copilot.lua
+    nodejs        
+
+    # For nvim_silicon.lua
+    silicon
+
+  # For vimtex.lua (Compiling LaTeX)
+    texliveFull
+
+  # For obsidian, telescope, and neo-tree
+    ripgrep
+    fd
+
+  # --- END Neovim Plugin Dependencies ---
+
+
+
+
+
+
+
+    ouch # Unified compression/decompression tool
+    delta # Modern syntax-highlighted git diffs
+    cava # PipeWire-compatible audio visualizer
+
+    docker-compose
     lazydocker # Terminal UI for Docker
 
     zip
@@ -26,22 +54,21 @@ in
     p7zip
     gnutar
 
+    vesktop
+    spotify
 
-  vesktop
-  spotify
+    zathura # Minimalist PDF viewer
+    foliate # Dedicated e-book reader
 
-    zathura    # Minimalist PDF viewer
-    foliate    # Dedicated e-book reader
+    nsxiv # Fast, lightweight image viewer with gallery mode
+    mpv # Minimalist, high-performance video player
 
-    nsxiv       # Fast, lightweight image viewer with gallery mode
-    mpv         # Minimalist, high-performance video player
-
-  # Screenshot tools
-  flameshot
+    # Screenshot tools
+    flameshot
     maim
     xdotool
 
-# Virtualization
+    # Virtualization
     virt-manager
     virt-viewer
     spice
@@ -75,7 +102,7 @@ in
       autoconnect = [ "qemu:///system" ];
       uris = [ "qemu:///system" ];
     };
-    };
+  };
 
   home.stateVersion = "25.11";
 
@@ -94,8 +121,9 @@ in
       package = pkgs.gnome-themes-extra;
     };
   };
-xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
-  xdg.configFile."ghostty".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
+  xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
+  xdg.configFile."ghostty".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
 
   xdg.mimeApps = {
@@ -120,43 +148,46 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
     };
   };
 
-programs.git = {
-  enable = true;
-  userName = "Lucas Cirille";
-  userEmail = "lucas.cirille@gmail.com";
-  extraConfig = {
-    init.defaultBranch = "main";
-  };
-  delta = {
+  programs.git = {
     enable = true;
-    options = {
-      navigate = true;
-      line-numbers = true;
-      syntax-theme = "Catppuccin-mocha";
+    userName = "Lucas Cirille";
+    userEmail = "lucas.cirille@gmail.com";
+    extraConfig = {
+      init.defaultBranch = "main";
     };
-  };
-};
-
-programs.lazygit = {
-  enable = true;
-  settings = {
-    gui = {
-      theme = {
-        activeBorderColor = [ "#89b4fa" "bold" ];
-        inactiveBorderColor = [ "#6c7086" ];
+    delta = {
+      enable = true;
+      options = {
+        navigate = true;
+        line-numbers = true;
+        syntax-theme = "Catppuccin-mocha";
       };
     };
-    git = {
-      # Nueva sintaxis de LazyGit
-      pagers = [
-        {
-          colorArg = "always";
-          pager = "delta --dark --paging=never";
-        }
-      ];
+  };
+
+  programs.lazygit = {
+    enable = true;
+    settings = {
+      gui = {
+        theme = {
+          activeBorderColor = [
+            "#89b4fa"
+            "bold"
+          ];
+          inactiveBorderColor = [ "#6c7086" ];
+        };
+      };
+      git = {
+        # Nueva sintaxis de LazyGit
+        pagers = [
+          {
+            colorArg = "always";
+            pager = "delta --dark --paging=never";
+          }
+        ];
+      };
     };
   };
-};
 
   programs.tmux = {
     enable = true;
@@ -238,45 +269,45 @@ programs.lazygit = {
       theme = "robbyrussell";
     };
 
-  initContent = ''
-nos() {
-        local orig_dir="$PWD"
-        cd ~/.dotfiles || return 1
+    initContent = ''
+      nos() {
+              local orig_dir="$PWD"
+              cd ~/.dotfiles || return 1
 
-        echo "📥 Fetching and integrating remote changes..."
-        if ! git pull --rebase --autostash origin main; then
-          echo "❌ Git pull failed! Please resolve merge conflicts before building."
-          cd "$orig_dir"
-          return 1
-        fi
+              echo "📥 Fetching and integrating remote changes..."
+              if ! git pull --rebase --autostash origin main; then
+                echo "❌ Git pull failed! Please resolve merge conflicts before building."
+                cd "$orig_dir"
+                return 1
+              fi
 
-        git add .
+              git add .
 
-        echo "🔨 Building NixOS configuration with nh..."
-        # nh automatically uses nix-output-monitor for pretty tree output
-        if nh os switch; then
-          echo "✅ Build successful!"
+              echo "🔨 Building NixOS configuration with nh..."
+              # nh automatically uses nix-output-monitor for pretty tree output
+              if nh os switch; then
+                echo "✅ Build successful!"
 
-          if ! git diff-index --quiet HEAD --; then
-            echo "📦 Committing and pushing working configuration to Git..."
-            git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-            git push
-          else
-            echo "🧹 Working tree clean. Nothing to commit."
-          fi
-        else
-          echo "❌ Rebuild failed! Aborting Git commit and push."
-          cd "$orig_dir"
-          return 1
-        fi
+                if ! git diff-index --quiet HEAD --; then
+                  echo "📦 Committing and pushing working configuration to Git..."
+                  git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+                  git push
+                else
+                  echo "🧹 Working tree clean. Nothing to commit."
+                fi
+              else
+                echo "❌ Rebuild failed! Aborting Git commit and push."
+                cd "$orig_dir"
+                return 1
+              fi
 
-        cd "$orig_dir"
-      }
-  '';
+              cd "$orig_dir"
+            }
+    '';
 
     shellAliases = {
       btw = "echo i use nixos, btw";
-      not = "nh os test";  # Uses nh to test changes cleanly
+      not = "nh os test"; # Uses nh to test changes cleanly
       nop = "nh clean all --keep 5"; # Clean garbage safely
       nv = "nvim";
       better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
@@ -324,7 +355,7 @@ nos() {
     };
   };
 
-# --- User Space Hardening ---
+  # --- User Space Hardening ---
   # GPG configuration with minimal key leakage
   programs.gpg = {
     enable = true;
@@ -340,7 +371,7 @@ nos() {
 
   # Harden Brave Browser execution via Home-Manager (Optional)
   # This adds sandboxing flags to your Brave shortcut
-programs.chromium = {
+  programs.chromium = {
     enable = true;
     package = pkgs.brave;
     commandLineArgs = [

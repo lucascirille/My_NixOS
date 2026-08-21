@@ -26,7 +26,10 @@
   boot.initrd.kernelModules = [ ];
 
   # KVM virtualization support for BOTH Intel and AMD hosts
-  boot.kernelModules = [ "kvm-intel" "kvm-amd" ];
+  boot.kernelModules = [
+    "kvm-intel"
+    "kvm-amd"
+  ];
   boot.extraModulePackages = [ ];
 
   # USB drive partitions (DO NOT CHANGE THESE UUIDs)

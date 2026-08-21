@@ -13,11 +13,11 @@
           nh
           nixfmt-tree
           statix
-	  deadnix
+          deadnix
           nix-output-monitor
-	  sops
-	  age
-	  ssh-to-age
+          sops
+          age
+          ssh-to-age
         ];
       };
     };

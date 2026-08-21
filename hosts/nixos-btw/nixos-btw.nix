@@ -1,11 +1,16 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [
     ./hardware-configuration.nix
     ../../modules
   ];
-
 
   # Bootloader & Quiet Boot
   boot = {
@@ -15,8 +20,8 @@
     };
 
     lanzaboote = {
-    enable = true;
-    pkiBundle = "/var/lib/sbctl";
+      enable = true;
+      pkiBundle = "/var/lib/sbctl";
     };
 
     kernelParams = [
@@ -26,8 +31,6 @@
     ];
     consoleLogLevel = 4;
   };
-
-  
 
   # Secret manager using ssh host key
   sops = {
@@ -64,9 +67,10 @@
     updateDbusEnvironment = true;
     windowManager.qtile = {
       enable = true;
-      extraPackages = python3Packages: with python3Packages; [
-        qtile-extras
-      ];
+      extraPackages =
+        python3Packages: with python3Packages; [
+          qtile-extras
+        ];
     };
   };
 
@@ -106,7 +110,6 @@
   security.pam.services.ly.enableGnomeKeyring = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
-
   # Enable sound with PipeWire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -116,7 +119,6 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-
 
   # Allow ubridge to set network permissions (packet capture / tap devices)
   security.wrappers.ubridge = {
@@ -128,7 +130,7 @@
   };
 
   # Create the ubridge group
-  users.groups.ubridge = {};
+  users.groups.ubridge = { };
 
   hardware.bluetooth = {
     enable = true;
@@ -139,16 +141,24 @@
 
   # System User & Shell
   programs.zsh.enable = true;
-  
+
   # Enables Wireshark with setcap privileges for dumping packets as a non-root user
   programs.wireshark = {
     enable = true;
     package = pkgs.wireshark; # Provides the Wireshark GUI
   };
- 
+
   users.users.neo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "libvirtd" "wireshark" "ubridge" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "video"
+      "audio"
+      "libvirtd"
+      "wireshark"
+      "ubridge"
+    ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     # Point to the hashed password inside sops
@@ -186,7 +196,7 @@
   services.udisks2.enable = true;
   services.tumbler.enable = true;
 
-programs.thunar = {
+  programs.thunar = {
     enable = true;
     plugins = [
       pkgs.thunar-volman
@@ -200,39 +210,40 @@ programs.thunar = {
     ];
   };
 
-
   programs.i3lock = {
-  enable = true;
-  package = pkgs.i3lock-color;
+    enable = true;
+    package = pkgs.i3lock-color;
   };
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
-      # CLI & Utilities
+    # CLI & Utilities
     neovim
 
-
-  arandr      # Visual drag-and-drop display & projector manager
-  lxrandr     # Simple GUI resolution selector
+    arandr # Visual drag-and-drop display & projector manager
+    lxrandr # Simple GUI resolution selector
 
     brightnessctl
     xarchiver
 
-    ubridge     # Required for connecting virtual nodes together
-    vpcs        # Lightweight virtual PC simulator
-    dynamips    # Cisco IOS router emulator (optional)
-    inetutils   # Provides telnet client for console access
+    ubridge # Required for connecting virtual nodes together
+    vpcs # Lightweight virtual PC simulator
+    dynamips # Cisco IOS router emulator (optional)
+    inetutils # Provides telnet client for console access
   ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
   ];
 
-nix.settings = {
-  experimental-features = [ "nix-command" "flakes" ];
-  auto-optimise-store = true; # Hard-links identical files in the store
-  warn-dirty = false;
-};
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    auto-optimise-store = true; # Hard-links identical files in the store
+    warn-dirty = false;
+  };
 
   # Automatic cleanup
   nix.gc = {
@@ -240,7 +251,6 @@ nix.settings = {
     dates = "weekly";
     options = "--delete-older-than 14d";
   };
-
 
   system.stateVersion = "25.11";
 }

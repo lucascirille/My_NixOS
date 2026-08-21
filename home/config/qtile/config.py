@@ -1,4 +1,5 @@
 import os
+import shutil
 import libqtile.resources
 from libqtile import bar, layout, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
@@ -49,7 +50,7 @@ def get_backlight_name():
     return None
 
 def volume_osd(action):
-    """Generates complex shell sequences safely for dunst volume bars."""
+    """Generates shell commands for dunst volume notifications."""
     if action == "up":
         cmd = "pamixer -i 5 && dunstify -a System -u low -h string:x-dunst-stack-tag:volume -h int:value:$(pamixer --get-volume) 'Volume'"
     elif action == "down":
@@ -59,12 +60,26 @@ def volume_osd(action):
     return f"sh -c \"{cmd}\""
 
 def brightness_osd(action):
-    """Generates complex shell sequences safely for dunst brightness bars."""
+    """Generates shell commands for dunst brightness notifications."""
     if action == "up":
         cmd = "brightnessctl set +5% && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
     elif action == "down":
         cmd = "brightnessctl set 5%- && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
     return f"sh -c \"{cmd}\""
+
+def power_menu_cmd():
+    """Unified DRY power menu sequence for rofi."""
+    return (
+        "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
+        "rofi -dmenu -i -p \"Power\") && "
+        "case \"$choice\" in "
+        "\"󰐥 Power Off\") systemctl poweroff ;; "
+        "\"󰜉 Reboot\") systemctl reboot ;; "
+        "\"󰤄 Suspend\") systemctl suspend ;; "
+        "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock-color --blur=5; fi ;; "
+        "\"󰍃 Logout\") loginctl terminate-session self ;; "
+        "esac'"
+    )
 
 def get_decoration(color, is_group=True):
     """Optimized decoration builder to keep code DRY."""
@@ -81,7 +96,6 @@ def get_decoration(color, is_group=True):
 def create_bar(primary=True):
     """Returns a fresh Bar instance customized for any hardware or display backend."""
     
-    # Core widgets for all systems (Desktop, Laptop, VM)
     bar_widgets = [
         widget.GroupBox(
             highlight_method='line',
@@ -97,6 +111,18 @@ def create_bar(primary=True):
             **get_decoration(colors["bg"])
         ),
         widget.Spacer(),
+    ]
+
+    # Systray placed first on the right side
+    if primary:
+        if getattr(qtile, "core", None) and qtile.core.name == "wayland":
+            bar_widgets.append(widget.StatusNotifier(padding=5))
+        else:
+            bar_widgets.append(widget.Systray(padding=5))
+        bar_widgets.append(widget.Spacer(length=8))
+
+    # Right side hardware metrics
+    bar_widgets.extend([
         widget.CPU(
             format='  {load_percent}%',
             update_interval=5.0,
@@ -108,7 +134,7 @@ def create_bar(primary=True):
             update_interval=5.0,
             **get_decoration(colors["surface"])
         ),
-    ]
+    ])
 
     # Conditionally add Backlight widget (Laptops only)
     backlight_dev = get_backlight_name()
@@ -138,7 +164,7 @@ def create_bar(primary=True):
             )
         )
 
-    # Append volume and clock
+    # Volume, clock, and power menu
     bar_widgets.extend([
         widget.PulseVolume(
             fmt='󰕾 {}',
@@ -152,37 +178,14 @@ def create_bar(primary=True):
             **get_decoration(colors["ok"]),
             foreground=colors["bg"]
         ),
-       # Universal Dual-Backend Power Menu
         widget.TextBox(
             text="󰐥",
             fontsize=14,
-            mouse_callbacks={
-                'Button1': lazy.spawn(
-                    "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
-                    "rofi -dmenu -i -p \"Power\") && "
-                    "case \"$choice\" in "
-                    "\"󰐥 Power Off\") systemctl poweroff ;; "
-                    "\"󰜉 Reboot\") systemctl reboot ;; "
-                    "\"󰤄 Suspend\") systemctl suspend ;; "
-                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock-color --blur=5; fi ;; "
-                    "\"󰍃 Logout\") loginctl terminate-session self ;; "
-                    "esac'"
-                )
-            },
+            mouse_callbacks={'Button1': lazy.spawn(power_menu_cmd())},
             **get_decoration(colors["critical"]),
             foreground=colors["bg"],
         ), 
     ])
-
-
-    # System tray handling (Only on primary monitor to avoid multi-monitor crashes)
-    if primary:
-        if getattr(qtile, "core", None) and qtile.core.name == "wayland":
-            # StatusNotifier works natively on Wayland
-            bar_widgets.append(widget.StatusNotifier(padding=5))
-        else:
-            # Systray for X11
-            bar_widgets.append(widget.Systray(padding=5))
 
     return bar.Bar(
         bar_widgets,
@@ -195,7 +198,7 @@ def create_bar(primary=True):
 # 4. Keyboard Shortcuts & Input Mapping
 # -------------------------------------------------------------------------
 keys = [
-    # Navigation & Management Defaults
+    # Navigation & Management
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
@@ -241,31 +244,21 @@ keys = [
     Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness with OSD"),
     Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness with OSD"),
 
-    # Manage Power ON/OF
-    Key([mod, "shift"], "e", lazy.spawn(
-            "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
-                    "rofi -dmenu -i -p \"Power\") && "
-                    "case \"$choice\" in "
-                    "\"󰐥 Power Off\") systemctl poweroff ;; "
-                    "\"󰜉 Reboot\") systemctl reboot ;; "
-                    "\"󰤄 Suspend\") systemctl suspend ;; "
-                    "\"󰌾 Lock\") if [ -n \"$WAYLAND_DISPLAY\" ]; then swaylock -f -c 000000; else i3lock-color --blur=5; fi ;; "
-                    "\"󰍃 Logout\") loginctl terminate-session self ;; "
-                    "esac'"
-    ), desc="Open Power Menu"),
+    # Power Menu
+    Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
 
-    # Windows-style partial selection (Win + Shift + S) -> opens Flameshot GUI / copied to clipboard
-    Key(["mod4", "shift"], "s", lazy.spawn("flameshot gui")),
-
-    # Full screen capture (PrintScreen) -> copies to clipboard and saves to file
-    Key([], "Print", lazy.spawn("bash -c 'mkdir -p ~/Pictures/Screenshots && maim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | xclip -selection clipboard -t image/png'")),
-
-    # Alternative partial screenshot without GUI using maim (Shift + PrintScreen)
-    Key(["shift"], "Print", lazy.spawn("maim -s | xclip -selection clipboard -t image/png")),
-
+    # Screenshots (Wayland / X11 compatible)
+    Key([mod, "shift"], "s", lazy.spawn("flameshot gui")),
+    Key([], "Print", lazy.spawn(
+        "bash -c 'mkdir -p ~/Pictures/Screenshots && "
+        "if [ -n \"$WAYLAND_DISPLAY\" ]; then "
+        "grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png && wl-copy < ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png; "
+        "else maim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | xclip -selection clipboard -t image/png; fi'"
+    )),
+    Key(["shift"], "Print", lazy.spawn(
+        "bash -c 'if [ -n \"$WAYLAND_DISPLAY\" ]; then grim -g \"$(slurp)\" - | wl-copy; else maim -s | xclip -selection clipboard -t image/png; fi'"
+    )),
 ]
-
-
 
 # Virtual Console Mappings (Wayland safe)
 for vt in range(1, 8):
@@ -320,8 +313,6 @@ cursor_warp = False
 floating_layout = layout.Floating(
     float_rules=[
         *layout.Floating.default_float_rules,
-        # Match(wm_class="Thunar"),
-        # Match(wm_class="xdg-desktop-portal-gtk"),
         Match(wm_class="confirmreset"),
         Match(wm_class="makebranch"),
         Match(wm_class="maketag"),
@@ -330,7 +321,6 @@ floating_layout = layout.Floating(
         Match(title="pinentry"),
     ]
 )
-
 
 auto_fullscreen = True
 focus_on_window_activation = "smart"
