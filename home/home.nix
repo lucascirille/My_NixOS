@@ -194,12 +194,21 @@ programs.git = {
     };
   };
 
-    programs.keepassxc = {
-  enable = true;
-  settings = {
-    FdoSecrets.Enabled = true; # Exposes the Freedesktop Secret Service API over D-Bus
-  };
+xdg.autostart.enable = true;
+
+  programs.keepassxc = {
+
+enable = true;
+
+settings = {
+
+General.ConfigVersion = 2;
+
+FdoSecrets.Enabled = true;
+
 };
+
+}; 
 
 
   programs.tmux = {
