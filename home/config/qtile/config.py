@@ -7,6 +7,8 @@ from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from qtile_extras import widget
 from qtile_extras.widget.decorations import RectDecoration
+import subprocess
+from libqtile import hook
 
 mod = "mod4"
 terminal = guess_terminal()
