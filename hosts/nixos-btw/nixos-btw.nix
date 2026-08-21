@@ -105,7 +105,8 @@ xdg.portal = {
 };
 
   # Enable GNOME Keyring daemon
-  services.gnome.gnome-keyring.enable = true;
+  services.gnome.gnome-keyring.enable = false;
+
 
   # Automatically unlock the keyring when loggin in through Ly
   security.pam.services.ly.enableGnomeKeyring = true;
@@ -240,7 +241,7 @@ xdg.portal = {
     zlib
 
 
-    seahorse
+    # seahorse
 
     neovim
 
