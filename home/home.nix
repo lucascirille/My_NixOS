@@ -373,20 +373,20 @@ programs.git = {
     };
   };
 
-  # Harden Brave Browser execution via Home-Manager (Optional)
+  # Harden Brave Browser execution
   # This adds sandboxing flags to your Brave shortcut
-  programs.chromium = {
-    enable = true;
-    package = pkgs.brave;
-    commandLineArgs = [
-      "--enable-features=UseOzonePlatform"
-      "--ozone-platform=x11"
-      "--password-store=gnome-libsecret"
-      "--no-default-browser-check"
-      "--disable-reading-from-canvas"
-      "--no-pings"
-    ];
-  };
+programs.chromium = {
+  enable = true;
+  package = pkgs.brave;
+  commandLineArgs = [
+    "--enable-features=UseOzonePlatform"
+    "--ozone-platform=x11"
+    "--password-store=gnome-libsecret"
+    "--no-default-browser-check"
+    "--disable-reading-from-canvas"
+    "--no-pings"
+  ];
+};
 
   services.dunst = {
     enable = true;

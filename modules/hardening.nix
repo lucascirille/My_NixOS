@@ -43,7 +43,7 @@
     "kernel.unprivileged_bpf_disabled" = 1;
 
     # Prevent ptracing of non-child processes (useful for securing X11/Qtile memory)
-    "kernel.yama.ptrace_scope" = 2;
+    "kernel.yama.ptrace_scope" = 2; # Check if you run into issues running apps like Steam
 
     # TCP Stack Hardening (Spoofing & Floods)
     "net.ipv4.tcp_syncookies" = 1;
@@ -137,13 +137,13 @@
   #   implicitPolicyTarget = "block"; # Block any newly inserted unrecognized devices
   # };
 
-  # Change extraOpts to of if you dont want to store your information
+# System-level Chromium/Brave policies
   programs.chromium = {
     enable = true;
     extraOpts = {
-      "PasswordManagerEnabled" = true;
-      "AutofillAddressEnabled" = true;
-      "AutofillCreditCardEnabled" = true;
+      "PasswordManagerEnabled" = false;
+      "AutofillAddressEnabled" = false;
+      "AutofillCreditCardEnabled" = false;
     };
   };
 

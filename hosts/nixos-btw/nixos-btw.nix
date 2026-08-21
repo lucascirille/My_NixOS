@@ -97,11 +97,12 @@
 
   # Enable Flatpak service and portal integration
   services.flatpak.enable = true;
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-    config.common.default = "gtk";
-  };
+xdg.portal = {
+  enable = true;
+  xdgOpenUsePortal = true; # Directs all xdg-open calls to the portal handler
+  extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  config.common.default = "gtk";
+};
 
   # Enable GNOME Keyring daemon
   services.gnome.gnome-keyring.enable = true;
@@ -200,6 +201,8 @@
       setSocketVariable = true;
     };
   };
+
+  services.dbus.enable = true;
 
   # Desktop Integration & Thunar File Manager
   programs.dconf.enable = true;
