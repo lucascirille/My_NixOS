@@ -36,3 +36,5 @@ id_ed25519*
 # --- OS System Files ---
 .DS_Store
 Thumbs.db
+core.*
+core

@@ -139,6 +139,13 @@ xdg.portal = {
     powerOnBoot = false;
     settings.General.AutoEnable = "false";
   };
+
+
+hardware.graphics = {
+  enable = true;
+  enable32Bit = true;
+};
+
   systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
 
   # System User & Shell
@@ -156,6 +163,7 @@ xdg.portal = {
     remotePlay.openFirewall = true; # Open ports for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
+    gamescopeSession.enable = true;
   };
 
   # Gaming performance booster
