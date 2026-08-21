@@ -43,7 +43,6 @@ in
 
 
     ouch # Unified compression/decompression tool
-    delta # Modern syntax-highlighted git diffs
     cava # PipeWire-compatible audio visualizer
 
     docker-compose
@@ -148,20 +147,26 @@ in
     };
   };
 
-  programs.git = {
+programs.git = {
     enable = true;
-    userName = "Lucas Cirille";
-    userEmail = "lucas.cirille@gmail.com";
-    extraConfig = {
-      init.defaultBranch = "main";
-    };
-    delta = {
-      enable = true;
-      options = {
-        navigate = true;
-        line-numbers = true;
-        syntax-theme = "Catppuccin-mocha";
+    settings = {
+      user = {
+        name = "Lucas Cirille";
+        email = "lucas.cirille@gmail.com";
       };
+      init = {
+        defaultBranch = "main";
+      };
+    };
+  };
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      line-numbers = true;
+      syntax-theme = "Catppuccin-mocha";
     };
   };
 
