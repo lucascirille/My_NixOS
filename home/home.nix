@@ -172,6 +172,27 @@ programs.git = {
     };
   };
 
+
+
+  programs.vscode = {
+    enable = true;
+    
+    # Manage extensions via nixpkgs
+    profiles.default.extensions = with pkgs.vscode-extensions; [
+      jnoortheen.nix-ide
+      dracula-theme.theme-dracula
+      vscodevim.vim
+    ];
+
+    # Declarative settings
+    profiles.default.userSettings = {
+      "workbench.colorTheme" = "Dracula Theme";
+      "editor.formatOnSave" = true;
+      "nix.enableLanguageServer" = true;
+      "nix.serverPath" = "nil";
+    };
+  };
+
   programs.tmux = {
     enable = true;
     mouse = true;

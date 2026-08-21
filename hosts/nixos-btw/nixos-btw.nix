@@ -147,6 +147,18 @@
     enable = true;
     package = pkgs.wireshark; # Provides the Wireshark GUI
   };
+  
+    # Enable Steam with hardware & network integration
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
+    localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
+  };
+
+  # Gaming performance booster
+  programs.gamemode.enable = true;
+
 
   users.users.neo = {
     isNormalUser = true;
@@ -215,8 +227,16 @@
     package = pkgs.i3lock-color;
   };
 
+
+  programs.nix-ld.enable = true;
+
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
+    # Add common runtime libraries (for nix-ld)
+    stdenv.cc.cc
+    zlib
+
+
     seahorse
 
     neovim
