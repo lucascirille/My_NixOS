@@ -14,7 +14,6 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
-    lazygit
 
     zathura    # Minimalist PDF viewer
     foliate    # Dedicated e-book reader
@@ -121,21 +120,23 @@ xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}
     };
   };
 
-  programs.lazygit = {
+programs.lazygit = {
   enable = true;
   settings = {
-    # Customize settings
     gui = {
       theme = {
-        activeBorderColor = [ "#89b4fa" "bold" ]; # Catppuccin Mocha Blue
+        activeBorderColor = [ "#89b4fa" "bold" ];
         inactiveBorderColor = [ "#6c7086" ];
       };
     };
     git = {
-      paging = {
-        colorArg = "always";
-        pager = "delta --dark --paging=never"; # If you use delta
-      };
+      # Nueva sintaxis de LazyGit
+      pagers = [
+        {
+          colorArg = "always";
+          pager = "delta --dark --paging=never";
+        }
+      ];
     };
   };
 };
