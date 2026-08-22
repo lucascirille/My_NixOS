@@ -166,6 +166,7 @@ in
         accentColor = "#7aa2f7";
       };
 
+
       corePlugins = [
         "backlink"
         "bookmarks"
