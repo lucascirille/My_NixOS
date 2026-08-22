@@ -286,27 +286,27 @@ hardware.graphics = {
     options = "--delete-older-than 14d";
   };
 
-  # Generate the Chromium/Brave native messaging manifest system-wide
-  environment.etc."chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json".text = builtins.toJSON {
-    name = "org.keepassxc.keepassxc_browser";
-    description = "KeePassXC integration with native messaging support";
-    path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-    type = "stdio";
-    allowed_origins = [
-      "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-    ];
-  };
-
-  # Link it to Brave's specific system directory as well
-  environment.etc."opt/brave.com/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json".text = builtins.toJSON {
-    name = "org.keepassxc.keepassxc_browser";
-    description = "KeePassXC integration with native messaging support";
-    path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-    type = "stdio";
-    allowed_origins = [
-      "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-    ];
-  };
+  # # Generate the Chromium/Brave native messaging manifest system-wide
+  # environment.etc."chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json".text = builtins.toJSON {
+  #   name = "org.keepassxc.keepassxc_browser";
+  #   description = "KeePassXC integration with native messaging support";
+  #   path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
+  #   type = "stdio";
+  #   allowed_origins = [
+  #     "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
+  #   ];
+  # };
+  #
+  # # Link it to Brave's specific system directory as well
+  # environment.etc."opt/brave.com/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json".text = builtins.toJSON {
+  #   name = "org.keepassxc.keepassxc_browser";
+  #   description = "KeePassXC integration with native messaging support";
+  #   path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
+  #   type = "stdio";
+  #   allowed_origins = [
+  #     "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
+  #   ];
+  # };
 
   system.stateVersion = "25.11";
 }
