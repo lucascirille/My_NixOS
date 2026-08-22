@@ -453,6 +453,9 @@ programs.chromium = {
     "--disable-reading-from-canvas"
     "--no-pings"
   ];
+  nativeMessagingHosts = [
+    pkgs.keepassxc
+  ];
 };
 
 services.dunst = {

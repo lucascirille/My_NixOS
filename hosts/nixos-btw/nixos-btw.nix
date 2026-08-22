@@ -264,6 +264,7 @@ hardware.graphics = {
     inetutils # Provides telnet client for console access
   ];
 
+
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
   ];
