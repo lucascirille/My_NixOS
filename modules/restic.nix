@@ -36,7 +36,7 @@
 
     paths = [
       "/home" # User personal data, configs, and documents
-      "/etc/nixos" # NixOS system configuration
+      "/etc/ssh" # NixOS system configuration
       "/var/lib" # Stateful system data (Docker, databases, VMs, sops keys)
     ];
 
