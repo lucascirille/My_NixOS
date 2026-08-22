@@ -32,9 +32,9 @@
       "--compression"
       "auto"
       "--exclude-caches"
-      # Exclude any single file larger than 500 MB (adjust as needed)
       "--exclude-larger-than"
       "1G"
+      "--one-file-system"
     ];
 
     paths = [
@@ -44,27 +44,27 @@
     ];
 
     exclude = [
-      # System & standard caches
-      "/home/*/Documents/second_brain" # My notations already backup on Onedrive
-      "/home/*/.cache"
-      "/home/*/.local/share/Trash"
-      "/home/*/.local/share/containers"
+      # Specific user paths & syncs
+      "/home/*/Documents/second_brain" # Backed up via OneDrive
       "/home/*/Downloads"
+
+      # Standard system & user caches
+      "**/.cache"
+      "**/.local/share/Trash"
       "/var/cache"
       "/var/tmp"
+      "/var/log/journal"
 
-      # Exclude heavy re-downloadable Flatpak runtimes & app binaries
-      "/home/*/.local/share/flatpak"
-      "/var/lib/flatpak"
+      # Flatpak runtimes (User data preserved in ~/.var/app)
       "**/.local/share/flatpak"
+      "/var/lib/flatpak"
 
       # Games, shader caches, and compatibility data
-      "/home/*/.local/share/Steam"
-      "/home/*/.steam"
+      "/home/*/Games"
       "**/.local/share/Steam"
       "**/.steam"
 
-      # Brave Browser Caches
+      # Browser Caches
       "/home/*/.config/BraveSoftware/Brave-Browser/*/Cache"
       "/home/*/.config/BraveSoftware/Brave-Browser/*/Code Cache"
       "/home/*/.config/BraveSoftware/Brave-Browser/*/GPUCache"
@@ -74,17 +74,20 @@
       "**/target"
       "**/.direnv"
       "**/.venv"
+      "**/.npm"
+      "**/.bun"
+      "**/.local/share/pnpm"
       "/home/*/.cargo"
       "/home/*/.rustup"
 
-      # Container, VM, and Virtualization storage (Crucial)
+      # Container, VM, and Virtualization storage
       "/var/lib/docker"
       "/var/lib/containers"
       "/var/lib/libvirt"
-      "/var/lib/flatpak"
       "/var/lib/systemd/coredump"
+      "**/.local/share/containers"
 
-      # Large disk images and media extensions anywhere in the system
+      # Large disk images and media files
       "**/*.qcow2"
       "**/*.img"
       "**/*.iso"
@@ -94,7 +97,6 @@
       "**/*.mkv"
     ];
 
-    # Stricter retention rules to stay well under Cloudflare R2's 10 GB limit
     pruneOpts = [
       "--keep-daily=3"
       "--keep-weekly=2"
