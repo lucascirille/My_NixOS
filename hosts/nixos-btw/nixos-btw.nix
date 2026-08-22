@@ -242,12 +242,6 @@ hardware.graphics = {
   programs.nix-ld.enable = true;
   
 
-  environment.etc = {
-  "chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json".source =
-    "${pkgs.keepassxc}/share/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
-  "opt/brave.com/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json".source =
-    "${pkgs.keepassxc}/share/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
-};
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
