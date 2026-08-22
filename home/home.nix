@@ -455,7 +455,6 @@ programs.chromium = {
   ];
 };
 
-  programs.brave.nativeMessagingHosts = [ pkgs.keepassxc ];
 
 
 services.dunst = {
