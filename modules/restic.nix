@@ -32,11 +32,12 @@
     extraBackupArgs = [
       "--compression"
       "auto"
+      "--exclude-caches"
     ];
 
     paths = [
       "/home" # User personal data, configs, and documents
-      "/etc/ssh" # NixOS system configuration
+      "/etc/ssh" # For the keys
       "/var/lib" # Stateful system data (Docker, databases, VMs, sops keys)
     ];
 
