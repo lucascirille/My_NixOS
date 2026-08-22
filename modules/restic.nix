@@ -48,6 +48,8 @@
       "/home/*/Documents/second_brain" # My notations already backup on Onedrive
       "/home/*/.cache"
       "/home/*/.local/share/Trash"
+      "/home/*/.local/share/containers"
+      "/home/*/.local/share/flatpak"
       "/home/*/Downloads"
       "/var/cache"
       "/var/tmp"
