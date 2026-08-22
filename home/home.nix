@@ -453,10 +453,9 @@ programs.chromium = {
     "--disable-reading-from-canvas"
     "--no-pings"
   ];
-  nativeMessagingHosts = [
-    pkgs.keepassxc
-  ];
 };
+
+  programs.brave.nativeMessagingHosts = [ pkgs.keepassxc ];
 
 
 services.dunst = {
