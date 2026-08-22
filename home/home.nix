@@ -21,6 +21,19 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+# Neovim & tooling
+    neovim
+    nil
+    lua-language-server
+    ripgrep
+    fd
+    gcc
+    silicon
+    texliveMedium
+    nodejs_22
+
+
+
     keepassxc
 
     ouch # Unified compression/decompression tool
@@ -102,9 +115,10 @@ in
     };
   };
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
+  xdg.configFile."nvim".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
   xdg.configFile."ghostty".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
-  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
 
   xdg.configFile."flameshot/flameshot.ini".text = ''
     [General]
@@ -130,6 +144,42 @@ in
       "application/x-mobipocket-ebook" = [ "com.github.johnfactotum.Foliate.desktop" ];
       "application/vnd.amazon.ebook" = [ "com.github.johnfactotum.Foliate.desktop" ];
       "application/vnd.comicbook+zip" = [ "com.github.johnfactotum.Foliate.desktop" ];
+    };
+  };
+
+
+
+    programs.obsidian = {
+    enable = true;
+
+    vaults.notes = {
+      target = "Documents/Obsidian";
+    };
+
+    defaultSettings = {
+      app = {
+        alwaysUpdateLinks = true;
+        spellcheck = true;
+      };
+
+      appearance = {
+        accentColor = "#7aa2f7";
+      };
+
+      corePlugins = [
+        "backlink"
+        "bookmarks"
+        "command-palette"
+        "daily-notes"
+        "file-explorer"
+        "global-search"
+        "outgoing-link"
+        "page-preview"
+        "switcher"
+        "tag-pane"
+        "templates"
+        "word-count"
+      ];
     };
   };
 

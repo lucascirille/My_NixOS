@@ -251,7 +251,6 @@ hardware.graphics = {
 
     # seahorse
 
-    neovim
 
     arandr # Visual drag-and-drop display & projector manager
     lxrandr # Simple GUI resolution selector
