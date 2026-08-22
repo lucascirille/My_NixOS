@@ -49,12 +49,16 @@
       "/home/*/.cache"
       "/home/*/.local/share/Trash"
       "/home/*/.local/share/containers"
-      "/home/*/.local/share/flatpak"
       "/home/*/Downloads"
       "/var/cache"
       "/var/tmp"
 
-      # Steam games, shader caches, and compatibility data
+      # Exclude heavy re-downloadable Flatpak runtimes & app binaries
+      "/home/*/.local/share/flatpak"
+      "/var/lib/flatpak"
+      "**/.local/share/flatpak"
+
+      # Games, shader caches, and compatibility data
       "/home/*/.local/share/Steam"
       "/home/*/.steam"
       "**/.local/share/Steam"
