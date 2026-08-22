@@ -153,7 +153,7 @@ in
     enable = true;
 
     vaults.notes = {
-      target = "Documents/Obsidian";
+      target = "Documents/second_brain";
     };
 
     defaultSettings = {
