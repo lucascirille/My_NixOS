@@ -144,6 +144,11 @@ xdg.portal = {
 hardware.graphics = {
   enable = true;
   enable32Bit = true;
+  extraPackages = with pkgs; [
+      intel-compute-runtime # Driver OpenCL para gráficas Intel
+      pocl                  # Soporte OpenCL genérico para CPUs
+      rocmPackages.clr.icd  # Driver HIP/OpenCL para gráficas AMD Radeon
+    ];
 };
 
   systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
