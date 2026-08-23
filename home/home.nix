@@ -131,6 +131,18 @@ in
     showStartupLaunchMessage=false
   '';
 
+  # --- Accesos Directos Personalizados ---
+  xdg.desktopEntries = {
+    bloodhound = {
+      name = "BloodHound";
+      genericName = "Active Directory Analyzer";
+      exec = "bloodhound";
+      terminal = false;
+      categories = [ "Network" "Security" ];
+      comment = "Analizador de rutas de ataque con grafos";
+    };
+  };
+
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
