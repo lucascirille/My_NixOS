@@ -136,7 +136,7 @@ in
     bloodhound = {
       name = "BloodHound";
       genericName = "Active Directory Analyzer";
-      exec = "bloodhound";
+      exec = "BloodHound";
       terminal = false;
       categories = [ "Network" "Security" ];
       comment = "Analizador de rutas de ataque con grafos";
