@@ -36,6 +36,12 @@ in
 
     keepassxc
 
+    # --- Ciberseguridad (Host Seguro) ---
+    burpsuite       # Proxy e interceptor web
+    bloodhound      # Analizador de grafos para Active Directory
+    hashcat         # Rompedor de hashes acelerado por GPU
+    # ------------------------------------
+
     ouch # Unified compression/decompression tool
     cava # PipeWire-compatible audio visualizer
 
