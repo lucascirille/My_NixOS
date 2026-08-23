@@ -19,6 +19,12 @@
       efi.canTouchEfiVariables = true;
     };
 
+    kernel = {
+        sysctl = {
+            "vm.max_map_count" = 262144;
+          };
+      };
+
     lanzaboote = {
       enable = true;
       pkiBundle = "/var/lib/sbctl";
