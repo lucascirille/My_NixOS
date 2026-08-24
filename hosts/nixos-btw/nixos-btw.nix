@@ -297,6 +297,65 @@ hardware.graphics = {
     options = "--delete-older-than 14d";
   };
 
+  # 1. Crear el Switch Virtual (Bridge) para el laboratorio aislado
+  networking.bridges.br-lab.interfaces = [];
+  networking.interfaces.br-lab.ipv4.addresses = [{
+    address = "10.0.10.1";
+    prefixLength = 24;
+  }];
+
+  # 2. Declarar el Sensor de Red
+containers.lab-sensor = {
+    autoStart = true;
+    privateNetwork = true;
+    hostBridge = "br-lab";
+    
+    config = { config, pkgs, ... }: {
+      # --- Configuración Interna del Sensor ---
+      
+      # 1. Habilitar Suricata (con su sintaxis correcta)
+      services.suricata = {
+        enable = true;
+        settings = {
+          af-packet = [
+            {
+              interface = "eth0";
+              cluster-id = 99;
+              cluster-type = "cluster_flow";
+              defrag = "yes";
+            }
+          ];
+        };
+      };
+
+      # 2. Instalar paquetes (incluyendo Zeek)
+      environment.systemPackages = with pkgs; [
+        zeek
+        tcpdump
+        termshark
+        htop
+      ];
+
+      # 3. Crear el servicio de Zeek manualmente
+      systemd.services.zeek = {
+        description = "Zeek Network Security Monitor";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        serviceConfig = {
+          # Arranca Zeek escuchando en la interfaz eth0
+          ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
+          Restart = "always";
+        };
+      };
+
+      # Permitir reenvío de tráfico (útil en laboratorios)
+      boot.kernel.sysctl = {
+        "net.ipv4.ip_forward" = 1;
+      };
+
+      system.stateVersion = "25.11"; 
+    };
+  };
 
   system.stateVersion = "25.11";
 }
