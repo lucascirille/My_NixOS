@@ -298,13 +298,26 @@ hardware.graphics = {
   };
 
   # 1. Crear el Switch Virtual (Bridge) para el laboratorio aislado
+# ==========================================
+  # CONFIGURACIÓN EN EL HOST (FUERA DEL CONTENEDOR)
+  # ==========================================
   networking.bridges.br-lab.interfaces = [];
   networking.interfaces.br-lab.ipv4.addresses = [{
     address = "10.0.10.1";
     prefixLength = 24;
   }];
 
+  # Habilitar enrutamiento NAT para darle internet al switch virtual
+  networking.nat = {
+    enable = true;
+    internalInterfaces = [ "br-lab" ];
+    externalInterface = "eth0"; # <--- CAMBIA ESTO por el nombre real de tu interfaz (ej. wlo1, enp3s0)
+  };
+
   # 2. Declarar el Sensor de Red
+  # ==========================================
+  # DENTRO DEL CONTENEDOR (lab-sensor)
+  # ==========================================
 containers.lab-sensor = {
     autoStart = true;
     privateNetwork = true;
@@ -331,10 +344,11 @@ config = { config, pkgs, ... }: {
       systemd.services.suricata = {
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
-        # mkBefore asegura que se descarguen ANTES de que el motor se inicialice
+        # SOLUCIÓN GZIP: Le inyectamos el PATH con las herramientas que necesita
+        path = with pkgs; [ curl gnutar gzip ];
         preStart = pkgs.lib.mkBefore ''
           mkdir -p /var/lib/suricata
-          ${pkgs.curl}/bin/curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | ${pkgs.gnutar}/bin/tar -xzf - -C /var/lib/suricata/
+          curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata/
         '';
       };
 
