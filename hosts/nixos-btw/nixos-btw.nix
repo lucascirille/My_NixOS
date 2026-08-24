@@ -336,10 +336,15 @@ config = { config, pkgs, ... }: {
       # --- Configurar DNS DENTRO del contenedor ---
       networking.nameservers = [ "8.8.8.8" "1.1.1.1" ];
       
-      # --- 1. Suricata: Motor IDS/IPS ---
+# --- 1. Suricata: Motor IDS/IPS ---
       services.suricata = {
         enable = true;
         settings = {
+          # Le decimos a Suricata que busque las reglas en nuestra nueva carpeta
+          default-rule-path = "/var/lib/suricata-rules/rules";
+          rule-files = [ "*.rules" ];
+          classification-file = "/var/lib/suricata-rules/rules/classification.config";
+          
           af-packet = [
             {
               interface = "eth0";
@@ -355,11 +360,14 @@ config = { config, pkgs, ... }: {
       systemd.services.suricata = {
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
-        # SOLUCIÓN GZIP: Le inyectamos el PATH con las herramientas que necesita
         path = with pkgs; [ curl gnutar gzip ];
+        
+        # Le damos permiso explícito a Suricata para escribir en nuestra carpeta
+        serviceConfig.ReadWritePaths = [ "/var/lib/suricata-rules" ];
+        
         preStart = pkgs.lib.mkBefore ''
-          mkdir -p /var/lib/suricata
-          curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata/
+          mkdir -p /var/lib/suricata-rules
+          curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata-rules/
         '';
       };
 
