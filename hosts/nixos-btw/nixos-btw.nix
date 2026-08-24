@@ -334,6 +334,8 @@ containers.lab-sensor = {
         tcpdump
         termshark
         htop
+        curl
+        gnutar
       ];
 
       # 3. Crear el servicio de Zeek manualmente
