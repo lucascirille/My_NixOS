@@ -297,7 +297,6 @@ hardware.graphics = {
     options = "--delete-older-than 14d";
   };
 
-  # 1. Crear el Switch Virtual (Bridge) para el laboratorio aislado
 # ==========================================
   # CONFIGURACIÓN EN EL HOST (FUERA DEL CONTENEDOR)
   # ==========================================
@@ -307,63 +306,53 @@ hardware.graphics = {
     prefixLength = 24;
   }];
 
-  # Habilitar enrutamiento NAT para darle internet al switch virtual
+  # NAT dinámico: omitiendo externalInterface, NixOS usa la ruta por defecto automáticamente
   networking.nat = {
     enable = true;
     internalInterfaces = [ "br-lab" ];
-    externalInterface = "eth0"; # <--- CAMBIA ESTO por el nombre real de tu interfaz (ej. wlo1, enp3s0)
+    # Al no forzar externalInterface, NixOS deduce la interfaz activa con salida a internet.
   };
 
-  # 2. Declarar el Sensor de Red
   # ==========================================
   # DENTRO DEL CONTENEDOR (lab-sensor)
   # ==========================================
-containers.lab-sensor = {
+  containers.lab-sensor = {
     autoStart = true;
     privateNetwork = true;
     hostBridge = "br-lab";
-
-    # --- Asignar IP al contenedor ---
     localAddress = "10.0.10.2/24";
-    # --- Apuntar al bridge como puerta de enlace de internet ---
-    # (En NixOS, el host hace de gateway para la red privada)
-    forwardPorts = [];
     
-config = { config, pkgs, ... }: {
-
-      # --- Configurar la ruta por defecto DENTRO del contenedor ---
+    config = { config, pkgs, ... }: {
+      
       networking.defaultGateway = "10.0.10.1";
-      # --- Configurar DNS DENTRO del contenedor ---
       networking.nameservers = [ "8.8.8.8" "1.1.1.1" ];
       
-# --- 1. Suricata: Motor IDS/IPS ---
+      # --- 1. Suricata: Motor IDS/IPS ---
       services.suricata = {
         enable = true;
         settings = {
-          # Le decimos a Suricata que busque las reglas en nuestra nueva carpeta
           default-rule-path = "/var/lib/suricata-rules/rules";
           rule-files = [ "*.rules" ];
           classification-file = "/var/lib/suricata-rules/rules/classification.config";
           
-          af-packet = [
-            {
-              interface = "eth0";
-              cluster-id = 99;
-              cluster-type = "cluster_flow";
-              defrag = "yes";
-            }
-          ];
+          af-packet = [{
+            interface = "eth0";
+            cluster-id = 99;
+            cluster-type = "cluster_flow";
+            defrag = "yes";
+          }];
         };
       };
 
-      # --- 2. Suricata: Actualización Declarativa de Reglas ---
+      # --- 2. Suricata: Actualización Declarativa ---
       systemd.services.suricata = {
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
         path = with pkgs; [ curl gnutar gzip ];
         
-        # Le damos permiso explícito a Suricata para escribir en nuestra carpeta
-        serviceConfig.ReadWritePaths = [ "/var/lib/suricata-rules" ];
+        serviceConfig = {
+          ReadWritePaths = [ "/var/lib/suricata-rules" ];
+        };
         
         preStart = pkgs.lib.mkBefore ''
           mkdir -p /var/lib/suricata-rules
@@ -371,14 +360,22 @@ config = { config, pkgs, ... }: {
         '';
       };
 
-      # --- 3. Zeek: Contador y Análisis de Red ---
+      # --- 3. Zeek: Análisis de Red (Optimizado) ---
       systemd.services.zeek = {
         description = "Zeek Network Security Monitor";
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ];
+        
+        # Pre-creamos el directorio donde vivirán los logs de forma segura
+        preStart = ''
+          mkdir -p /var/log/zeek
+        '';
+        
         serviceConfig = {
           ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
           Restart = "always";
+          # Aseguramos que Zeek guarde sus .log en un lugar estructurado y predecible
+          WorkingDirectory = "/var/log/zeek";
         };
       };
 
@@ -388,8 +385,7 @@ config = { config, pkgs, ... }: {
         tcpdump
         termshark
         htop
-        curl
-        gnutar
+        # Curl y Tar eliminados del entorno global; solo viven en el scope de Suricata.
       ];
 
       boot.kernel.sysctl = {
@@ -398,7 +394,6 @@ config = { config, pkgs, ... }: {
 
       system.stateVersion = "25.11";
     };
-
   };
 
   system.stateVersion = "25.11";
