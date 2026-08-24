@@ -335,6 +335,25 @@ hardware.graphics = {
           rule-files = [ "*.rules" ];
           classification-file = "/var/lib/suricata-rules/rules/classification.config";
           
+      # --- Habilitar la escritura de logs ---
+          outputs = [
+            {
+              fast = {
+                enabled = true;
+                filename = "fast.log";
+                append = true;
+              };
+            }
+            {
+              eve-log = {
+                enabled = true;
+                filetype = "regular";
+                filename = "eve.json";
+                types = [ "alert" "http" "dns" "tls" ];
+              };
+            }
+          ];          
+
           af-packet = [{
             interface = "eth0";
             cluster-id = 99;
@@ -343,7 +362,7 @@ hardware.graphics = {
           }];
         };
       };
-
+      
       # --- 2. Suricata: Actualización Declarativa ---
       systemd.services.suricata = {
         after = [ "network-online.target" ];
