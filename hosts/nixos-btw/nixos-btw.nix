@@ -317,7 +317,7 @@ hardware.graphics = {
   # DENTRO DEL CONTENEDOR (lab-sensor)
   # ==========================================
   containers.lab-sensor = {
-    autoStart = true;
+    autoStart = false;
     privateNetwork = true;
     hostBridge = "br-lab";
     localAddress = "10.0.10.2/24";
