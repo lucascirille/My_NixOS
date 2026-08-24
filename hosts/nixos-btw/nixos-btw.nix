@@ -340,7 +340,7 @@ hardware.graphics = {
             {
               fast = {
                 enabled = true;
-                filename = "fast.log";
+                filename = "/var/log/suricata/fast.log"; # <--- RUTA ABSOLUTA
                 append = true;
               };
             }
@@ -348,7 +348,7 @@ hardware.graphics = {
               eve-log = {
                 enabled = true;
                 filetype = "regular";
-                filename = "eve.json";
+                filename = "/var/log/suricata/eve.json"; # <--- RUTA ABSOLUTA
                 types = [ "alert" "http" "dns" "tls" ];
               };
             }
@@ -370,11 +370,14 @@ hardware.graphics = {
         path = with pkgs; [ curl gnutar gzip ];
         
         serviceConfig = {
-          ReadWritePaths = [ "/var/lib/suricata-rules" ];
+          ReadWritePaths = [ "/var/lib/suricata-rules" "/var/log/suricata" ];
         };
         
-        preStart = pkgs.lib.mkBefore ''
+    preStart = pkgs.lib.mkBefore ''
           mkdir -p /var/lib/suricata-rules
+          mkdir -p /var/log/suricata
+
+        
           curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata-rules/
         '';
       };
