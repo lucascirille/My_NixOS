@@ -310,25 +310,46 @@ containers.lab-sensor = {
     privateNetwork = true;
     hostBridge = "br-lab";
     
-    config = { config, pkgs, ... }: {
-      # --- Configuración Interna del Sensor ---
+config = { config, pkgs, ... }: {
       
-      # 1. Habilitar Suricata (con su sintaxis correcta)
-      # Extender el servicio de Suricata de forma declarativa
-      systemd.services.suricata = {
-        # Esto se ejecuta como root justo antes de que el motor arranque
-        preStart = ''
-          mkdir -p /var/lib/suricata
-          # Descarga y descomprime al vuelo sin dejar archivos basura
-          ${pkgs.curl}/bin/curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | ${pkgs.gnutar}/bin/tar -xzf - -C /var/lib/suricata/
-        '';
-        
-        # Opcional: Asegurarnos de que tenga red antes de intentar descargar
-        after = [ "network-online.target" ];
-        wants = [ "network-online.target" ];
+      # --- 1. Suricata: Motor IDS/IPS ---
+      services.suricata = {
+        enable = true;
+        settings = {
+          af-packet = [
+            {
+              interface = "eth0";
+              cluster-id = 99;
+              cluster-type = "cluster_flow";
+              defrag = "yes";
+            }
+          ];
+        };
       };
 
-      # 2. Instalar paquetes (incluyendo Zeek)
+      # --- 2. Suricata: Actualización Declarativa de Reglas ---
+      systemd.services.suricata = {
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+        # mkBefore asegura que se descarguen ANTES de que el motor se inicialice
+        preStart = pkgs.lib.mkBefore ''
+          mkdir -p /var/lib/suricata
+          ${pkgs.curl}/bin/curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | ${pkgs.gnutar}/bin/tar -xzf - -C /var/lib/suricata/
+        '';
+      };
+
+      # --- 3. Zeek: Contador y Análisis de Red ---
+      systemd.services.zeek = {
+        description = "Zeek Network Security Monitor";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        serviceConfig = {
+          ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
+          Restart = "always";
+        };
+      };
+
+      # --- 4. Paquetes y Sistema ---
       environment.systemPackages = with pkgs; [
         zeek
         tcpdump
@@ -338,25 +359,13 @@ containers.lab-sensor = {
         gnutar
       ];
 
-      # 3. Crear el servicio de Zeek manualmente
-      systemd.services.zeek = {
-        description = "Zeek Network Security Monitor";
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" ];
-        serviceConfig = {
-          # Arranca Zeek escuchando en la interfaz eth0
-          ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
-          Restart = "always";
-        };
-      };
-
-      # Permitir reenvío de tráfico (útil en laboratorios)
       boot.kernel.sysctl = {
         "net.ipv4.ip_forward" = 1;
       };
 
-      system.stateVersion = "25.11"; 
+      system.stateVersion = "25.11";
     };
+
   };
 
   system.stateVersion = "25.11";
