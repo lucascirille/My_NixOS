@@ -360,22 +360,19 @@ hardware.graphics = {
         '';
       };
 
-      # --- 3. Zeek: Análisis de Red (Optimizado) ---
+      # --- 3. Zeek: Análisis de Red (Corregido) ---
       systemd.services.zeek = {
         description = "Zeek Network Security Monitor";
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ];
         
-        # Pre-creamos el directorio donde vivirán los logs de forma segura
-        preStart = ''
-          mkdir -p /var/log/zeek
-        '';
-        
         serviceConfig = {
+          # Le decimos a systemd que cree y gestione automáticamente /var/lib/zeek
+          StateDirectory = "zeek";
+          WorkingDirectory = "/var/lib/zeek";
+          
           ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
           Restart = "always";
-          # Aseguramos que Zeek guarde sus .log en un lugar estructurado y predecible
-          WorkingDirectory = "/var/log/zeek";
         };
       };
 
