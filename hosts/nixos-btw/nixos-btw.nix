@@ -314,18 +314,18 @@ containers.lab-sensor = {
       # --- Configuración Interna del Sensor ---
       
       # 1. Habilitar Suricata (con su sintaxis correcta)
-      services.suricata = {
-        enable = true;
-        settings = {
-          af-packet = [
-            {
-              interface = "eth0";
-              cluster-id = 99;
-              cluster-type = "cluster_flow";
-              defrag = "yes";
-            }
-          ];
-        };
+      # Extender el servicio de Suricata de forma declarativa
+      systemd.services.suricata = {
+        # Esto se ejecuta como root justo antes de que el motor arranque
+        preStart = ''
+          mkdir -p /var/lib/suricata
+          # Descarga y descomprime al vuelo sin dejar archivos basura
+          ${pkgs.curl}/bin/curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | ${pkgs.gnutar}/bin/tar -xzf - -C /var/lib/suricata/
+        '';
+        
+        # Opcional: Asegurarnos de que tenga red antes de intentar descargar
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
       };
 
       # 2. Instalar paquetes (incluyendo Zeek)
