@@ -322,8 +322,19 @@ containers.lab-sensor = {
     autoStart = true;
     privateNetwork = true;
     hostBridge = "br-lab";
+
+    # --- Asignar IP al contenedor ---
+    localAddress = "10.0.10.2/24";
+    # --- Apuntar al bridge como puerta de enlace de internet ---
+    # (En NixOS, el host hace de gateway para la red privada)
+    forwardPorts = [];
     
 config = { config, pkgs, ... }: {
+
+      # --- Configurar la ruta por defecto DENTRO del contenedor ---
+      networking.defaultGateway = "10.0.10.1";
+      # --- Configurar DNS DENTRO del contenedor ---
+      networking.nameservers = [ "8.8.8.8" "1.1.1.1" ];
       
       # --- 1. Suricata: Motor IDS/IPS ---
       services.suricata = {
