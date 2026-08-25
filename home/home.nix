@@ -465,7 +465,9 @@ programs.keepassxc = {
     # Cache passwords in memory for a short time (e.g., 30 mins)
     defaultCacheTtl = 1800;
     maxCacheTtl = 7200;
-    pinentryPackage = pkgs.pinentry-qt; # GUI popup to enter GPG password
+    pinentry = {
+      package = pkgs.pinentry-qt;
+    };
   };
 
   # Harden Brave Browser execution
