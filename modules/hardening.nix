@@ -85,6 +85,9 @@
     "thunderbolt"
   ];
 
+  # --- Soporte de Hardware para Llaves Criptográficas (YubiKey/Smartcards) ---
+  # services.pcscd.enable = true;
+
   # --- Access Control & Sudo ---
   security.apparmor = {
     enable = true;

@@ -11,6 +11,7 @@ in
       inputs.home-manager.nixosModules.home-manager
       inputs.sops-nix.nixosModules.sops
       inputs.lanzaboote.nixosModules.lanzaboote
+      inputs.nix-flatpak.nixosModules.nix-flatpak
       {
         home-manager = {
           useGlobalPkgs = true;

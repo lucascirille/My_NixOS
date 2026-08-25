@@ -102,7 +102,24 @@
   services.blueman.enable = true;
 
   # Enable Flatpak service and portal integration
-  services.flatpak.enable = true;
+services.flatpak = {
+    enable = true;
+    
+    # Declaramos los repositorios que queremos usar
+    remotes = lib.mkOptionDefault [{
+      name = "flathub";
+      location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
+    }];
+    
+    # Declaramos exactamente qué aplicaciones instalar
+    packages = [
+      "com.github.tchx84.Flatseal"
+    ];
+    
+    # Limpieza automática de apps que quites de la lista
+    uninstallUnmanaged = true; 
+  };
+
 xdg.portal = {
   enable = true;
   xdgOpenUsePortal = true; # Directs all xdg-open calls to the portal handler
