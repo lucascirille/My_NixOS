@@ -166,7 +166,15 @@ require("lazy").setup({
   {
     "stevearc/oil.nvim",
     opts = { default_file_explorer = true },
-    keys = { { "-", "<CMD>Oil<CR>", desc = "Open parent directory" } },
+    keys = { { "`", "<CMD>Oil<CR>", desc = "Open parent directory" } },
+    config = function()
+        require('oil').setup {
+          keymaps = {
+            ['`'] = 'actions.parent',
+            ['<Tab>'] = 'actions.select',
+          },
+        }
+    end,
   },
 
   { "folke/snacks.nvim", priority = 1000, lazy = false, opts = {} },

@@ -147,4 +147,24 @@
     };
   };
 
+
+  # --- Privacy (Network Transit) ---
+  
+  # 1. MAC Address Randomization
+  # Generates a random MAC address every time you connect to a Wi-Fi network
+  networking.networkmanager.wifi.macAddress = "random";
+  networking.networkmanager.ethernet.macAddress = "random";
+
+  # 2. DNS-over-TLS (DoT) via systemd-resolved
+  # Encrypts all DNS queries so your ISP cannot see which domains you resolve.
+  # We use Quad9 (9.9.9.9) as they are heavily privacy-focused and block malware.
+  networking.nameservers = [ "9.9.9.9#dns.quad9.net" "149.112.112.112#dns.quad9.net" ];
+  services.resolved = {
+    enable = true;
+    dnssec = "true";
+    domains = [ "~." ];
+    fallbackDns = [ "1.1.1.1#cloudflare-dns.com" ];
+    dnsovertls = "true";
+  };
+
 }

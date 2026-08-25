@@ -469,6 +469,8 @@ programs.chromium = {
     "--password-store=gnome-libsecret"
     "--no-default-browser-check"
     "--disable-reading-from-canvas"
+    "--disable-breakpad" # Disables crash reporting to servers
+    "--disable-sync" # Disables Google/Brave sync (keep data local)
     "--no-pings"
   ];
   nativeMessagingHosts = [
