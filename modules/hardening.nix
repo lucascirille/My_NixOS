@@ -155,8 +155,8 @@
   
   # 1. MAC Address Randomization
   # Generates a random MAC address every time you connect to a Wi-Fi network
-  networking.networkmanager.wifi.macAddress = "random";
-  networking.networkmanager.ethernet.macAddress = "random";
+  # networking.networkmanager.wifi.macAddress = "random";
+  # networking.networkmanager.ethernet.macAddress = "random";
 
   # 2. DNS-over-TLS (DoT) via systemd-resolved
   # Encrypts all DNS queries so your ISP cannot see which domains you resolve.
