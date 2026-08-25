@@ -101,23 +101,31 @@
 
   services.blueman.enable = true;
 
-  # Enable Flatpak service and portal integration
-services.flatpak = {
+
+# --- Native Application Sandboxing ---
+  programs.firejail = {
     enable = true;
     
-    # Declaramos los repositorios que queremos usar
-    remotes = lib.mkOptionDefault [{
-      name = "flathub";
-      location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
-    }];
-    
-    # Declaramos exactamente qué aplicaciones instalar
-    packages = [
-      "com.github.tchx84.Flatseal"
-    ];
-    
-    # Limpieza automática de apps que quites de la lista
-    uninstallUnmanaged = true; 
+    # Envolvemos binarios específicos para forzar su ejecución en cajas de arena
+    wrappedBinaries = {
+      # Aislar Spotify (privativo)
+      spotify = {
+        executable = "${pkgs.spotify}/bin/spotify";
+        profile = "${pkgs.firejail}/etc/firejail/spotify.profile";
+      };
+      
+      # Aislar Discord/Vesktop
+      vesktop = {
+        executable = "${pkgs.vesktop}/bin/vesktop";
+        profile = "${pkgs.firejail}/etc/firejail/discord.profile";
+      };
+
+      # (Opcional) Aislar Brave
+      brave = {
+        executable = "${pkgs.brave}/bin/brave";
+        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+      };
+    };
   };
 
 xdg.portal = {
