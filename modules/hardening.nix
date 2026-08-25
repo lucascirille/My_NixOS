@@ -153,12 +153,13 @@
 
   # --- Privacy (Network Transit) ---
   
-  # 1. MAC Address Randomization
-  # Generates a random MAC address every time you connect to a Wi-Fi network
-  # networking.networkmanager.wifi.macAddress = "random";
-  # networking.networkmanager.ethernet.macAddress = "random";
+# Privacidad de Red (MAC Spoofing Inteligente)
+  # "stable" crea una MAC única por cada red, evitando el rastreo global 
+  # pero manteniendo la estabilidad del DHCP local.
+  networking.networkmanager.wifi.macAddress = "stable";
+  networking.networkmanager.ethernet.macAddress = "stable";
 
-  # 2. DNS-over-TLS (DoT) via systemd-resolved
+  # DNS-over-TLS (DoT) via systemd-resolved
   # Encrypts all DNS queries so your ISP cannot see which domains you resolve.
   # We use Quad9 (9.9.9.9) as they are heavily privacy-focused and block malware.
   networking.nameservers = [ "9.9.9.9#dns.quad9.net" "149.112.112.112#dns.quad9.net" ];
