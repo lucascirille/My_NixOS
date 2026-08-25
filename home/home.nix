@@ -445,7 +445,7 @@ programs.keepassxc = {
   };
 
   # --- User Space Hardening ---
-  # GPG configuration with minimal key leakage
+# --- Phase 5: Cryptographic Identity ---
   programs.gpg = {
     enable = true;
     settings = {
@@ -456,6 +456,16 @@ programs.keepassxc = {
       personal-cipher-preferences = "AES256 AES192 AES";
       personal-digest-preferences = "SHA512 SHA384 SHA256";
     };
+  };
+
+  # Enable the GPG agent and use it for SSH authentication
+  services.gpg-agent = {
+    enable = true;
+    enableSshSupport = true;
+    # Cache passwords in memory for a short time (e.g., 30 mins)
+    defaultCacheTtl = 1800;
+    maxCacheTtl = 7200;
+    pinentryPackage = pkgs.pinentry-qt; # GUI popup to enter GPG password
   };
 
   # Harden Brave Browser execution
