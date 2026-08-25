@@ -106,13 +106,13 @@
 programs.firejail = {
     enable = true;
     wrappedBinaries = {
-      # Aislar Brave
       brave = {
         executable = "${pkgs.brave}/bin/brave";
-        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
-        # Pasamos argumentos para que Chromium no entre en pánico dentro del sandbox
+        # En lugar de usar un perfil estricto que rompe Chromium, 
+        # usamos argumentos directos de aislamiento genérico:
         extraArgs = [
-          "--private-home=.config/BraveSoftware" # Mantiene tus marcadores y perfil guardados
+          "--private-home=.config/BraveSoftware" # Protege tu disco, guarda tus perfiles
+          "--net=eth0" # O la interfaz de red que uses, permitiendo acceso a internet
         ];
       };
     };
