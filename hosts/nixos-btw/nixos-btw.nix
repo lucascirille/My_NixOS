@@ -103,31 +103,20 @@
 
 
 # --- Native Application Sandboxing ---
-  programs.firejail = {
+programs.firejail = {
     enable = true;
-    
-    # Envolvemos binarios específicos para forzar su ejecución en cajas de arena
     wrappedBinaries = {
-      # Aislar Spotify (privativo)
       spotify = {
         executable = "${pkgs.spotify}/bin/spotify";
         profile = "${pkgs.firejail}/etc/firejail/spotify.profile";
       };
-      
-      # Aislar Discord/Vesktop
       vesktop = {
         executable = "${pkgs.vesktop}/bin/vesktop";
         profile = "${pkgs.firejail}/etc/firejail/discord.profile";
       };
-
-      # (Opcional) Aislar Brave
-      brave = {
-        executable = "${pkgs.brave}/bin/brave";
-        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
-      };
     };
   };
-
+  
 xdg.portal = {
   enable = true;
   xdgOpenUsePortal = true; # Directs all xdg-open calls to the portal handler

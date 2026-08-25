@@ -156,8 +156,9 @@
 # Privacidad de Red (MAC Spoofing Inteligente)
   # "stable" crea una MAC única por cada red, evitando el rastreo global 
   # pero manteniendo la estabilidad del DHCP local.
-  networking.networkmanager.wifi.macAddress = "stable";
-  networking.networkmanager.ethernet.macAddress = "stable";
+  # Verificar si el router perimte esto (puede fallar)
+  # networking.networkmanager.wifi.macAddress = "stable";
+  # networking.networkmanager.ethernet.macAddress = "stable";
 
   # DNS-over-TLS (DoT) via systemd-resolved
   # Encrypts all DNS queries so your ISP cannot see which domains you resolve.
