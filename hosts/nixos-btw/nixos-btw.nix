@@ -106,13 +106,14 @@
 programs.firejail = {
     enable = true;
     wrappedBinaries = {
-      spotify = {
-        executable = "${pkgs.spotify}/bin/spotify";
-        profile = "${pkgs.firejail}/etc/firejail/spotify.profile";
-      };
-      vesktop = {
-        executable = "${pkgs.vesktop}/bin/vesktop";
-        profile = "${pkgs.firejail}/etc/firejail/discord.profile";
+      # Aislar Brave
+      brave = {
+        executable = "${pkgs.brave}/bin/brave";
+        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+        # Pasamos argumentos para que Chromium no entre en pánico dentro del sandbox
+        extraArgs = [
+          "--private-home=.config/BraveSoftware" # Mantiene tus marcadores y perfil guardados
+        ];
       };
     };
   };
