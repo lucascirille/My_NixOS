@@ -103,14 +103,11 @@
 
 
 # --- Native Application Sandboxing ---
-programs.firejail = {
+
+  services.flatpak = {
     enable = true;
-    wrappedBinaries = {
-      brave = {
-        executable = "${lib.getBin pkgs.brave}/bin/brave";
-        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
-      };
-    };
+    packages = [
+    ];
   };
   
 xdg.portal = {
