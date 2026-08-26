@@ -210,13 +210,19 @@ programs.git = {
       user = {
         name = "Lucas Cirille";
         email = "lucas.cirille@gmail.com";
+        signingkey = "~/.ssh/id_ed25519.pub";
+      };
+      gpg = {
+        format = "ssh";
+      };
+      commit = {
+        gpgsign = true;
       };
       init = {
         defaultBranch = "main";
       };
     };
   };
-
   programs.delta = {
     enable = true;
     enableGitIntegration = true;
