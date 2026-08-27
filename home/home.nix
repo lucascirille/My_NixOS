@@ -286,13 +286,20 @@ programs.keepassxc = {
   enable = true;
 };
 
-  programs.tmux = {
+programs.tmux = {
     enable = true;
     mouse = true;
     baseIndex = 1;
     keyMode = "vi";
     terminal = "tmux-256color";
     prefix = "C-a";
+
+    extraConfig = ''
+      # Abrir nuevas ventanas y splits en el directorio actual
+      bind c new-window -c "#{pane_current_path}"
+      bind '"' split-window -v -c "#{pane_current_path}"
+      bind % split-window -h -c "#{pane_current_path}"
+    '';
 
     plugins = with pkgs.tmuxPlugins; [
       sensible
@@ -314,45 +321,6 @@ programs.keepassxc = {
         '';
       }
     ];
-
-    extraConfig = ''
-      unbind C-b
-      bind C-a send-prefix
-
-      # Window & pane index
-      set -g pane-base-index 1
-      set-window-option -g pane-base-index 1
-      set -g renumber-windows on
-      set -g status-position top
-      set -s escape-time 0
-
-      # Clear screen
-      unbind-key -T copy-mode-vi C-l
-      unbind-key -T root C-l
-      bind-key -n C-l send-keys C-l
-
-      # Pane navigation (Vim style with prefix)
-      bind h select-pane -L
-      bind j select-pane -D
-      bind k select-pane -U
-      bind l select-pane -R
-
-      # Alt + hjkl to switch panes directly without prefix
-      bind -n M-h select-pane -L
-      bind -n M-j select-pane -D
-      bind -n M-k select-pane -U
-      bind -n M-l select-pane -R
-
-      # Create windows/panes in current working directory
-      bind c new-window -c "#{pane_current_path}"
-      bind '"' split-window -v -c "#{pane_current_path}"
-      bind % split-window -h -c "#{pane_current_path}"
-
-      # Copy mode (Vim bindings)
-      bind-key -T copy-mode-vi v send-keys -X begin-selection
-      bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
-      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
-    '';
   };
 
   programs.zsh = {
