@@ -294,7 +294,20 @@ programs.tmux = {
     terminal = "tmux-256color";
     prefix = "C-a";
 
-    extraConfig = ''
+extraConfig = ''
+      # Soporte True Color (necesario para Catppuccin)
+      set-option -sa terminal-features ',xterm-256color:RGB'
+
+      # Empezar a numerar los paneles en 1 y renumerar ventanas al cerrar
+      set-window-option -g pane-base-index 1
+      set-option -g renumber-windows on
+
+      # Navegación entre paneles estilo Vim
+      bind h select-pane -L
+      bind j select-pane -D
+      bind k select-pane -U
+      bind l select-pane -R
+
       # Abrir nuevas ventanas y splits en el directorio actual
       bind c new-window -c "#{pane_current_path}"
       bind '"' split-window -v -c "#{pane_current_path}"
