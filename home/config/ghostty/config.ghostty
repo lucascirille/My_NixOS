@@ -1,11 +1,10 @@
 # Start or attach to a default tmux session on launch
 # command = tmux new-session -A -s main
-# command = tmux
+command = tmux
 
 keybind = ctrl+space=text:\x00
 
 # Performance & Startup
-gtk-single-instance = false
 scrollback-limit = 10000000
 
 # Visuals & Compositing (zero transparency/blur overhead)
