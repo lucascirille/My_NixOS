@@ -38,6 +38,32 @@
     consoleLogLevel = 4;
   };
 
+
+  stylix = {
+  enable = true;
+  # If the image is in the same folder as this file:
+  image = ../../home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg; 
+  polarity = "dark";
+
+  
+  fonts = {
+    monospace = {
+      package = pkgs.jetbrains-mono;
+      name = "JetBrains Mono";
+    };
+    sansSerif = {
+      package = pkgs.inter;
+      name = "Inter";
+    };
+  };
+
+  cursor = {
+    package = pkgs.bibata-cursors;
+    name = "Bibata-Modern-Classic";
+    size = 24;
+  };
+};
+
   # Secret manager using ssh host key
   sops = {
     defaultSopsFile = ../../secrets/hosts/nixos-btw.yaml;

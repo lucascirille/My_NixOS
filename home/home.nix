@@ -110,43 +110,43 @@ in
 
   home.stateVersion = "25.11";
 
-gtk = {
-  enable = true;
-
-  # 1. Update the font package name here
-  font = {
-    name = "Inter";
-    size = 11;
-    package = pkgs.inter; 
-  };
-
-  theme = {
-    name = "Adwaita-dark"; 
-    package = pkgs.gnome-themes-extra;
-  };
-
-  iconTheme = {
-    name = "Papirus-Dark";
-    package = pkgs.papirus-icon-theme;
-  };
-
-  cursorTheme = {
-    name = "Bibata-Modern-Classic";
-    package = pkgs.bibata-cursors;
-    size = 24;
-  };
-
-  gtk3.extraConfig = {
-    gtk-application-prefer-dark-theme = 1;
-  };
-
-  gtk4.extraConfig = {
-    gtk-application-prefer-dark-theme = 1;
-  };
-
-  # 2. Add this line to silence the Home Manager warning
-  gtk4.theme = config.gtk.theme; 
-};
+# gtk = {
+#   enable = true;
+#
+#   # 1. Update the font package name here
+#   font = {
+#     name = "Inter";
+#     size = 11;
+#     package = pkgs.inter; 
+#   };
+#
+#   theme = {
+#     name = "Adwaita-dark"; 
+#     package = pkgs.gnome-themes-extra;
+#   };
+#
+#   iconTheme = {
+#     name = "Papirus-Dark";
+#     package = pkgs.papirus-icon-theme;
+#   };
+#
+#   cursorTheme = {
+#     name = "Bibata-Modern-Classic";
+#     package = pkgs.bibata-cursors;
+#     size = 24;
+#   };
+#
+#   gtk3.extraConfig = {
+#     gtk-application-prefer-dark-theme = 1;
+#   };
+#
+#   gtk4.extraConfig = {
+#     gtk-application-prefer-dark-theme = 1;
+#   };
+#
+#   # 2. Add this line to silence the Home Manager warning
+#   gtk4.theme = config.gtk.theme; 
+# };
 
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."nvim".source =
@@ -298,7 +298,7 @@ programs.vscode = {
   ];
 
   profiles.default.userSettings = {
-    "workbench.colorTheme" = "Dracula Theme";
+    # "workbench.colorTheme" = "Dracula Theme";
     "editor.formatOnSave" = true;
     "nix.enableLanguageServer" = true;
     "nix.serverPath" = "nil";
@@ -531,13 +531,13 @@ services.dunst = {
         padding = 15;
         horizontal_padding = 15;
         separator_height = 2;
-        font = "JetBrains Mono 10";
+        # font = "JetBrains Mono 10";
         frame_color = "#61afef";
       };
 
       urgency_normal = {
-        background = "#282c34";
-        foreground = "#abb2bf";
+        # background = "#282c34";
+        # foreground = "#abb2bf";
         timeout = 5;
       };
 
