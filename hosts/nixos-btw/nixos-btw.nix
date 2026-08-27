@@ -272,6 +272,9 @@ hardware.graphics = {
   programs.nix-ld.enable = true;
   
 
+environment.etc."xdg/xfce4/helpers.rc".text = ''
+  TerminalEmulator=alacritty
+'';
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
