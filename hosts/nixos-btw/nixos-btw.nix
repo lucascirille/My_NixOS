@@ -271,10 +271,22 @@ hardware.graphics = {
 
   programs.nix-ld.enable = true;
   
+environment.etc = {
+  "xdg/xfce4/helpers.rc".text = ''
+    TerminalEmulator=ghostty
+  '';
+  "xdg/xfce4/helpers/ghostty.desktop".text = ''
+    [Desktop Entry]
+    Version=1.0
+    Icon=ghostty
+    Type=X-XFCE-Helper
+    Name=Ghostty
+    X-XFCE-Category=TerminalEmulator
+    X-XFCE-Commands=ghostty
+    X-XFCE-CommandsWithParameter=ghostty --working-directory="%s"
+  '';
+};
 
-environment.etc."xdg/xfce4/helpers.rc".text = ''
-  TerminalEmulator=ghostty
-'';
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
