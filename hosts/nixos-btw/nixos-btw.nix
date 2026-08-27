@@ -178,6 +178,20 @@ hardware.graphics = {
 
   systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
 
+  programs.obs-studio = {
+    enable = true;
+    
+    # Habilita la cámara virtual (opcional pero muy útil)
+    enableVirtualCamera = true; 
+    
+    # Añade plugins oficiales de manera declarativa
+    plugins = with pkgs.obs-studio-plugins; [
+      wlrobs
+      obs-backgroundremoval
+      obs-pipewire-audio-capture
+    ];
+  };
+
   # System User & Shell
   programs.zsh.enable = true;
 
@@ -320,6 +334,7 @@ hardware.graphics = {
     dates = "weekly";
     options = "--delete-older-than 14d";
   };
+
 
 
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
