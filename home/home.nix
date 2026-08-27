@@ -103,25 +103,51 @@ in
       autoconnect = [ "qemu:///system" ];
       uris = [ "qemu:///system" ];
     };
+    "org/gnome/desktop/interface" = {
+    color-scheme = "prefer-dark";
+  };
   };
 
   home.stateVersion = "25.11";
 
-  gtk = {
-    enable = true;
+gtk = {
+  enable = true;
 
-    gtk4.theme = config.gtk.theme;
-
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
-
-    theme = {
-      name = "Adwaita";
-      package = pkgs.gnome-themes-extra;
-    };
+  # 1. Update the font package name here
+  font = {
+    name = "Ubuntu";
+    size = 11;
+    package = pkgs.ubuntu-classic; 
   };
+
+  theme = {
+    name = "Adwaita-dark"; 
+    package = pkgs.gnome-themes-extra;
+  };
+
+  iconTheme = {
+    name = "Papirus-Dark";
+    package = pkgs.papirus-icon-theme;
+  };
+
+  cursorTheme = {
+    name = "Bibata-Modern-Classic";
+    package = pkgs.bibata-cursors;
+    size = 24;
+  };
+
+  gtk3.extraConfig = {
+    gtk-application-prefer-dark-theme = 1;
+  };
+
+  gtk4.extraConfig = {
+    gtk-application-prefer-dark-theme = 1;
+  };
+
+  # 2. Add this line to silence the Home Manager warning
+  gtk4.theme = config.gtk.theme; 
+};
+
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
