@@ -273,7 +273,7 @@ hardware.graphics = {
   
 
 environment.etc."xdg/xfce4/helpers.rc".text = ''
-  TerminalEmulator=alacritty
+  TerminalEmulator=ghostty
 '';
 
   # System Packages & Fonts
