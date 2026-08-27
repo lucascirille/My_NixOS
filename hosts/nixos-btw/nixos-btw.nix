@@ -276,6 +276,8 @@ hardware.graphics = {
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
 
+  polkit_gnome # gui for polkit
+
 
 
     # Add common runtime libraries (for nix-ld)
