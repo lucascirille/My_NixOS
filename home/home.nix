@@ -115,9 +115,9 @@ gtk = {
 
   # 1. Update the font package name here
   font = {
-    name = "Ubuntu";
+    name = "JetBrains Mono";
     size = 11;
-    package = pkgs.ubuntu-classic; 
+    package = pkgs.jetbrains-mono; 
   };
 
   theme = {
