@@ -10,19 +10,11 @@ from qtile_extras.widget.decorations import RectDecoration
 import subprocess
 from libqtile import hook
 
-@hook.subscribe.startup_once
-def autostart():
-    wallpaper_path = os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg")
-    subprocess.Popen(["feh", "--bg-fill", wallpaper_path])
 
+wallpaper_path = os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg")
 
 mod = "mod4"
 terminal = guess_terminal()
-
-# @hook.subscribe.startup_once
-# def autostart():
-#     # Launches KeePassXC in the background
-#     subprocess.Popen(["keepassxc", "--minimized"])
 
 # -------------------------------------------------------------------------
 # 1. Unified Theme Control
@@ -302,6 +294,8 @@ layouts = [
 logo = os.path.join(os.path.dirname(libqtile.resources.__file__), "logo.png")
 screens = [
     Screen(
+        wallpaper=wallpaper_path,
+        wallpaper_mode="fill",
         top=create_bar(primary=True),
         background="#000000",
     ),
