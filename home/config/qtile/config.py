@@ -7,8 +7,14 @@ from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from qtile_extras import widget
 from qtile_extras.widget.decorations import RectDecoration
-# import subprocess
-# from libqtile import hook
+import subprocess
+from libqtile import hook
+
+@hook.subscribe.startup_once
+def autostart():
+    # This runs feh one time when Qtile launches
+    wallpaper_path = os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg")
+    subprocess.run(["feh", "--bg-scale", wallpaper_path])
 
 mod = "mod4"
 terminal = guess_terminal()

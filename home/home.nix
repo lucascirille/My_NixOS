@@ -21,6 +21,9 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+
+    feh
+
 # Neovim & tooling
     neovim
     nil
@@ -110,43 +113,29 @@ in
 
   home.stateVersion = "25.11";
 
-# gtk = {
-#   enable = true;
-#
-#   # 1. Update the font package name here
-#   font = {
-#     name = "Inter";
-#     size = 11;
-#     package = pkgs.inter; 
-#   };
-#
-#   theme = {
-#     name = "Adwaita-dark"; 
-#     package = pkgs.gnome-themes-extra;
-#   };
-#
-#   iconTheme = {
-#     name = "Papirus-Dark";
-#     package = pkgs.papirus-icon-theme;
-#   };
-#
-#   cursorTheme = {
-#     name = "Bibata-Modern-Classic";
-#     package = pkgs.bibata-cursors;
-#     size = 24;
-#   };
-#
-#   gtk3.extraConfig = {
-#     gtk-application-prefer-dark-theme = 1;
-#   };
-#
-#   gtk4.extraConfig = {
-#     gtk-application-prefer-dark-theme = 1;
-#   };
-#
-#   # 2. Add this line to silence the Home Manager warning
-#   gtk4.theme = config.gtk.theme; 
-# };
+gtk = {
+  enable = true;
+
+  iconTheme = {
+    name = "Papirus-Dark";
+    package = pkgs.papirus-icon-theme;
+  };
+
+  cursorTheme = {
+    name = "Bibata-Modern-Classic";
+    package = pkgs.bibata-cursors;
+    size = 24;
+  };
+
+  gtk3.extraConfig = {
+    gtk-application-prefer-dark-theme = 1;
+  };
+
+  gtk4.extraConfig = {
+    gtk-application-prefer-dark-theme = 1;
+  };
+
+};
 
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."nvim".source =
@@ -472,6 +461,7 @@ extraConfig = ''
       personal-digest-preferences = "SHA512 SHA384 SHA256";
     };
   };
+
 
   # Enable the GPG agent and use it for SSH authentication
   services.gpg-agent = {

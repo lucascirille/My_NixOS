@@ -39,13 +39,12 @@
   };
 
 
-  stylix = {
+stylix = {
   enable = true;
-  # If the image is in the same folder as this file:
   image = ../../home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg; 
   polarity = "dark";
 
-  
+
   fonts = {
     monospace = {
       package = pkgs.jetbrains-mono;
