@@ -515,6 +515,12 @@ services.dunst = {
         timeout = 5;
       };
 
+      urgency_critical = {
+        background = "#900000"; # Tu color de fondo rojo
+        foreground = "#ffffff";
+        timeout = 0; # 0 significa que NUNCA desaparece sola
+      };
+
       "volume_bar" = {
         stack_tag = "volume";
         summary = "Volume";
