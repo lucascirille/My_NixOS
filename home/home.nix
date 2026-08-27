@@ -553,7 +553,7 @@ xdg.configFile."Thunar/uca.xml".text = ''
       <name>Open Terminal Here</name>
       <submenu></submenu>
       <unique-id>ghostty-open-here</unique-id>
-      <command>ghostty --working-directory="%f"</command>
+      <command>bash -c 'ghostty --working-directory="''${1:-$PWD}"' _ "%f"</command>
       <description>Open Ghostty in this directory</description>
       <range></range>
       <patterns>*</patterns>
