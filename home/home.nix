@@ -115,9 +115,9 @@ gtk = {
 
   # 1. Update the font package name here
   font = {
-    name = "JetBrains Mono";
+    name = "Inter";
     size = 11;
-    package = pkgs.jetbrains-mono; 
+    package = pkgs.inter; 
   };
 
   theme = {
