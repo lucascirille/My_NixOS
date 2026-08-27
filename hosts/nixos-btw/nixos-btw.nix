@@ -291,6 +291,8 @@ hardware.graphics = {
   environment.systemPackages = with pkgs; [
 
 
+   kdePackages.polkit-kde-agent-1
+
 
 
     # Add common runtime libraries (for nix-ld)
