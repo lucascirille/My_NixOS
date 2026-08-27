@@ -87,7 +87,6 @@ in
 
     nh
     nix-output-monitor
-    btop
     fastfetch
     ghostty
     wget
@@ -110,6 +109,8 @@ in
     color-scheme = "prefer-dark";
   };
   };
+
+  programs.btop.enable = true;
 
   home.stateVersion = "25.11";
 
