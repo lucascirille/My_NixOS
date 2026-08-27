@@ -275,6 +275,9 @@ hardware.graphics = {
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
+
+
+
     # Add common runtime libraries (for nix-ld)
     stdenv.cc.cc
     zlib
