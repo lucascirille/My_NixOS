@@ -28,5 +28,7 @@
   systemd.services.lactd.path = with pkgs; [ 
     systemd 
     gamemode 
+    dbus
+    bash
   ];
 }
