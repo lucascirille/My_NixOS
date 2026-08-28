@@ -23,4 +23,10 @@
 
   # Habilita el servicio de LACT correctamente de forma nativa
   services.lact.enable = true;
+
+  # FIX: Inject systemd (for busctl) and gamemode into the daemon's PATH
+  systemd.services.lactd.path = with pkgs; [ 
+    systemd 
+    gamemode 
+  ];
 }
