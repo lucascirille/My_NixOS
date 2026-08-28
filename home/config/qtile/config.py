@@ -11,7 +11,7 @@ import subprocess
 from libqtile import hook
 
 
-wallpaper_path = os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg")
+wallpaper_path = os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/current.jpg")
 
 mod = "mod4"
 terminal = guess_terminal()

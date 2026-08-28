@@ -40,7 +40,7 @@
 
   stylix = {
     enable = true;
-    image = ../../home/assets/Wallpapers/monkey-d-luffy-3840x2160-26035.jpg;
+    image = ../../home/assets/Wallpapers/current.jpg;
     polarity = "dark";
 
     fonts = {
