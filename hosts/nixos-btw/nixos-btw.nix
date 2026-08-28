@@ -38,21 +38,6 @@
     consoleLogLevel = 4;
   };
 
-  # Time Synchronization
-  # services.timesyncd = {
-  #   enable = true;
-  #   # servers = [
-  #   #   "time.cloudflare.com"
-  #   #   "time.google.com"
-  #   #   "pool.ntp.org"
-  #   # ];
-  #   # # Fallback to raw IPs to break the DNSSec/Dot deadlock on boot
-  #   # fallbackServers = [
-  #   #   "162.159.200.1"    # Cloudflare NTP
-  #   #   "162.159.200.123"  # Cloudflare NTP
-  #   #   "216.239.35.0"     # Google time1 IP
-  #   # ];
-  # };
 
   # DNS Resolution & MpowerManagement
   networking.nameservers = [];
