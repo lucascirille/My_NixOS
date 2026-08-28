@@ -63,7 +63,6 @@ in
     nsxiv # Fast, lightweight image viewer with gallery mode
 
     # Screenshot tools
-    flameshot
     maim
     xdotool
 
@@ -98,6 +97,8 @@ programs.cava.enable = true;
 programs.rofi.enable = true;
 programs.fastfetch.enable = true;
 programs.lazydocker.enable = true;
+
+services.flameshot.enable = true;
 
 programs.ghostty = {
   enable = true;
