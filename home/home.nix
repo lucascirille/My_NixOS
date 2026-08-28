@@ -61,7 +61,6 @@ in
     vesktop
     spotify
 
-    zathura # Minimalist PDF viewer
     foliate # Dedicated e-book reader
 
     nsxiv # Fast, lightweight image viewer with gallery mode
@@ -88,7 +87,6 @@ in
     nh
     nix-output-monitor
     fastfetch
-    ghostty
     wget
     rofi
     pamixer
@@ -98,6 +96,32 @@ in
     libnotify
     bubblewrap
   ];
+
+
+programs.ghostty = {
+  enable = true;
+  settings = {
+    command = "tmux";
+    
+    # We use a double backslash here so Nix outputs it as \x00
+    keybind = "ctrl+space=text:\\x00";
+
+    # Performance & Startup
+    scrollback-limit = 10000000;
+
+    # Visuals & Compositing (zero transparency/blur overhead)
+    background-opacity = 1.0;
+    background-blur = 0;
+
+    # Minimalism (no window decorations or tabs)
+    window-decoration = false;
+    gtk-tabs-location = "hidden";
+    window-padding-x = 0;
+    window-padding-y = 0;
+    window-padding-balance = false;
+  };
+};
+  programs.zathura.enable = true;
 
   # Configure virt-manager default connection URI via dconf
   dconf.settings = {
@@ -141,8 +165,8 @@ gtk = {
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
-  xdg.configFile."ghostty".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
+  # xdg.configFile."ghostty".source =
+  #   config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
 
   xdg.configFile."flameshot/flameshot.ini".text = ''
     [General]
