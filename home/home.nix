@@ -49,7 +49,6 @@ in
     ouch # Unified compression/decompression tool
 
     docker-compose
-    lazydocker # Terminal UI for Docker
 
     zip
     unzip
@@ -83,9 +82,7 @@ in
 
     nh
     nix-output-monitor
-    fastfetch
     wget
-    rofi
     pamixer
     pavucontrol
     playerctl
@@ -98,6 +95,9 @@ in
 programs.mpv.enable = true;
 programs.feh.enable = true;
 programs.cava.enable = true;
+programs.rofi.enable = true;
+programs.fastfetch.enable = true;
+programs.lazydocker.enable = true;
 
 programs.ghostty = {
   enable = true;
