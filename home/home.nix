@@ -331,6 +331,19 @@ in
       set-window-option -g pane-base-index 1
       set-option -g renumber-windows on
 
+      # Clear the default left side (since we moved the session name to the right)
+      set-option -g status-left ""
+
+      # Active window (The one you are currently using)
+      set-window-option -g window-status-current-format "#[fg=cyan,bg=default]#[fg=black,bg=cyan,bold] #I  #W #[fg=cyan,bg=default] "
+
+      # Inactive windows (The ones running in the background)
+      # We use 'colour8' (usually a dark gray in Stylix) to make them look less prominent
+      set-window-option -g window-status-format "#[fg=colour8,bg=default]#[fg=white,bg=colour8] #I  #W #[fg=colour8,bg=default] "
+
+      # Remove the default space between windows so our pills sit neatly next to each other
+      set-window-option -g window-status-separator ""
+
       # Make the main status bar background transparent so the pill stands out
       set-option -g status-bg default
 
