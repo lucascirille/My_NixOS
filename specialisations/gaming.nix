@@ -32,4 +32,20 @@
     bash
     "/run/wrappers"
   ];
+
+  programs.gamemode = {
+    enable = true;
+    settings = {
+      custom = {
+        start = ''
+          echo manual > /sys/class/drm/card1/device/power_dpm_force_performance_level
+          ${pkgs.lact}/bin/lact cli profile set 'OC + UV'
+        '';
+        end = ''
+          echo auto > /sys/class/drm/card1/device/power_dpm_force_performance_level
+          ${pkgs.lact}/bin/lact cli profile set Default
+        '';
+      };
+    };
+  };
 }
