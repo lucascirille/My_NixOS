@@ -38,14 +38,15 @@
     settings = {
       custom = {
         start = ''
+          # Cambia a modo manual y aplica tu perfil de rendimiento alto / OC
           echo manual > /sys/class/drm/card1/device/power_dpm_force_performance_level
-          ${pkgs.lact}/bin/lact cli profile set 'OC + UV'
         '';
         end = ''
+          # Devuelve el control de energía al kernel (vuelve a los valores por defecto del sistema)
           echo auto > /sys/class/drm/card1/device/power_dpm_force_performance_level
-          ${pkgs.lact}/bin/lact cli profile set Default
         '';
       };
     };
   };
+
 }
