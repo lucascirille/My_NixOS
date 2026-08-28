@@ -24,11 +24,13 @@
   # Habilita el servicio de LACT correctamente de forma nativa
   services.lact.enable = true;
 
-  # FIX: Inject systemd (for busctl) and gamemode into the daemon's PATH
+# FIX: Inject systemd (for busctl) and system wrappers (for sudo)
+  # so LACT can run `sudo -u user busctl` to reach GameMode DBus.
   systemd.services.lactd.path = with pkgs; [ 
     systemd 
     gamemode 
-    dbus
     bash
+    "/run/wrappers"
   ];
+
 }
