@@ -22,7 +22,6 @@ in
   };
   home.packages = with pkgs; [
 
-    feh
 
 # Neovim & tooling
     neovim
@@ -48,7 +47,6 @@ in
     # ------------------------------------
 
     ouch # Unified compression/decompression tool
-    cava # PipeWire-compatible audio visualizer
 
     docker-compose
     lazydocker # Terminal UI for Docker
@@ -64,7 +62,6 @@ in
     foliate # Dedicated e-book reader
 
     nsxiv # Fast, lightweight image viewer with gallery mode
-    mpv # Minimalist, high-performance video player
 
     # Screenshot tools
     flameshot
@@ -98,6 +95,9 @@ in
   ];
 
 
+programs.mpv.enable = true;
+programs.feh.enable = true;
+programs.cava.enable = true;
 
 programs.ghostty = {
   enable = true;
