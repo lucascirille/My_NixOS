@@ -29,8 +29,8 @@ colors = {
 }
 
 widget_defaults = dict(
-    font="JetBrains Mono",
-    fontsize=12,
+    font="JetBrainsMono Nerd Font",
+    fontsize=14,
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
