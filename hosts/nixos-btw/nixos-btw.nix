@@ -34,6 +34,7 @@
       "quiet"
       "loglevel=4"
       "systemd.show_status=true"
+      # "amdgpu.ppfeaturemask=0xffffffff"
     ];
     consoleLogLevel = 4;
   };
@@ -316,7 +317,7 @@
 
     mangohud
     goverlay
-    lact
+    # lact
 
     file
 
@@ -360,8 +361,8 @@
     options = "--delete-older-than 14d";
   };
 
-systemd.packages = with pkgs; [ lact ];
-systemd.services.lactd.wantedBy = [ "multi-user.target" ];
+# systemd.packages = with pkgs; [ lact ];
+# systemd.services.lactd.wantedBy = [ "multi-user.target" ];
 
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
