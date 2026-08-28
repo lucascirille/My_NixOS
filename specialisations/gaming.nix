@@ -19,7 +19,8 @@
   # Herramientas exclusivas para jugar
   environment.systemPackages = with pkgs; [
     mangohud
-    goverlay
+    # goverlay # More complex and more buggy if you dont configure it well
+    mangojuice
     lact
   ];
 
