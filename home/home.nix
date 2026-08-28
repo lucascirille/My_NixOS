@@ -315,7 +315,7 @@ in
     enable = true;
   };
 
-  programs.tmux = {
+programs.tmux = {
     enable = true;
     mouse = true;
     baseIndex = 1;
@@ -324,22 +324,21 @@ in
     prefix = "C-a";
 
     extraConfig = ''
-      # Soporte True Color (necesario para Catppuccin)
+      # Soporte True Color (necesario para Stylix/Base16)
       set-option -sa terminal-features ',xterm-256color:RGB'
 
       # Empezar a numerar los paneles en 1 y renumerar ventanas al cerrar
       set-window-option -g pane-base-index 1
       set-option -g renumber-windows on
 
-      # Clear the default left side (since we moved the session name to the right)
+      # Clear the default left side
       set-option -g status-left ""
 
       # Active window (The one you are currently using)
-      set-window-option -g window-status-current-format "#[fg=cyan,bg=default]#[fg=black,bg=cyan,bold] #I  #W #[fg=cyan,bg=default] "
+      set-window-option -g window-status-current-format "#[fg=#${config.lib.stylix.colors.base0D},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] #I  #W #[fg=#${config.lib.stylix.colors.base0D},bg=default] "
 
       # Inactive windows (The ones running in the background)
-      # We use 'colour8' (usually a dark gray in Stylix) to make them look less prominent
-      set-window-option -g window-status-format "#[fg=colour8,bg=default]#[fg=white,bg=colour8] #I  #W #[fg=colour8,bg=default] "
+      set-window-option -g window-status-format "#[fg=#${config.lib.stylix.colors.base03},bg=default]#[fg=#${config.lib.stylix.colors.base05},bg=#${config.lib.stylix.colors.base03}] #I  #W #[fg=#${config.lib.stylix.colors.base03},bg=default] "
 
       # Remove the default space between windows so our pills sit neatly next to each other
       set-window-option -g window-status-separator ""
@@ -348,8 +347,7 @@ in
       set-option -g status-bg default
 
       # Create the pill shape for the session name on the right side
-      #  is the left edge,  is the right edge
-      set-option -g status-right "#[fg=cyan,bg=default]#[fg=black,bg=cyan,bold] 󰀘 #S #[fg=cyan,bg=default] "
+      set-option -g status-right "#[fg=#${config.lib.stylix.colors.base0D},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] 󰀘 #S #[fg=#${config.lib.stylix.colors.base0D},bg=default] "
       
       # Ensure there is enough space to render the text
       set-option -g status-right-length 50
@@ -369,22 +367,6 @@ in
     plugins = with pkgs.tmuxPlugins; [
       sensible
       yank
-      # {
-      #   plugin = catppuccin;
-      #   extraConfig = ''
-      #     set -g @catppuccin_flavor "mocha"
-      #     set -g @catppuccin_window_status_style "rounded"
-      #     set -g @catppuccin_window_number_position "right"
-      #     set -g @catppuccin_window_default_fill "number"
-      #     set -g @catppuccin_window_default_text "#W"
-      #     set -g @catppuccin_window_current_fill "number"
-      #     set -g @catppuccin_window_current_text "#W"
-      #     set -g @catppuccin_status_modules_right "directory user host session"
-      #     set -g @catppuccin_status_fill "icon"
-      #     set -g @catppuccin_status_connect_separator "no"
-      #     set -g @catppuccin_directory_text "#{pane_current_path}"
-      #   '';
-      # }
     ];
   };
 
