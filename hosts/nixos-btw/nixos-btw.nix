@@ -40,7 +40,7 @@
 
   stylix = {
     enable = true;
-    image = ../../home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg;
+    image = ../../home/assets/Wallpapers/monkey-d-luffy-3840x2160-26035.jpg;
     polarity = "dark";
 
     fonts = {
@@ -61,6 +61,8 @@
     };
 
   };
+
+
 
   # Secret manager using ssh host key
   sops = {
