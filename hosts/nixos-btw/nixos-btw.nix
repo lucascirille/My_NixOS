@@ -317,6 +317,8 @@ hardware.graphics = {
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
 
+  file
+
   polkit_gnome # gui for polkit
 
 
