@@ -38,6 +38,16 @@ extension_defaults = widget_defaults.copy()
 # -------------------------------------------------------------------------
 # 2. Functional & Hardware Detection Helpers
 # -------------------------------------------------------------------------
+def get_wlan_interface():
+    """Detects the first available Wi-Fi interface (usually starts with 'w')."""
+    sys_net = "/sys/class/net"
+    if os.path.exists(sys_net):
+        for dev in os.listdir(sys_net):
+            # Wi-Fi interfaces typically start with 'w' (e.g., wlan0, wlo1)
+            if dev.startswith("w") and dev != "wg0": # exclude wireguard
+                return dev
+    return None
+
 def has_battery():
     """Checks if a battery device exists in sysfs (Laptops)."""
     sys_power = "/sys/class/power_supply"
@@ -148,7 +158,26 @@ def create_bar(primary=True):
             widget.Backlight(
                 backlight_name=backlight_dev,
                 format='󰃟  {percent:2.0%}',
-                update_interval=2.0,
+                # Enable mouse wheel scrolling to change brightness by 5%
+                step=5, 
+                change_command='brightnessctl set {0}%',
+                # Lower the update interval so the UI reacts instantly when scrolling
+                update_interval=0.1, 
+                **get_decoration(colors["surface"])
+            )
+        )
+
+    # Conditionally add Wi-Fi widget (Hardware with wireless cards only)
+    wlan_dev = get_wlan_interface()
+    if wlan_dev:
+        bar_widgets.append(
+            widget.Wlan(
+                interface=wlan_dev,
+                format='󰤨  {essid} {percent:2.0%}',
+                disconnected_message='󰤭  Offline',
+                update_interval=5.0,
+                # Left click opens NetworkManager TUI in your terminal
+                mouse_callbacks={'Button1': lazy.spawn(f"{terminal} -e nmtui")},
                 **get_decoration(colors["surface"])
             )
         )
