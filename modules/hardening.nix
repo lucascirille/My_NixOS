@@ -91,7 +91,8 @@
   # --- Access Control & Sudo ---
   security.apparmor = {
     enable = true;
-    killUnconfinedConfinables = true;
+    # Make this on False if you use a Laptop
+    # killUnconfinedConfinables = true;
   };
 
   # Lock down sudo to wheel group with a short timeout
@@ -171,8 +172,10 @@
 
     settings = {
       Resolve = {
-        DNSOverTLS = "true";
-        DNSSEC = "true";
+        # "opportinisstic" enctrypts DNS if port 853 is open, but falls back to port 53if the router blocks it.
+        DNSOverTLS = "opportunistic";
+        # "allow-downgrade" validates DDNSSEC if the network supports it, preventing captive portal deadlocks.
+        DNSSEC = "allow-downgrade";
         Domains = [ "~." ];
         FallbackDNS = [
           "1.1.1.1"

@@ -1,9 +1,17 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Inyectamos los drivers y permisos físicos solo cuando inicias en este modo
-  services.xserver.videoDrivers = [ "amdgpu" ];
-  boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
+  # Inyectamos los drivers y permisos físicos solo cuando inicias en este modo AMD
+  # services.xserver.videoDrivers = [ "amdgpu" ];
+  # boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
+
+  hardware.graphics = {
+      enable = true;
+      enable32Bit = true;
+      extraPackages = with pkgs; [
+        intel-media-driver # aceleracion por hardware Intel
+      ];
+    };
 
   # Herramientas exclusivas para jugar
   environment.systemPackages = with pkgs; [
