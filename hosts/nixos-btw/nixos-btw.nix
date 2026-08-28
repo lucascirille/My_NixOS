@@ -316,6 +316,8 @@
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
 
+    gdb
+
     file
 
     polkit_gnome # gui for polkit
