@@ -34,7 +34,6 @@
       "quiet"
       "loglevel=4"
       "systemd.show_status=true"
-      "amdgpu.ppfeaturemask=0xffffffff"
     ];
     consoleLogLevel = 4;
   };
