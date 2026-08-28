@@ -96,9 +96,9 @@
     vm.configuration = {
     imports = [ ../../specialisations/vm.nix ];
     };
-    gaming.configuration = {
-    imports = [ ../../specialisations/gaming.nix ];
-      };
+    # gaming.configuration = {
+    # imports = [ ../../specialisations/gaming.nix ];
+    #   };
   };
 
   # Display Manager (Ly) & Window Manager (Qtile)

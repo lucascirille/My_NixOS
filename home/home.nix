@@ -82,7 +82,23 @@ in
     xclip
     libnotify
     bubblewrap
+
+    mangojuice
   ];
+
+    programs.mangohud = {
+    enable = true;
+
+    settings = {
+      fps = true;
+      frametime = true;
+      gpu_stats = true;
+      cpu_stats = true;
+      ram = true;
+      vram = true;
+      temperature = true;
+    };
+  };
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
