@@ -97,6 +97,7 @@
     autoRepeatDelay = 200;
     autoRepeatInterval = 35;
     updateDbusEnvironment = true;
+    videoDrivers = [ "amdgpu" ];
     windowManager.qtile = {
       enable = true;
       extraPackages =
@@ -200,6 +201,9 @@
       rocmPackages.clr.icd # Driver HIP/OpenCL para gráficas AMD Radeon
     ];
   };
+
+  systemd.packages = with pkgs; [ lact ];
+  systemd.services.lactd.wantedBy = [ "multi-user.target" ];
 
   systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
 
@@ -310,6 +314,10 @@
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
+
+    mangohud
+    goverlay
+    lact
 
     file
 
