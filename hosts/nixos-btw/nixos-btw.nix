@@ -20,10 +20,10 @@
     };
 
     kernel = {
-        sysctl = {
-            "vm.max_map_count" = 262144;
-          };
+      sysctl = {
+        "vm.max_map_count" = 262144;
       };
+    };
 
     lanzaboote = {
       enable = true;
@@ -38,32 +38,29 @@
     consoleLogLevel = 4;
   };
 
+  stylix = {
+    enable = true;
+    image = ../../home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg;
+    polarity = "dark";
 
-stylix = {
-  enable = true;
-  image = ../../home/assets/Wallpapers/fortnite-override-3840x2160-27043.jpg; 
-  polarity = "dark";
-
-
-  fonts = {
-    monospace = {
-      package = pkgs.nerd-fonts.jetbrains-mono;
-      name = "JetBrainsMono Nerd Font";
+    fonts = {
+      monospace = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font";
+      };
+      sansSerif = {
+        package = pkgs.inter;
+        name = "Inter";
+      };
     };
-    sansSerif = {
-      package = pkgs.inter;
-      name = "Inter";
+
+    cursor = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Classic";
+      size = 24;
     };
+
   };
-
-  cursor = {
-    package = pkgs.bibata-cursors;
-    name = "Bibata-Modern-Classic";
-    size = 24;
-  };
-
-
-};
 
   # Secret manager using ssh host key
   sops = {
@@ -128,37 +125,37 @@ stylix = {
 
   services.blueman.enable = true;
 
+  # --- Native Application Sandboxing ---
 
-# --- Native Application Sandboxing ---
-
-services.flatpak = {
+  services.flatpak = {
     enable = true;
-    
+
     # Declaramos los repositorios que queremos usar
-    remotes = lib.mkOptionDefault [{
-      name = "flathub";
-      location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
-    }];
-    
+    remotes = lib.mkOptionDefault [
+      {
+        name = "flathub";
+        location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
+      }
+    ];
+
     # Declaramos exactamente qué aplicaciones instalar
     packages = [
       "com.github.tchx84.Flatseal"
     ];
-    
+
     # Limpieza automática de apps que quites de la lista
-    uninstallUnmanaged = true; 
+    uninstallUnmanaged = true;
   };
-  
-xdg.portal = {
-  enable = true;
-  xdgOpenUsePortal = true; # Directs all xdg-open calls to the portal handler
-  extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-  config.common.default = "gtk";
-};
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true; # Directs all xdg-open calls to the portal handler
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "gtk";
+  };
 
   # Enable GNOME Keyring daemon
   services.gnome.gnome-keyring.enable = false;
-
 
   # Automatically unlock the keyring when loggin in through Ly
   security.pam.services.ly.enableGnomeKeyring = true;
@@ -192,25 +189,24 @@ xdg.portal = {
     settings.General.AutoEnable = "false";
   };
 
-
-hardware.graphics = {
-  enable = true;
-  enable32Bit = true;
-  extraPackages = with pkgs; [
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
       intel-compute-runtime # Driver OpenCL para gráficas Intel
-      pocl                  # Soporte OpenCL genérico para CPUs
-      rocmPackages.clr.icd  # Driver HIP/OpenCL para gráficas AMD Radeon
+      pocl # Soporte OpenCL genérico para CPUs
+      rocmPackages.clr.icd # Driver HIP/OpenCL para gráficas AMD Radeon
     ];
-};
+  };
 
   systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
 
   programs.obs-studio = {
     enable = true;
-    
+
     # Habilita la cámara virtual (opcional pero muy útil)
-    enableVirtualCamera = true; 
-    
+    enableVirtualCamera = true;
+
     # Añade plugins oficiales de manera declarativa
     plugins = with pkgs.obs-studio-plugins; [
       wlrobs
@@ -227,8 +223,8 @@ hardware.graphics = {
     enable = true;
     package = pkgs.wireshark; # Provides the Wireshark GUI
   };
-  
-    # Enable Steam with hardware & network integration
+
+  # Enable Steam with hardware & network integration
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Open ports for Steam Remote Play
@@ -238,7 +234,6 @@ hardware.graphics = {
 
   # Gaming performance booster
   programs.gamemode.enable = true;
-
 
   users.users.neo = {
     isNormalUser = true;
@@ -309,27 +304,20 @@ hardware.graphics = {
     package = pkgs.i3lock-color;
   };
 
-
   programs.nix-ld.enable = true;
-  
-
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
 
-  file
+    file
 
-  polkit_gnome # gui for polkit
-
-
+    polkit_gnome # gui for polkit
 
     # Add common runtime libraries (for nix-ld)
     stdenv.cc.cc
     zlib
 
-
     # seahorse
-
 
     arandr # Visual drag-and-drop display & projector manager
     lxrandr # Simple GUI resolution selector
@@ -342,7 +330,6 @@ hardware.graphics = {
     dynamips # Cisco IOS router emulator (optional)
     inetutils # Provides telnet client for console access
   ];
-
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
@@ -364,31 +351,31 @@ hardware.graphics = {
     options = "--delete-older-than 14d";
   };
 
-
-
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
     wantedBy = [ "graphical-session.target" ];
     wants = [ "graphical-session.target" ];
     after = [ "graphical-session.target" ];
-    
+
     serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        Restart = "on-failure";
-        RestartSec = 1;
-        TimeoutStopSec = 10;
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
     };
   };
 
-# ==========================================
+  # ==========================================
   # CONFIGURACIÓN EN EL HOST (FUERA DEL CONTENEDOR)
   # ==========================================
-  networking.bridges.br-lab.interfaces = [];
-  networking.interfaces.br-lab.ipv4.addresses = [{
-    address = "10.0.10.1";
-    prefixLength = 24;
-  }];
+  networking.bridges.br-lab.interfaces = [ ];
+  networking.interfaces.br-lab.ipv4.addresses = [
+    {
+      address = "10.0.10.1";
+      prefixLength = 24;
+    }
+  ];
 
   # NAT dinámico: omitiendo externalInterface, NixOS usa la ruta por defecto automáticamente
   networking.nat = {
@@ -405,12 +392,15 @@ hardware.graphics = {
     privateNetwork = true;
     hostBridge = "br-lab";
     localAddress = "10.0.10.2/24";
-    
+
     config = { config, pkgs, ... }: {
-      
+
       networking.defaultGateway = "10.0.10.1";
-      networking.nameservers = [ "8.8.8.8" "1.1.1.1" ];
-      
+      networking.nameservers = [
+        "8.8.8.8"
+        "1.1.1.1"
+      ];
+
       # --- 1. Suricata: Motor IDS/IPS ---
       services.suricata = {
         enable = true;
@@ -418,8 +408,8 @@ hardware.graphics = {
           default-rule-path = "/var/lib/suricata-rules/rules";
           rule-files = [ "*.rules" ];
           classification-file = "/var/lib/suricata-rules/rules/classification.config";
-          
-      # --- Habilitar la escritura de logs ---
+
+          # --- Habilitar la escritura de logs ---
           outputs = [
             {
               fast = {
@@ -433,35 +423,49 @@ hardware.graphics = {
                 enabled = true;
                 filetype = "regular";
                 filename = "/var/log/suricata/eve.json"; # <--- RUTA ABSOLUTA
-                types = [ "alert" "http" "dns" "tls" ];
+                types = [
+                  "alert"
+                  "http"
+                  "dns"
+                  "tls"
+                ];
               };
             }
-          ];          
+          ];
 
-          af-packet = [{
-            interface = "eth0";
-            cluster-id = 99;
-            cluster-type = "cluster_flow";
-            defrag = "yes";
-          }];
+          af-packet = [
+            {
+              interface = "eth0";
+              cluster-id = 99;
+              cluster-type = "cluster_flow";
+              defrag = "yes";
+            }
+          ];
         };
       };
-      
+
       # --- 2. Suricata: Actualización Declarativa ---
       systemd.services.suricata = {
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
-        path = with pkgs; [ curl gnutar gzip ];
-        
+        path = with pkgs; [
+          curl
+          gnutar
+          gzip
+        ];
+
         serviceConfig = {
-          ReadWritePaths = [ "/var/lib/suricata-rules" "/var/log/suricata" ];
+          ReadWritePaths = [
+            "/var/lib/suricata-rules"
+            "/var/log/suricata"
+          ];
         };
-        
-    preStart = pkgs.lib.mkBefore ''
+
+        preStart = pkgs.lib.mkBefore ''
           mkdir -p /var/lib/suricata-rules
           mkdir -p /var/log/suricata
 
-        
+
           curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata-rules/
         '';
       };
@@ -471,12 +475,12 @@ hardware.graphics = {
         description = "Zeek Network Security Monitor";
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ];
-        
+
         serviceConfig = {
           # Le decimos a systemd que cree y gestione automáticamente /var/lib/zeek
           StateDirectory = "zeek";
           WorkingDirectory = "/var/lib/zeek";
-          
+
           ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
           Restart = "always";
         };

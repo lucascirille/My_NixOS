@@ -5,8 +5,6 @@
   ...
 }:
 
-
-
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
@@ -22,8 +20,7 @@ in
   };
   home.packages = with pkgs; [
 
-
-# Neovim & tooling
+    # Neovim & tooling
     neovim
     nil
     lua-language-server
@@ -34,16 +31,14 @@ in
     texliveMedium
     nodejs_22
 
-
-    mat2     # CLI tool to strip metadata (GPS, EXIF) from files/images before sharing
-
+    mat2 # CLI tool to strip metadata (GPS, EXIF) from files/images before sharing
 
     keepassxc
 
     # --- Ciberseguridad (Host Seguro) ---
-    burpsuite       # Proxy e interceptor web
-    bloodhound      # Analizador de grafos para Active Directory
-    hashcat         # Rompedor de hashes acelerado por GPU
+    burpsuite # Proxy e interceptor web
+    bloodhound # Analizador de grafos para Active Directory
+    hashcat # Rompedor de hashes acelerado por GPU
     # ------------------------------------
 
     ouch # Unified compression/decompression tool
@@ -89,42 +84,40 @@ in
     bubblewrap
   ];
 
+  programs.mpv.enable = true;
+  programs.feh.enable = true;
+  programs.cava.enable = true;
+  programs.rofi.enable = true;
+  programs.fastfetch.enable = true;
+  programs.lazydocker.enable = true;
 
-programs.mpv.enable = true;
-programs.feh.enable = true;
-programs.cava.enable = true;
-programs.rofi.enable = true;
-programs.fastfetch.enable = true;
-programs.lazydocker.enable = true;
+  services.flameshot.enable = true;
+  services.playerctld.enable = true;
 
-services.flameshot.enable = true;
-services.playerctld.enable = true;
+  programs.ghostty = {
+    enable = true;
+    settings = {
+      command = "tmux";
 
-programs.ghostty = {
-  enable = true;
-  settings = {
-    command = "tmux";
-    
-    # We use a double backslash here so Nix outputs it as \x00
-    keybind = "ctrl+space=text:\\x00";
+      # We use a double backslash here so Nix outputs it as \x00
+      keybind = "ctrl+space=text:\\x00";
 
-    # Performance & Startup
-    scrollback-limit = 10000000;
+      # Performance & Startup
+      scrollback-limit = 10000000;
 
-    # Visuals & Compositing (zero transparency/blur overhead)
-    background-opacity = 1.0;
-    background-blur = 0;
+      # Visuals & Compositing (zero transparency/blur overhead)
+      background-opacity = 1.0;
+      background-blur = 0;
 
-    # Minimalism (no window decorations or tabs)
-    window-decoration = false;
-    gtk-tabs-location = "hidden";
-    window-padding-x = 0;
-    window-padding-y = 0;
-    window-padding-balance = false;
+      # Minimalism (no window decorations or tabs)
+      window-decoration = false;
+      gtk-tabs-location = "hidden";
+      window-padding-x = 0;
+      window-padding-y = 0;
+      window-padding-balance = false;
+    };
   };
-};
-stylix.targets.ghostty.enable = false;
-
+  stylix.targets.ghostty.enable = false;
 
   programs.zathura.enable = true;
 
@@ -135,41 +128,40 @@ stylix.targets.ghostty.enable = false;
       uris = [ "qemu:///system" ];
     };
     "org/gnome/desktop/interface" = {
-    color-scheme = "prefer-dark";
-  };
+      color-scheme = "prefer-dark";
+    };
   };
 
   programs.btop.enable = true;
 
   home.stateVersion = "25.11";
 
-gtk = {
-  enable = true;
+  gtk = {
+    enable = true;
 
-  iconTheme = {
-    name = "Papirus-Dark";
-    package = pkgs.papirus-icon-theme;
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+
+    cursorTheme = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size = 24;
+    };
+
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = 1;
+    };
+
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = 1;
+    };
+
   };
-
-  cursorTheme = {
-    name = "Bibata-Modern-Classic";
-    package = pkgs.bibata-cursors;
-    size = 24;
-  };
-
-  gtk3.extraConfig = {
-    gtk-application-prefer-dark-theme = 1;
-  };
-
-  gtk4.extraConfig = {
-    gtk-application-prefer-dark-theme = 1;
-  };
-
-};
 
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
-  xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
+  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
 
   xdg.configFile."flameshot/flameshot.ini".text = ''
     [General]
@@ -183,7 +175,10 @@ gtk = {
       genericName = "Active Directory Analyzer";
       exec = "BloodHound";
       terminal = false;
-      categories = [ "Network" "Security" ];
+      categories = [
+        "Network"
+        "Security"
+      ];
       comment = "Analizador de rutas de ataque con grafos";
     };
   };
@@ -210,9 +205,7 @@ gtk = {
     };
   };
 
-
-
-    programs.obsidian = {
+  programs.obsidian = {
     enable = true;
 
     vaults.notes = {
@@ -228,7 +221,6 @@ gtk = {
       appearance = {
         accentColor = "#7aa2f7";
       };
-
 
       corePlugins = [
         "backlink"
@@ -247,7 +239,7 @@ gtk = {
     };
   };
 
-programs.git = {
+  programs.git = {
     enable = true;
     settings = {
       user = {
@@ -300,35 +292,30 @@ programs.git = {
     };
   };
 
+  programs.vscode = {
+    enable = true;
+    package = pkgs.vscode.override {
+      commandLineArgs = "--password-store=gnome-libsecret";
+    };
 
+    profiles.default.extensions = with pkgs.vscode-extensions; [
+      jnoortheen.nix-ide
+      dracula-theme.theme-dracula
+      vscodevim.vim
+    ];
 
-programs.vscode = {
-  enable = true;
-  package = pkgs.vscode.override {
-    commandLineArgs = "--password-store=gnome-libsecret";
+    profiles.default.userSettings = {
+      "editor.formatOnSave" = true;
+      "nix.enableLanguageServer" = true;
+      "nix.serverPath" = "nil";
+    };
   };
 
-  profiles.default.extensions = with pkgs.vscode-extensions; [
-    jnoortheen.nix-ide
-    dracula-theme.theme-dracula
-    vscodevim.vim
-  ];
-
-  profiles.default.userSettings = {
-    "editor.formatOnSave" = true;
-    "nix.enableLanguageServer" = true;
-    "nix.serverPath" = "nil";
+  programs.keepassxc = {
+    enable = true;
   };
-};
 
-
-
-
-programs.keepassxc = {
-  enable = true;
-};
-
-programs.tmux = {
+  programs.tmux = {
     enable = true;
     mouse = true;
     baseIndex = 1;
@@ -336,7 +323,7 @@ programs.tmux = {
     terminal = "tmux-256color";
     prefix = "C-a";
 
-extraConfig = ''
+    extraConfig = ''
       # Soporte True Color (necesario para Catppuccin)
       set-option -sa terminal-features ',xterm-256color:RGB'
 
@@ -476,7 +463,7 @@ extraConfig = ''
   };
 
   # --- User Space Hardening ---
-# --- Phase 5: Cryptographic Identity ---
+  # --- Phase 5: Cryptographic Identity ---
   programs.gpg = {
     enable = true;
     settings = {
@@ -488,7 +475,6 @@ extraConfig = ''
       personal-digest-preferences = "SHA512 SHA384 SHA256";
     };
   };
-
 
   # Enable the GPG agent and use it for SSH authentication
   services.gpg-agent = {
@@ -504,38 +490,37 @@ extraConfig = ''
 
   # Harden Brave Browser execution
   # This adds sandboxing flags to your Brave shortcut
-programs.chromium = {
-  enable = true;
-  package = pkgs.brave;
-  commandLineArgs = [
-    "--enable-features=UseOzonePlatform"
-    "--ozone-platform=x11"
-    "--password-store=gnome-libsecret"
-    "--no-default-browser-check"
-    "--disable-reading-from-canvas"
-    "--disable-breakpad" # Disables crash reporting to servers
-    "--disable-sync" # Disables Google/Brave sync (keep data local)
-    "--no-pings"
-  ];
-  nativeMessagingHosts = [
-    (pkgs.writeTextFile {
-      name = "keepassxc-brave-manifest";
-      text = builtins.toJSON {
-        name = "org.keepassxc.keepassxc_browser";
-        description = "KeePassXC integration with native messaging support";
-        path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-        type = "stdio";
-        allowed_origins = [
-          "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-        ];
-      };
-      destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
-    })
-  ];
-};
+  programs.chromium = {
+    enable = true;
+    package = pkgs.brave;
+    commandLineArgs = [
+      "--enable-features=UseOzonePlatform"
+      "--ozone-platform=x11"
+      "--password-store=gnome-libsecret"
+      "--no-default-browser-check"
+      "--disable-reading-from-canvas"
+      "--disable-breakpad" # Disables crash reporting to servers
+      "--disable-sync" # Disables Google/Brave sync (keep data local)
+      "--no-pings"
+    ];
+    nativeMessagingHosts = [
+      (pkgs.writeTextFile {
+        name = "keepassxc-brave-manifest";
+        text = builtins.toJSON {
+          name = "org.keepassxc.keepassxc_browser";
+          description = "KeePassXC integration with native messaging support";
+          path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
+          type = "stdio";
+          allowed_origins = [
+            "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
+          ];
+        };
+        destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
+      })
+    ];
+  };
 
-
-services.dunst = {
+  services.dunst = {
     enable = true;
     settings = {
       global = {
@@ -555,7 +540,6 @@ services.dunst = {
         timeout = 5;
       };
 
-
       "volume_bar" = {
         stack_tag = "volume";
         summary = "Volume";
@@ -563,45 +547,43 @@ services.dunst = {
         alignment = "center";
       };
 
-
     };
   };
 
-xdg.configFile."Thunar/uca.xml".text = ''
-  <?xml version="1.0" encoding="UTF-8"?>
-  <actions>
-    <action>
-      <icon>utilities-terminal</icon>
-      <name>Open Terminal Here</name>
-      <submenu></submenu>
-      <unique-id>ghostty-open-here</unique-id>
-      <command>ghostty --working-directory="%f"</command>
-      <description>Open Ghostty in this directory</description>
-      <range></range>
-      <patterns>*</patterns>
-      <directories/>
-    </action>
-  </actions>
-'';
+  xdg.configFile."Thunar/uca.xml".text = ''
+    <?xml version="1.0" encoding="UTF-8"?>
+    <actions>
+      <action>
+        <icon>utilities-terminal</icon>
+        <name>Open Terminal Here</name>
+        <submenu></submenu>
+        <unique-id>ghostty-open-here</unique-id>
+        <command>ghostty --working-directory="%f"</command>
+        <description>Open Ghostty in this directory</description>
+        <range></range>
+        <patterns>*</patterns>
+        <directories/>
+      </action>
+    </actions>
+  '';
 
-
-systemd.user.services.keepassxc = {
-  Unit = {
-    Description = "KeePassXC password manager daemon";
-    After = [ "graphical-session.target" ];
+  systemd.user.services.keepassxc = {
+    Unit = {
+      Description = "KeePassXC password manager daemon";
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+      ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
+      Restart = "on-failure";
+      Environment = [
+        "DISPLAY=:0"
+        "QT_QPA_PLATFORM=xcb"
+      ];
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
   };
-  Service = {
-    ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-    ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
-    Restart = "on-failure";
-    Environment = [
-      "DISPLAY=:0"
-      "QT_QPA_PLATFORM=xcb"
-    ];
-  };
-  Install = {
-    WantedBy = [ "graphical-session.target" ];
-  };
-};
 
 }
