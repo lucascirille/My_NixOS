@@ -5,7 +5,7 @@
   # Inyectamos los drivers y permisos físicos solo cuando inicias en este modo
   # services.xserver.videoDrivers = [ "amdgpu" ];
   # String generico para potenciar placas AMD, verificar si funciona para su modelo
-  boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
+  # boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
 
 
   hardware.graphics = {
