@@ -2,8 +2,7 @@
 
 {
   # ---- SOLO PARA AMD ------
-  # Inyectamos los drivers y permisos físicos solo cuando inicias en este modo
-  services.xserver.videoDrivers = [ "amdgpu" ];
+  hardware.amdgpu.overdrive.enable = true;
   # String generico para potenciar placas AMD, verificar si funciona para su modelo
   boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
 
@@ -24,6 +23,8 @@
     lact
   ];
 
+# Ensure LACT daemon/service is enabled so it can listen to system events like GameMode
+  services.lact.enable = true;
   systemd.packages = with pkgs; [ lact ];
   systemd.services.lactd.wantedBy = [ "multi-user.target" ];
 }
