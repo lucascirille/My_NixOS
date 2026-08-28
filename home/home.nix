@@ -331,6 +331,16 @@ in
       set-window-option -g pane-base-index 1
       set-option -g renumber-windows on
 
+      # Make the main status bar background transparent so the pill stands out
+      set-option -g status-bg default
+
+      # Create the pill shape for the session name on the right side
+      #  is the left edge,  is the right edge
+      set-option -g status-right "#[fg=cyan,bg=default]#[fg=black,bg=cyan,bold] 󰀘 #S #[fg=cyan,bg=default] "
+      
+      # Ensure there is enough space to render the text
+      set-option -g status-right-length 50
+
       # Navegación entre paneles estilo Vim
       bind h select-pane -L
       bind j select-pane -D
