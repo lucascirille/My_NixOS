@@ -87,8 +87,13 @@
   time.timeZone = "America/Argentina/Buenos_Aires";
 
   # Specialisations (Boot choices in GRUB)
-  specialisation.vm.configuration = {
+  specialisation = {
+    vm.configuration = {
     imports = [ ../../specialisations/vm.nix ];
+    };
+    gaming.configuration = {
+    imports = [ ../../specialisations/gaming.nix ];
+      };
   };
 
   # Display Manager (Ly) & Window Manager (Qtile)
