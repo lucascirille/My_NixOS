@@ -169,8 +169,6 @@ gtk = {
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
-  # xdg.configFile."ghostty".source =
-  #   config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/ghostty";
 
   xdg.configFile."flameshot/flameshot.ini".text = ''
     [General]
