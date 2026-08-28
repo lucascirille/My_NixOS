@@ -84,7 +84,6 @@ in
     wget
     pamixer
     pavucontrol
-    playerctl
     xclip
     libnotify
     bubblewrap
@@ -99,6 +98,7 @@ programs.fastfetch.enable = true;
 programs.lazydocker.enable = true;
 
 services.flameshot.enable = true;
+services.playerctld.enable = true;
 
 programs.ghostty = {
   enable = true;
