@@ -61,6 +61,8 @@ stylix = {
     name = "Bibata-Modern-Classic";
     size = 24;
   };
+
+
 };
 
   # Secret manager using ssh host key

@@ -98,6 +98,7 @@ in
   ];
 
 
+
 programs.ghostty = {
   enable = true;
   settings = {
@@ -121,6 +122,9 @@ programs.ghostty = {
     window-padding-balance = false;
   };
 };
+stylix.targets.ghostty.enable = false;
+
+
   programs.zathura.enable = true;
 
   # Configure virt-manager default connection URI via dconf
