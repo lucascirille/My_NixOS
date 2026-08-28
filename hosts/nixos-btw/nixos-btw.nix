@@ -34,9 +34,11 @@
       "quiet"
       "loglevel=4"
       "systemd.show_status=true"
+      "amdgpu.ppfeaturemask=0xffffffff"
     ];
     consoleLogLevel = 4;
   };
+  
 
   stylix = {
     enable = true;
@@ -104,6 +106,7 @@
           qtile-extras
         ];
     };
+    videoDrivers = [ "amdgpu" ];
   };
 
   services.displayManager.ly = {
@@ -196,6 +199,7 @@
     enable32Bit = true;
     extraPackages = with pkgs; [
       intel-compute-runtime # Driver OpenCL para gráficas Intel
+      intel-media-driver # Habilita la aceleración de video en procesadores Intel
       pocl # Soporte OpenCL genérico para CPUs
       rocmPackages.clr.icd # Driver HIP/OpenCL para gráficas AMD Radeon
     ];
@@ -311,6 +315,10 @@
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
 
+    mangohud
+    goverlay
+    lact
+
     file
 
     polkit_gnome # gui for polkit
@@ -352,6 +360,9 @@
     dates = "weekly";
     options = "--delete-older-than 14d";
   };
+
+systemd.packages = with pkgs; [ lact ];
+systemd.services.lactd.wantedBy = [ "multi-user.target" ];
 
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
