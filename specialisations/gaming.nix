@@ -7,6 +7,7 @@
   # String generico para potenciar placas AMD, verificar si funciona para su modelo
   # boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" ];
 
+  virtualisation.hypervGuest.enable = true;
 
   hardware.graphics = {
       enable = true;
