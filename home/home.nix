@@ -328,11 +328,6 @@ in
 
 programs.keepassxc = {
   enable = true;
-  settings = {
-    General = {
-      OpenPreviousDatabasesOnStartup = true;
-    };
-  };
 };
 
 programs.tmux = {
