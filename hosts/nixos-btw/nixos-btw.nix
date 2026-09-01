@@ -38,6 +38,10 @@
     consoleLogLevel = 4;
   };
 
+  security.tpm2.enable = true;
+  # Deshabilitamos libvirtd cuando se esta usando una maquina virtual ya que da error por validacion de tpm
+  systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
+
 
   # DNS Resolution & MpowerManagement
   networking.nameservers = [];
