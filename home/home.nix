@@ -87,6 +87,8 @@ in
     mangojuice
   ];
 
+  programs.keepassxc.enable = true;
+
     programs.mangohud = {
     enable = true;
 
