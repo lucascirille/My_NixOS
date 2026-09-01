@@ -40,7 +40,7 @@
     paths = [
       "/home"
       "/etc/ssh"
-      "/var/lib"
+      # "/var/lib"
     ];
 
     exclude = [
