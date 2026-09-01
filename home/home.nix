@@ -33,6 +33,8 @@ in
 
     mat2 # CLI tool to strip metadata (GPS, EXIF) from files/images before sharing
 
+    keepassxc
+
 
     # --- Ciberseguridad (Host Seguro) ---
     burpsuite # Proxy e interceptor web
@@ -326,9 +328,6 @@ in
     };
   };
 
-programs.keepassxc = {
-  enable = true;
-};
 
 programs.tmux = {
     enable = true;
