@@ -592,20 +592,20 @@ programs.tmux = {
     </actions>
   '';
 
-# systemd.user.services.keepassxc = {
-#   Unit = {
-#     Description = "KeePassXC password manager daemon";
-#     After = [ "graphical-session.target" ];
-#   };
-#   Service = {
-#     # Keep the sleep just in case your compositor takes a moment to settle
-#     ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-#     ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
-#     Restart = "on-failure";
-#   };
-#   Install = {
-#     WantedBy = [ "graphical-session.target" ];
-#   };
-# };
+systemd.user.services.keepassxc = {
+  Unit = {
+    Description = "KeePassXC password manager daemon";
+    After = [ "graphical-session.target" ];
+  };
+  Service = {
+    # Keep the sleep just in case your compositor takes a moment to settle
+    ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+    ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
+    Restart = "on-failure";
+  };
+  Install = {
+    WantedBy = [ "graphical-session.target" ];
+  };
+};
 
 }
