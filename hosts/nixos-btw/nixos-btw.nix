@@ -130,10 +130,8 @@
   services.openssh = {
     enable = true;
     settings = {
-      # PermitRootLogin = "no";
-      # PasswordAuthentication = false; # Recommended for security
-      PermitRootLogin = "yes";
-      PasswordAuthentication = true; # Recommended for security
+      PermitRootLogin = "no";
+      PasswordAuthentication = false; # Recommended for security
     };
   };
 
