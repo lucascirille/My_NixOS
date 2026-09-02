@@ -86,8 +86,6 @@ My_NixOS/
    ```nix
    nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-```
-
 2. Clave SSH del host generada en `/etc/ssh/ssh_host_ed25519_key` (requerida por `sops-nix`).
 3. Para Secure Boot (`lanzaboote`): Debes tener UEFI habilitado y las llaves generadas con `sbctl` en `/etc/secureboot`.
 
@@ -114,7 +112,7 @@ Si es la primera vez que instalás en este equipo, generá las claves de Secure 
 ```bash
 sudo nix-shell -p sbctl
 sudo sbctl create-keys
-
+sudo sbctl enroll-keys -m  # para Microsoft
 ```
 
 
