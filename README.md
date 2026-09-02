@@ -11,7 +11,9 @@
 2. [Tecnologías Empleadas](#️-tecnologías-empleadas)
 3. [Estructura del Proyecto](#-estructura-del-proyecto)
 4. [Manual de Instalación](#-manual-de-instalación)
-5. [Gestión de Credenciales](#-gestión-de-credenciales-y-secretos)
+5. [Scripts Personalizados y Alias](#-scripts-personalizados-y-alias)
+6. [Gestión de Credenciales](#-gestión-de-credenciales-y-secretos)
+
 
 ---
 
@@ -23,6 +25,7 @@ Este repositorio centraliza la configuración del sistema operativo y el entorno
 * **Aprovisionamiento de Host (`nixos-btw`)**: Define el perfil de la máquina principal, configurando un gestor de arranque seguro (UEFI Secure Boot), soporte TPM 2.0, el display manager minimalista `ly`, y el window manager `Qtile`.
 * **Gestión de Secretos Segura**: Los valores sensibles se cifran mediante `sops-nix`, utilizando la clave SSH ED25519 del host para un descifrado seguro en tiempo de compilación y arranque.
 * **Entorno de Usuario Reproducible**: Home Manager gestiona el perfil del usuario `neo`, estableciendo variables de entorno, herramientas de terminal, Neovim (con LSP) y utilidades de indexación rápida.
+* **Respaldos Automatizados y Automatización de Flujo**: Integración nativa con **Restic** para copias de seguridad eficientes, y scripts personalizados que unifican la creación de nuevas generaciones del sistema con el control de versiones en Git.
 
 ---
 
@@ -48,6 +51,11 @@ Este repositorio centraliza la configuración del sistema operativo y el entorno
 * **Audio**: PipeWire (ALSA, PulseAudio, JACK) y Blueman.
 * **Gaming**: Steam, GameMode y `nix-ld` (para ejecución de binarios dinámicos no empaquetados para Nix).
 * **Paquetería adicional**: Integración con [nix-flatpak](https://github.com/gmodena/nix-flatpak) y Flathub / Flatseal.
+
+### 🧰 Mantenimiento y Utilidades
+
+* **Backups**: [Restic](https://restic.net/) (Respaldos rápidos, cifrados y deduplicados)
+* **Automatización**: Scripts de shell integrados nativamente a través de Nix para el flujo de trabajo del sistema.
 
 ---
 
@@ -139,7 +147,15 @@ nh os switch
 
 ```
 
+## 💻 Scripts Personalizados y Alias
 
+El entorno incluye utilidades de línea de comandos y alias empaquetados directamente a través de Nix para agilizar el mantenimiento diario y la gestión de secretos:
+
+* **`nos` (NixOS Switch & Sync):** Simplifica el ciclo de vida de la configuración. Reconstruye el sistema, crea una nueva generación y hace un `commit` y `push` automático de los cambios locales al repositorio Git.
+* **`not` (NixOS Test):** Alias para `nh os test`. Permite probar los cambios en la configuración del sistema de forma segura, sin añadirlos permanentemente al gestor de arranque.
+* **`nop` (NixOS Purge):** Alias para `nh clean all --keep 5`. Realiza una limpieza profunda del *Nix store* (recolección de basura), eliminando configuraciones obsoletas pero conservando las últimas 5 generaciones por seguridad.
+* **`restic-daily`:** Un *wrapper* en Bash que carga dinámicamente las variables de entorno y contraseñas cifradas desde `sops-nix`. Permite ejecutar comandos de Restic contra el repositorio de respaldos de forma transparente, sin exponer credenciales.
+* **`better-sops`:** Un alias avanzado que extrae en tiempo real la clave privada `age` del host (derivada de la clave SSH ED25519) y se la pasa a `sops`. Permite editar o visualizar archivos de secretos rápidamente desde la terminal sin tener que exportar las variables de entorno de forma manual.
 
 ---
 
