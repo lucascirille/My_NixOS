@@ -78,19 +78,18 @@ My_NixOS/
 
 ## 🚀 Manual de Instalación
 
-> ⚠️ **Aviso para terceros:** Esta configuración está hecha a medida para mi hardware y mi usuario personal (`neo`). Si querés usar esta configuración como base, **NO ejecutes el build directamente**. Deberás hacer un fork, cambiar el nombre de usuario, remover/adaptar mis archivos de `sops-nix` (secretos) y ajustar los drivers (en caso de necesitarlo) en `nixos-btw.nix` a tu propio hardware.
+> ⚠️ **Aviso para terceros:** Esta configuración está hecha a medida para mi hardware y mi usuario personal (`neo`). Si querés usar esta configuración como base, **NO ejecutes el build directamente**. Deberás hacer un fork, cambiar el nombre de usuario, remover/adaptar mis archivos de `sops-nix` (secretos) y ajustar los drivers (en caso de ser necesario) en `nixos-btw.nix` a tu propio hardware.
 
 ### Requisitos Previos
 
 1. Una instalación funcional de NixOS con soporte para Flakes habilitado:
-```nix
-nix.settings.experimental-features = [ "nix-command" "flakes" ];
+   ```nix
+   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
 ```
 
-
-2. Clave SSH del host generada en `/etc/ssh/ssh_host_ed25519_key` (requerida para el descifrado de secretos con `sops-nix`).
-3. Soporte de UEFI para `lanzaboote` si se activa Secure Boot.
+2. Clave SSH del host generada en `/etc/ssh/ssh_host_ed25519_key` (requerida por `sops-nix`).
+3. Para Secure Boot (`lanzaboote`): Debes tener UEFI habilitado y las llaves generadas con `sbctl` en `/etc/secureboot`.
 
 ### Despliegue Paso a Paso
 
@@ -103,41 +102,42 @@ cd ~/.dotfiles
 
 
 2. **Generar la configuración de hardware**:
-Si estás instalando en un equipo diferente, actualizá la configuración de hardware y particiones:
+Es obligatorio volcar la configuración de particiones y hardware del equipo destino para evitar kernel panics:
 ```bash
 nixos-generate-config --show-hardware-config > hosts/nixos-btw/hardware.nix
 
 ```
 
 
-3. **Configurar claves de descifrado (`sops`)**:
-Asegurate de que la clave pública derivada de la máquina tenga acceso en el archivo `.sops.yaml` para descifrar `secrets/hosts/nixos-btw.yaml`:
+3. **Configurar Secure Boot (Lanzaboote)**:
+Si es la primera vez que instalás en este equipo, generá las claves de Secure Boot (asegurate de estar en Setup Mode en la BIOS):
+```bash
+sudo nix-shell -p sbctl
+sudo sbctl create-keys
+
+```
+
+
+4. **Gestión de Secretos (`sops`)**:
+Obtené la clave pública (age) de la máquina destino:
 ```bash
 nix-shell -p ssh-to-age --run 'ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub'
 
 ```
 
 
-4. **Compilar y activar el sistema**:
-* Usando el comando estándar:
+*Nota: Deberás agregar esta clave devuelta al archivo `.sops.yaml` y re-encriptar los secretos con `sops updatekeys secrets/hosts/nixos-btw.yaml`.*
+5. **Compilar y activar el sistema**:
+* Usando el comando estándar de NixOS:
 ```bash
 sudo nixos-rebuild switch --flake .#nixos-btw
 
 ```
 
 
-* O mediante el asistente `nh` (Nix Helper) si ya lo tenés instalado:
+* O mediante `nh` (Nix Helper) si ya lo tenés instalado en tu entorno:
 ```bash
 nh os switch
-
-```
-
-
-
-
-5. **Actualizar dependencias del Flake** (cuando sea necesario):
-```bash
-nix flake update
 
 ```
 
