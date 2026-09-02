@@ -78,7 +78,7 @@ My_NixOS/
 
 ## 🚀 Manual de Instalación
 
-> ⚠️ **Aviso para terceros:** Esta configuración está hecha a medida para mi hardware y mi usuario personal (`neo`). Si querés usar esta configuración como base, **NO ejecutes el build directamente**. Deberás hacer un fork, cambiar el nombre de usuario, remover/adaptar mis archivos de `sops-nix` (secretos) y ajustar los drivers en `nixos-btw.nix` a tu propio hardware.
+> ⚠️ **Aviso para terceros:** Esta configuración está hecha a medida para mi hardware y mi usuario personal (`neo`). Si querés usar esta configuración como base, **NO ejecutes el build directamente**. Deberás hacer un fork, cambiar el nombre de usuario, remover/adaptar mis archivos de `sops-nix` (secretos) y ajustar los drivers (en caso de necesitarlo) en `nixos-btw.nix` a tu propio hardware.
 
 ### Requisitos Previos
 
