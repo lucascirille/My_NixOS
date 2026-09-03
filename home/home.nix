@@ -20,6 +20,9 @@ in
   };
   home.packages = with pkgs; [
 
+    qdiskinfo
+    kdiskmark
+
     # Neovim & tooling
     neovim
     nil
@@ -539,7 +542,6 @@ programs.tmux = {
       })
     ];
   };
-  programs.firefox.enable = true;
 
   services.dunst = {
     enable = true;
