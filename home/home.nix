@@ -540,6 +540,7 @@ programs.tmux = {
       })
     ];
   };
+  programs.firefox.enable = true;
 
   services.dunst = {
     enable = true;
