@@ -21,7 +21,7 @@ in
   home.packages = with pkgs; [
 
     qdiskinfo
-    kdiskmark
+    fio
 
     # Neovim & tooling
     neovim

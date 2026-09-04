@@ -258,6 +258,7 @@
       "networkmanager"
       "video"
       "audio"
+      "render"
       "libvirtd"
       "wireshark"
       "ubridge"
