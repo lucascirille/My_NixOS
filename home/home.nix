@@ -91,6 +91,8 @@ in
   ];
 
   programs.keepassxc.enable = true;
+  
+  programs.ttyper.enable = true;
 
     programs.mangohud = {
     enable = true;

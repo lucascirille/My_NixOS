@@ -246,6 +246,9 @@
     remotePlay.openFirewall = true; # Open ports for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
+    extraCompatPackages = with pkgs; [
+    proton-ge-bin
+  ];
   };
 
   # Gaming performance booster
