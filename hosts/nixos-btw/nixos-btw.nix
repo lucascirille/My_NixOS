@@ -251,6 +251,11 @@
   ];
   };
 
+  system.userActivationScripts.steamDevCfg.text = ''
+  mkdir -p "$HOME/.local/share/Steam"
+  echo "unShaderBackgroundProcessingThreads $(nproc)" > "$HOME/.local/share/Steam/steam_dev.cfg"
+'';
+
   # Gaming performance booster
   programs.gamemode.enable = true;
 
