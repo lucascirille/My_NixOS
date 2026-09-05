@@ -100,9 +100,6 @@
 
   # Specialisations (Boot choices in GRUB)
   specialisation = {
-    # vm.configuration = {
-    # imports = [ ../../specialisations/vm.nix ];
-    # };
     baremetal.configuration = {
     imports = [ ../../specialisations/baremetal.nix ];
     };
