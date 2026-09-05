@@ -100,6 +100,10 @@
     vm.configuration = {
     imports = [ ../../specialisations/vm.nix ];
     };
+    baremetal.configuration = {
+    imports = [ ../../specialisations/baremetal.nix ];
+    };
+
     # gaming.configuration = {
     # imports = [ ../../specialisations/gaming.nix ];
     #   };
@@ -333,21 +337,6 @@
 
   programs.nix-ld.enable = true;
 
-  # SMART monitoring (not for VM)
-  # services.smartd = {
-  #   enable = true;
-  #   defaults.monitored = "-a -o on -S on -n standby,q";
-  #
-  #   # Pop-up notifications
-  #   notifications.systembus-notify.enable = true;
-  #
-  #   # Print message to any open terminal widows
-  #   notifications.wall.enable = true;
-  #
-  #   # Send a test notification on boot
-  #   notifications.test = true;
-  #
-  # };
 
 
   # System Packages & Fonts
