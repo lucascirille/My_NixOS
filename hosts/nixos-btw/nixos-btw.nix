@@ -157,6 +157,7 @@
     # Declaramos exactamente qué aplicaciones instalar
     packages = [
       "com.github.tchx84.Flatseal"
+      "net.davidotek.pupgui2"
     ];
 
     # Limpieza automática de apps que quites de la lista
