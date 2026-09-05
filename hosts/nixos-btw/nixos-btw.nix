@@ -251,7 +251,7 @@
     localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
     extraCompatPackages = with pkgs; [
     proton-ge-bin
-  ];
+    ];
   };
 
   system.userActivationScripts.steamDevCfg.text = ''
