@@ -40,7 +40,7 @@
 
   security.tpm2.enable = true;
   # Deshabilitamos libvirtd cuando se esta usando una maquina virtual ya que da error por validacion de tpm
-  systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
+  # systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
 
 
   # DNS Resolution & MpowerManagement
@@ -285,7 +285,8 @@
 
   # Required system daemon and KVM/QEMU setup
   virtualisation.libvirtd = {
-    enable = true;
+      # Deshabilitamos libvirtd cuando se esta usando una maquina virtual ya que da error por validacion de tpm
+    enable = lib.mkDefault false;
     qemu = {
       package = pkgs.qemu_kvm;
       runAsRoot = true;
