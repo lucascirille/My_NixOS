@@ -18,5 +18,7 @@
 
   };
 
+  virtualisation.hypervGuest.enable = false;
+
 
 }

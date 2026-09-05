@@ -43,7 +43,8 @@
   systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
 
   # --- Hyper-V / Universal XRDP Support ---
-  virtualisation.hypervGuest.enable = true;
+  virtualisation.hypervGuest.enable = lib.mkDefault true;
+
 
 
   # DNS Resolution & MpowerManagement
