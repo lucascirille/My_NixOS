@@ -2,6 +2,7 @@
 
 {
   system.nixos.tags = [ "baremetal" ];
+  environment.sessionVariables.NIXOS_SPECIALISATION = "baremetal"; # Usefull for scripts
 
   # SMART monitoring (not for VM)
   services.smartd = {

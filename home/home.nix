@@ -394,63 +394,88 @@ programs.tmux = {
   };
 
   programs.zsh = {
-    enable = true;
-    oh-my-zsh = {
       enable = true;
-      plugins = [
-        "git"
-        "sudo"
-      ];
-      theme = "robbyrussell";
+      oh-my-zsh = {
+        enable = true;
+        plugins = [
+          "git"
+          "sudo"
+        ];
+        theme = "robbyrussell";
+      };
+
+      initContent = ''
+        # Converted from alias to function to support specializations
+        not() {
+          if [ -z "$NIXOS_SPECIALISATION" ]; then
+            nh os test
+          else
+            echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
+            nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+          fi
+        }
+
+        nos() {
+          local orig_dir="$PWD"
+          cd ~/.dotfiles || return 1
+
+          echo "📥 Fetching and integrating remote changes..."
+          if ! git pull --rebase --autostash origin main; then
+            echo "❌ Git pull failed! Please resolve merge conflicts before building."
+            cd "$orig_dir"
+            return 1
+          fi
+
+          git add .
+
+          local build_success=false
+          
+          # Branch based on whether we are in a specialization or the base system
+          if [ -z "$NIXOS_SPECIALISATION" ]; then
+            echo "🔨 Building base NixOS configuration with nh..."
+            if nh os switch; then
+              build_success=true
+            fi
+          else
+            echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
+            # Build the system, then manually switch to the specialization's profile
+            if nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+              build_success=true
+            fi
+          fi
+
+          if [ "$build_success" = true ]; then
+            echo "✅ Build successful!"
+
+            if ! git diff-index --quiet HEAD --; then
+              echo "📦 Committing and pushing working configuration to Git..."
+              git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+              git push
+            else
+              echo "🧹 Working tree clean. Nothing to commit."
+            fi
+          else
+            echo "❌ Rebuild failed! Aborting Git commit and push."
+            cd "$orig_dir"
+            return 1
+          fi
+
+          cd "$orig_dir"
+        }
+      '';
+
+      shellAliases = {
+        btw = "echo i use nixos, btw";
+        nop = "nh clean all --keep 5";
+        nv = "nvim";
+        # Kept exactly as you wrote it so Nix interpolates the package paths properly
+        better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
+      };
+      enableCompletion = true;
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
     };
 
-    initContent = ''
-      nos() {
-              local orig_dir="$PWD"
-              cd ~/.dotfiles || return 1
-
-              echo "📥 Fetching and integrating remote changes..."
-              if ! git pull --rebase --autostash origin main; then
-                echo "❌ Git pull failed! Please resolve merge conflicts before building."
-                cd "$orig_dir"
-                return 1
-              fi
-
-              git add .
-
-              echo "🔨 Building NixOS configuration with nh..."
-              # nh automatically uses nix-output-monitor for pretty tree output
-              if nh os switch; then
-                echo "✅ Build successful!"
-
-                if ! git diff-index --quiet HEAD --; then
-                  echo "📦 Committing and pushing working configuration to Git..."
-                  git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-                  git push
-                else
-                  echo "🧹 Working tree clean. Nothing to commit."
-                fi
-              else
-                echo "❌ Rebuild failed! Aborting Git commit and push."
-                cd "$orig_dir"
-                return 1
-              fi
-
-              cd "$orig_dir"
-            }
-    '';
-
-    shellAliases = {
-      btw = "echo i use nixos, btw";
-      not = "nh os test"; # Uses nh to test changes cleanly
-      nop = "nh clean all --keep 5"; # Clean garbage safely
-      nv = "nvim";
-      better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
-    };
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-  };
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
