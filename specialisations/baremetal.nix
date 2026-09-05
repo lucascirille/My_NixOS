@@ -18,6 +18,5 @@
 
   };
 
-  virtualisation.libvirtd.enable = true;
 
 }
