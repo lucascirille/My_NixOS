@@ -43,7 +43,9 @@
     "kernel.unprivileged_bpf_disabled" = 1;
 
     # Prevent ptracing of non-child processes (useful for securing X11/Qtile memory)
-    "kernel.yama.ptrace_scope" = 2; # Check if you run into issues running apps like Steam
+    # "kernel.yama.ptrace_scope" = 2; # Check if you run into issues running apps like Steam
+    "kernel.yama.ptrace_scope" = 1; # Good for Anticheats programs
+
 
     # TCP Stack Hardening (Spoofing & Floods)
     "net.ipv4.tcp_syncookies" = 1;
