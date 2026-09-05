@@ -104,10 +104,6 @@
     baremetal.configuration = {
     imports = [ ../../specialisations/baremetal.nix ];
     };
-
-    # gaming.configuration = {
-    # imports = [ ../../specialisations/gaming.nix ];
-    #   };
   };
 
   # Display Manager (Ly) & Window Manager (Qtile)
