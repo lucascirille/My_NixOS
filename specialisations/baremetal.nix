@@ -17,14 +17,10 @@
 
   virtualisation.hypervGuest.enable = false;
 
-  # Instalar la interfaz gráfica de LACT
-  environment.systemPackages = with pkgs; [
-    lact
-  ];
+  hardware.amdgpu.overdrive.enable = true;
 
-  # Habilitar el servicio del sistema (daemon) de LACT
-  systemd.packages = with pkgs; [ lact ];
-  systemd.services.lactd.wantedBy = [ "multi-user.target" ];
+  # Enable the official LACT module (handles packages, services, and writable paths automatically)
+  services.lact.enable = true;
 
   # Desbloquear las funciones de Overclocking/Undervolting y control de ventiladores
   boot.kernelParams = [
