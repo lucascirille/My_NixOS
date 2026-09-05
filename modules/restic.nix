@@ -33,7 +33,7 @@
       "auto"
       "--exclude-caches"
       "--exclude-larger-than"
-      "1G"
+      "500M"
       "--one-file-system"
     ];
 
