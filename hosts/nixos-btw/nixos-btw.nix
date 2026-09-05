@@ -40,7 +40,10 @@
 
   security.tpm2.enable = true;
   # Deshabilitamos libvirtd cuando se esta usando una maquina virtual ya que da error por validacion de tpm
-  # systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
+  systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
+
+  # --- Hyper-V / Universal XRDP Support ---
+  virtualisation.hypervGuest.enable = true;
 
 
   # DNS Resolution & MpowerManagement
@@ -97,9 +100,9 @@
 
   # Specialisations (Boot choices in GRUB)
   specialisation = {
-    vm.configuration = {
-    imports = [ ../../specialisations/vm.nix ];
-    };
+    # vm.configuration = {
+    # imports = [ ../../specialisations/vm.nix ];
+    # };
     baremetal.configuration = {
     imports = [ ../../specialisations/baremetal.nix ];
     };
