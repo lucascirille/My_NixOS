@@ -1,5 +1,5 @@
 ## More information about specializations
 
-The baremetal specialization is focused on a Desktop pc with AMD GPU and CPU.
+! NOTE: every specialization have to have environment.sessionVariables.NIXOS_SPECIALISATION, it have to match on the name of the specialization, this is for scripts functionalities.
 
-The vm specialization is focused on be available on many hypervisors.
+The baremetal specialization is focused on a Desktop pc with AMD GPU and CPU.
