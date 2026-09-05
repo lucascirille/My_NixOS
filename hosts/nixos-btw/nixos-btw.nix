@@ -339,6 +339,8 @@
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
 
+    ncdu
+
 
     smartmontools
 
