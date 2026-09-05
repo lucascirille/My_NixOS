@@ -10,5 +10,4 @@
   # --- Hyper-V / Universal XRDP Support ---
   virtualisation.hypervGuest.enable = true;
 
-  services.smartd.enable = false;
 }
