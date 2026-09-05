@@ -288,8 +288,7 @@
 
   # Required system daemon and KVM/QEMU setup
   virtualisation.libvirtd = {
-      # Deshabilitamos libvirtd cuando se esta usando una maquina virtual ya que da error por validacion de tpm
-    enable = lib.mkDefault false;
+    enable = true;
     qemu = {
       package = pkgs.qemu_kvm;
       runAsRoot = true;
