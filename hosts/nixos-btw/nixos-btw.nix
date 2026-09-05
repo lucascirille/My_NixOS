@@ -243,6 +243,7 @@
   # Enable Steam with hardware & network integration
   programs.steam = {
     enable = true;
+    protontricks.enable = true;
     remotePlay.openFirewall = true; # Open ports for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Fast LAN game downloads
@@ -366,6 +367,7 @@
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
+
 
     smartmontools
 
