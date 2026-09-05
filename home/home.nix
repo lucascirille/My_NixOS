@@ -19,6 +19,8 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+    protonup-qt
+
     heroic # Epic Launcher for Linux
 
     qdiskinfo
