@@ -333,38 +333,22 @@
 
   programs.nix-ld.enable = true;
 
-  # SMART monitoring
-  services.smartd = {
-    enable = true;
-    defaults.monitored = "-a -o on -S on -n standby,q";
-    
-    # notifications.mail = {
-    #   enable = true;
-    #   # Must match the account you are sending from
-    #   sender = "lucas.cirille@gmail.com"; 
-    #   # Where you want to receive the alert (can be the same address)
-    #   recipient = "lucas.cirille@gmail.com"; 
-    # };
-  };
-
-  # msmtp to actually send the email
-  # programs.msmtp = {
+  # SMART monitoring (not for VM)
+  # services.smartd = {
   #   enable = true;
-  #   defaults = {
-  #     auth = true;
-  #     tls = true;
-  #     tls_trust_file = "/etc/ssl/certs/ca-certificates.crt";
-  #   };
-  #   accounts.default = {
-  #     host = "smtp.gmail.com";       # Use smtp.protonmail.ch for Proton, etc.
-  #     port = 587;
-  #     user = "yourname@gmail.com";   # Your full email address
-  #     # ⚠️ IMPORTANT: Do NOT use your regular password here.
-  #     # Use an "App Password" generated in your Google Account security settings.
-  #     password = "your_16_character_app_password"; 
-  #     from = "yourname@gmail.com";   # Must match the smartd sender above
-  #   };
+  #   defaults.monitored = "-a -o on -S on -n standby,q";
+  #
+  #   # Pop-up notifications
+  #   notifications.systembus-notify.enable = true;
+  #
+  #   # Print message to any open terminal widows
+  #   notifications.wall.enable = true;
+  #
+  #   # Send a test notification on boot
+  #   notifications.test = true;
+  #
   # };
+
 
   # System Packages & Fonts
   environment.systemPackages = with pkgs; [
