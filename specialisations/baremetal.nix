@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
+  system.nixos.tags = [ "baremetal" ];
 
   # SMART monitoring (not for VM)
   services.smartd = {
