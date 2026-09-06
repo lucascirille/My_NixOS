@@ -415,67 +415,68 @@ programs.tmux = {
           fi
         }
 
-        nos() {
-          local orig_dir="$PWD"
-          cd ~/.dotfiles || return 1
+nos() {
+  local orig_dir="$PWD"
+  cd ~/.dotfiles || return 1
 
-          echo "📥 Fetching and integrating remote changes..."
-          if ! git pull --rebase --autostash origin main; then
-            echo "❌ Git pull failed! Please resolve merge conflicts before building."
-            cd "$orig_dir"
-            return 1
-          fi
+  echo "📥 Fetching and integrating remote changes..."
+  if ! git pull --rebase --autostash origin main; then
+    echo "❌ Git pull failed! Please resolve merge conflicts before building."
+    cd "$orig_dir"
+    return 1
+  fi
 
-          git add .
+  git add .
 
-          # --- FIX: Commit BEFORE building so Nix can see the files ---
-          local did_commit=false
-          if ! git diff-index --quiet --cached HEAD --; then
-            echo "📦 Committing changes to Git so Nix can see them..."
-            git commit -m "WIP: Auto-commit before build $(date '+%Y-%m-%d %H:%M:%S')"
-            did_commit=true
-          else
-            echo "🧹 Working tree clean. Nothing to commit."
-          fi
+  # --- FIX: Commit BEFORE building so Nix can see the files ---
+  local did_commit=false
+  if ! git diff-index --quiet --cached HEAD --; then
+    echo "📦 Committing changes to Git so Nix can see them..."
+    git commit -m "WIP: Auto-commit before build $(date '+%Y-%m-%d %H:%M:%S')"
+    did_commit=true
+  else
+    echo "🧹 Working tree clean. Nothing to commit."
+  fi
 
-          local build_success=false
-          
-          # Branch based on whether we are in a specialization or the base system
-          if [ -z "$NIXOS_SPECIALISATION" ]; then
-            echo "🔨 Building base NixOS configuration with nh..."
-            if nh os switch; then
-              build_success=true
-            fi
-          else
-            echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            if nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
-              build_success=true
-            fi
-          fi
+  local build_success=false
+  
+  # Branch based on whether we are in a specialization or the base system
+  if [ -z "$NIXOS_SPECIALISATION" ]; then
+    echo "🔨 Building base NixOS configuration with nh..."
+    if nh os switch; then
+      build_success=true
+    fi
+  else
+    echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
+    if nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+      build_success=true
+    fi
+  fi
 
-          if [ "$build_success" = true ]; then
-            echo "✅ Build successful!"
-            if [ "$did_commit" = true ]; then
-              echo "🚀 Pushing working configuration to Git..."
-              # Optional: amend the commit message to show it was successful
-              git commit --amend -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-              git push
-            fi
-          else
-            echo "❌ Rebuild failed! Aborting Git push."
-            
-            # --- FIX: Rollback the commit if the build failed ---
-            if [ "$did_commit" = true ]; then
-              echo "⏪ Rolling back the pre-build Git commit..."
-              git reset --soft HEAD~1
-            fi
-            
-            cd "$orig_dir"
-            return 1
-          fi
+  if [ "$build_success" = true ]; then
+    echo "✅ Build successful!"
+    if [ "$did_commit" = true ]; then
+      echo "🚀 Pushing working configuration to Git..."
+      # Optional: amend the commit message to show it was successful
+      git commit --amend -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+      git push
+    fi
+  else
+    echo "❌ Rebuild failed! Aborting Git push."
+    
+    # --- FIX: Rollback the commit if the build failed ---
+    if [ "$did_commit" = true ]; then
+      echo "⏪ Rolling back the pre-build Git commit..."
+      git reset --soft HEAD~1
+    fi
+    
+    cd "$orig_dir"
+    return 1
+  fi
 
-          cd "$orig_dir"
-        }
+  cd "$orig_dir"
+}
+
       '';
 
       shellAliases = {

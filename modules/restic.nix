@@ -63,7 +63,7 @@
       # "/home/*/.local/share/docker"
       
       # UMU
-      "/home/*/.local/share/umu"
+      # "/home/*/.local/share/umu"
 
       # Games, shader caches, and compatibility data
       "/home/*/Games"
