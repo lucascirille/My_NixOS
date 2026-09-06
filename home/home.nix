@@ -542,7 +542,6 @@ initContent = ''
     };
   };
 
-  programs.firefox.enable = true;
 
   # Harden Brave Browser execution
   # This adds sandboxing flags to your Brave shortcut
