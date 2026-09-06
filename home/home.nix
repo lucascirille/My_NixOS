@@ -416,53 +416,36 @@ initContent = ''
         }
 
         nos() {
-          local orig_dir="$PWD"
-          cd ~/.dotfiles || return 1
+                  local orig_dir="$PWD"
+                  cd ~/.dotfiles || return 1
 
-          echo "📥 Fetching and integrating remote changes..."
-          if ! git pull --rebase --autostash origin main; then
-            echo "❌ Git pull failed! Please resolve merge conflicts before building."
-            cd "$orig_dir"
-            return 1
-          fi
+                  echo "📥 Fetching and integrating remote changes..."
+                  if ! git pull --rebase --autostash origin main; then
+                    echo "❌ Git pull failed! Please resolve merge conflicts before building."
+                    cd "$orig_dir"
+                    return 1
+                  fi
 
-          git add .
+                  git add .
 
-          local build_success=false
-          
-          # Branch based on whether we are in a specialization or the base system
-          if [ -z "$NIXOS_SPECIALISATION" ]; then
-            echo "🔨 Building base NixOS configuration with nh..."
-            # Added '.' to force local directory
-            if nh os switch .; then
-              build_success=true
-            fi
-          else
-            echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            # Added '.' to force local directory
-            if nh os build . && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
-              build_success=true
-            fi
-          fi
+                  # Commit changes BEFORE building so Nix Flakes can see them
+                  if ! git diff-index --quiet HEAD --; then
+                    echo "📦 Committing local changes..."
+                    git commit -m "Auto-commit before build: $(date '+%Y-%m-%d %H:%M:%S')"
+                  fi
 
-          if [ "$build_success" = true ]; then
-            echo "✅ Build successful!"
+                  echo "🔨 Building base NixOS configuration with nh..."
+                  if nh os switch .; then
+                    echo "✅ Build successful!"
+                    git push
+                  else
+                    echo "❌ Rebuild failed!"
+                    cd "$orig_dir"
+                    return 1
+                  fi
 
-            if ! git diff-index --quiet HEAD --; then
-              echo "📦 Committing and pushing working configuration to Git..."
-              git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-              git push
-            else
-              echo "🧹 Working tree clean. Nothing to commit."
-            fi
-          else
-            echo "❌ Rebuild failed! Aborting Git commit and push."
-            cd "$orig_dir"
-            return 1
-          fi
-
-          cd "$orig_dir"
-        }
+                  cd "$orig_dir"
+                }
       '';
 
       shellAliases = {
