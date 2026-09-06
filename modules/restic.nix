@@ -60,7 +60,7 @@
       "/var/lib/flatpak"
 
       # Rootless Docker
-      "/home/*/.local/share/docker"
+      # "/home/*/.local/share/docker"
       
       # UMU
       "/home/*/.local/share/umu"
