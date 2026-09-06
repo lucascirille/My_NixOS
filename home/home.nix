@@ -410,7 +410,7 @@ initContent = ''
             nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os test /home/neo/.dotfiles#nixos-btw -S "$NIXOS_SPECIALISATION" -- --refresh
+            nh os test /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh
           fi
         }
 
@@ -437,7 +437,7 @@ initContent = ''
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
             # Look how much cleaner this is now!
-            if nh os switch /home/neo/.dotfiles#nixos-btw -S "$NIXOS_SPECIALISATION" -- --refresh; then
+            if nh os switch /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh; then
               build_success=true
             fi
           fi
