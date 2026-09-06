@@ -404,14 +404,13 @@ programs.zsh = {
         theme = "robbyrussell";
       };
 
-      initContent = ''
+initContent = ''
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
             nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            # For testing, we just build and use the local result symlink
-            nh os build /home/neo/.dotfiles#nixos-btw -- --refresh && sudo ./result/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+            nh os test /home/neo/.dotfiles#nixos-btw -S "$NIXOS_SPECIALISATION" -- --refresh
           fi
         }
 
@@ -431,14 +430,14 @@ programs.zsh = {
           local build_success=false
           
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            echo "🔨 Building base NixOS configuration with nh..."
+            echo "🔨 Building base NixOS configuration..."
             if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
               build_success=true
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            # FIX: We MUST use 'switch' here so the system profile is updated with the new code!
-            if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+            # Look how much cleaner this is now!
+            if nh os switch /home/neo/.dotfiles#nixos-btw -S "$NIXOS_SPECIALISATION" -- --refresh; then
               build_success=true
             fi
           fi
