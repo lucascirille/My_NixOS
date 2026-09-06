@@ -19,6 +19,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+
     sqlite
 
     heroic # Epic Launcher for Linux
@@ -540,6 +541,8 @@ initContent = ''
       package = pkgs.pinentry-qt;
     };
   };
+
+  programs.firefox.enable = true;
 
   # Harden Brave Browser execution
   # This adds sandboxing flags to your Brave shortcut
