@@ -60,10 +60,10 @@
       "/var/lib/flatpak"
 
       # Rootless Docker
-      "**/.local/share/docker"
+      "/home/*/.local/share/docker"
       
-      # UMU (Gaming compatibility layer)
-      "**/.local/share/umu"
+      # UMU
+      "/home/*/.local/share/umu"
 
       # Games, shader caches, and compatibility data
       "/home/*/Games"
