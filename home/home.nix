@@ -393,7 +393,7 @@ programs.tmux = {
     ];
   };
 
-    programs.zsh = {
+programs.zsh = {
       enable = true;
       oh-my-zsh = {
         enable = true;
@@ -407,10 +407,10 @@ programs.tmux = {
       initContent = ''
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            nh os test .#nixos-btw -- --refresh
+            nh os test . -H nixos-btw -- --refresh
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os build .#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+            nh os build . -H nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
           fi
         }
 
@@ -438,12 +438,12 @@ programs.tmux = {
 
           if [ -z "$NIXOS_SPECIALISATION" ]; then
             echo "🔨 Building base NixOS configuration..."
-            if nh os switch .#nixos-btw -- --refresh; then
+            if nh os switch . -H nixos-btw -- --refresh; then
               build_success=true
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            if nh os build .#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+            if nh os build . -H nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
               build_success=true
             fi
           fi
