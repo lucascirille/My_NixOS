@@ -393,7 +393,7 @@ programs.tmux = {
     ];
   };
 
-  programs.zsh = {
+    programs.zsh = {
       enable = true;
       oh-my-zsh = {
         enable = true;
@@ -404,7 +404,7 @@ programs.tmux = {
         theme = "robbyrussell";
       };
 
-initContent = ''
+      initContent = ''
         # Converted from alias to function to support specializations
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
@@ -416,36 +416,60 @@ initContent = ''
         }
 
         nos() {
-                  local orig_dir="$PWD"
-                  cd ~/.dotfiles || return 1
+          local orig_dir="$PWD"
+          cd ~/.dotfiles || return 1
 
-                  echo "📥 Fetching and integrating remote changes..."
-                  if ! git pull --rebase --autostash origin main; then
-                    echo "❌ Git pull failed! Please resolve merge conflicts before building."
-                    cd "$orig_dir"
-                    return 1
-                  fi
+          echo "📥 Fetching and integrating remote changes..."
+          if ! git pull --rebase --autostash origin main; then
+            echo "❌ Git pull failed! Please resolve merge conflicts before building."
+            cd "$orig_dir"
+            return 1
+          fi
 
-                  git add .
+          git add .
 
-                  # Commit changes BEFORE building so Nix Flakes can see them
-                  if ! git diff-index --quiet HEAD --; then
-                    echo "📦 Committing local changes..."
-                    git commit -m "Auto-commit before build: $(date '+%Y-%m-%d %H:%M:%S')"
-                  fi
+          local did_commit=false
+          # Commit local changes BEFORE building so Nix Flakes register the new commit hash
+          if ! git diff-index --quiet HEAD --; then
+            echo "📦 Committing local changes..."
+            git commit -m "Auto-commit before build: $(date '+%Y-%m-%d %H:%M:%S')"
+            did_commit=true
+          fi
 
-                  echo "🔨 Building base NixOS configuration with nh..."
-                  if nh os switch .; then
-                    echo "✅ Build successful!"
-                    git push
-                  else
-                    echo "❌ Rebuild failed!"
-                    cd "$orig_dir"
-                    return 1
-                  fi
+          local build_success=false
+          
+          # Branch based on whether we are in a specialization or the base system
+          if [ -z "$NIXOS_SPECIALISATION" ]; then
+            echo "🔨 Building base NixOS configuration with nh..."
+            if nh os switch .; then
+              build_success=true
+            fi
+          else
+            echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
+            if nh os build . && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+              build_success=true
+            fi
+          fi
 
-                  cd "$orig_dir"
-                }
+          if [ "$build_success" = true ]; then
+            echo "✅ Build successful!"
+            echo "🚀 Pushing changes to remote..."
+            git push
+          else
+            echo "❌ Rebuild failed!"
+            
+            # Safety check: Only rollback if we actually made a commit
+            if [ "$did_commit" = true ]; then
+              echo "⏪ Rolling back the pre-build Git commit to keep history clean..."
+              git reset --soft HEAD~1
+            fi
+            
+            cd "$orig_dir"
+            return 1
+          fi
+
+          cd "$orig_dir"
+        }
       '';
 
       shellAliases = {
