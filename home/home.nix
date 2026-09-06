@@ -19,6 +19,7 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
   home.packages = with pkgs; [
+    sqlite
 
     heroic # Epic Launcher for Linux
 

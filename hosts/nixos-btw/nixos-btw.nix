@@ -111,7 +111,7 @@
     enable = true;
     xkb = {
     layout = "us";
-    variant = "intl";
+    variant = "altgr-intl";
     };
     autoRepeatDelay = 200;
     autoRepeatInterval = 35;
