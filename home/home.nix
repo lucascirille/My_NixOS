@@ -33,6 +33,8 @@ in
     ripgrep
     fd
     gcc
+    gnumake
+    tree-sitter
     silicon
     texliveMedium
     nodejs_22
