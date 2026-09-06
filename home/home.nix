@@ -405,12 +405,13 @@ programs.zsh = {
       };
 
       initContent = ''
+        # Converted from alias to function to support specializations
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            nh os test . -H nixos-btw -- --refresh
+            nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os build . -H nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+            nh os build /home/neo/.dotfiles#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
           fi
         }
 
@@ -427,37 +428,34 @@ programs.zsh = {
 
           git add .
 
-          local did_commit=false
-          if ! git diff-index --quiet HEAD --; then
-            echo "📦 Committing local changes..."
-            git commit -m "Auto-commit before build: $(date '+%Y-%m-%d %H:%M:%S')"
-            did_commit=true
-          fi
-
           local build_success=false
-
+          
+          # Branch based on whether we are in a specialization or the base system
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            echo "🔨 Building base NixOS configuration..."
-            if nh os switch . -H nixos-btw -- --refresh; then
+            echo "🔨 Building base NixOS configuration with nh..."
+            if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
               build_success=true
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            if nh os build . -H nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+            # Build the system, then manually switch to the specialization's profile
+            if nh os build /home/neo/.dotfiles#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
               build_success=true
             fi
           fi
 
           if [ "$build_success" = true ]; then
             echo "✅ Build successful!"
-            echo "🚀 Pushing changes to remote..."
-            git push
-          else
-            echo "❌ Rebuild failed!"
-            if [ "$did_commit" = true ]; then
-              echo "⏪ Rolling back the pre-build Git commit to keep history clean..."
-              git reset --soft HEAD~1
+
+            if ! git diff-index --quiet HEAD --; then
+              echo "📦 Committing and pushing working configuration to Git..."
+              git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+              git push
+            else
+              echo "🧹 Working tree clean. Nothing to commit."
             fi
+          else
+            echo "❌ Rebuild failed! Aborting Git commit and push."
             cd "$orig_dir"
             return 1
           fi
