@@ -405,13 +405,12 @@ programs.tmux = {
       };
 
       initContent = ''
-        # Converted from alias to function to support specializations
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            nh os test .
+            nh os test .#nixos-btw -- --refresh
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os build . && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+            nh os build .#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
           fi
         }
 
@@ -429,7 +428,6 @@ programs.tmux = {
           git add .
 
           local did_commit=false
-          # Commit local changes BEFORE building so Nix Flakes register the new commit hash
           if ! git diff-index --quiet HEAD --; then
             echo "📦 Committing local changes..."
             git commit -m "Auto-commit before build: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -437,16 +435,15 @@ programs.tmux = {
           fi
 
           local build_success=false
-          
-          # Branch based on whether we are in a specialization or the base system
+
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            echo "🔨 Building base NixOS configuration with nh..."
-            if nh os switch .; then
+            echo "🔨 Building base NixOS configuration..."
+            if nh os switch .#nixos-btw -- --refresh; then
               build_success=true
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            if nh os build . && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+            if nh os build .#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
               build_success=true
             fi
           fi
@@ -457,13 +454,10 @@ programs.tmux = {
             git push
           else
             echo "❌ Rebuild failed!"
-            
-            # Safety check: Only rollback if we actually made a commit
             if [ "$did_commit" = true ]; then
               echo "⏪ Rolling back the pre-build Git commit to keep history clean..."
               git reset --soft HEAD~1
             fi
-            
             cd "$orig_dir"
             return 1
           fi
@@ -476,7 +470,6 @@ programs.tmux = {
         btw = "echo i use nixos, btw";
         nop = "nh clean all --keep 5";
         nv = "nvim";
-        # Kept exactly as you wrote it so Nix interpolates the package paths properly
         better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
       };
       enableCompletion = true;
