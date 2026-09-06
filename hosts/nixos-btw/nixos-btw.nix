@@ -109,6 +109,10 @@
   # Display Manager (Ly) & Window Manager (Qtile)
   services.xserver = {
     enable = true;
+    xkb = {
+    layout = "us";
+    variant = "intl";
+    };
     autoRepeatDelay = 200;
     autoRepeatInterval = 35;
     updateDbusEnvironment = true;
