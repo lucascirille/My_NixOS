@@ -405,13 +405,13 @@ programs.zsh = {
       };
 
       initContent = ''
-        # Converted from alias to function to support specializations
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
             nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os build /home/neo/.dotfiles#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+            # For testing, we just build and use the local result symlink
+            nh os build /home/neo/.dotfiles#nixos-btw -- --refresh && sudo ./result/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
           fi
         }
 
@@ -430,7 +430,6 @@ programs.zsh = {
 
           local build_success=false
           
-          # Branch based on whether we are in a specialization or the base system
           if [ -z "$NIXOS_SPECIALISATION" ]; then
             echo "🔨 Building base NixOS configuration with nh..."
             if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
@@ -438,8 +437,8 @@ programs.zsh = {
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            # Build the system, then manually switch to the specialization's profile
-            if nh os build /home/neo/.dotfiles#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+            # FIX: We MUST use 'switch' here so the system profile is updated with the new code!
+            if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
               build_success=true
             fi
           fi
