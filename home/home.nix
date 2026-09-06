@@ -404,14 +404,14 @@ programs.tmux = {
         theme = "robbyrussell";
       };
 
-      initContent = ''
+initContent = ''
         # Converted from alias to function to support specializations
         not() {
           if [ -z "$NIXOS_SPECIALISATION" ]; then
-            nh os test
+            nh os test .
           else
             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
+            nh os build . && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration test
           fi
         }
 
@@ -433,13 +433,14 @@ programs.tmux = {
           # Branch based on whether we are in a specialization or the base system
           if [ -z "$NIXOS_SPECIALISATION" ]; then
             echo "🔨 Building base NixOS configuration with nh..."
-            if nh os switch; then
+            # Added '.' to force local directory
+            if nh os switch .; then
               build_success=true
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            # Build the system, then manually switch to the specialization's profile
-            if nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
+            # Added '.' to force local directory
+            if nh os build . && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
               build_success=true
             fi
           fi
@@ -462,7 +463,6 @@ programs.tmux = {
 
           cd "$orig_dir"
         }
-
       '';
 
       shellAliases = {
