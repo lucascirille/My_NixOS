@@ -428,6 +428,16 @@ programs.tmux = {
 
           git add .
 
+          # --- FIX: Commit BEFORE building so Nix can see the files ---
+          local did_commit=false
+          if ! git diff-index --quiet --cached HEAD --; then
+            echo "📦 Committing changes to Git so Nix can see them..."
+            git commit -m "WIP: Auto-commit before build $(date '+%Y-%m-%d %H:%M:%S')"
+            did_commit=true
+          else
+            echo "🧹 Working tree clean. Nothing to commit."
+          fi
+
           local build_success=false
           
           # Branch based on whether we are in a specialization or the base system
@@ -438,7 +448,6 @@ programs.tmux = {
             fi
           else
             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            # Build the system, then manually switch to the specialization's profile
             if nh os build && sudo /nix/var/nix/profiles/system/specialisation/"$NIXOS_SPECIALISATION"/bin/switch-to-configuration switch; then
               build_success=true
             fi
@@ -446,16 +455,21 @@ programs.tmux = {
 
           if [ "$build_success" = true ]; then
             echo "✅ Build successful!"
-
-            if ! git diff-index --quiet HEAD --; then
-              echo "📦 Committing and pushing working configuration to Git..."
-              git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+            if [ "$did_commit" = true ]; then
+              echo "🚀 Pushing working configuration to Git..."
+              # Optional: amend the commit message to show it was successful
+              git commit --amend -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
               git push
-            else
-              echo "🧹 Working tree clean. Nothing to commit."
             fi
           else
-            echo "❌ Rebuild failed! Aborting Git commit and push."
+            echo "❌ Rebuild failed! Aborting Git push."
+            
+            # --- FIX: Rollback the commit if the build failed ---
+            if [ "$did_commit" = true ]; then
+              echo "⏪ Rolling back the pre-build Git commit..."
+              git reset --soft HEAD~1
+            fi
+            
             cd "$orig_dir"
             return 1
           fi
