@@ -85,7 +85,14 @@
     secrets."neo_password" = {
       neededForUsers = true;
     };
+    # Define the Hermes Agent secret
+    secrets."hermes-env" = {
+      # This allows your user 'neo' to read the decrypted .env file
+      owner = config.users.users.neo.name; 
+    };
   };
+
+  users.users.neo.linger = true;
 
   # Prevent manual password modifications (requires sops to manage it)
   users.mutableUsers = false;

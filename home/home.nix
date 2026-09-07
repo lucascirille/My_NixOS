@@ -2,6 +2,8 @@
   config,
   pkgs,
   username,
+  inputs,
+  osConfig,
   ...
 }:
 
@@ -10,6 +12,9 @@ let
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 in
 {
+  imports = [
+    inputs.hermes-agent.homeManagerModules.default
+  ];
   home.username = username;
   home.homeDirectory = "/home/${username}";
   home.sessionVariables = {
@@ -120,6 +125,26 @@ in
   programs.rofi.enable = true;
   programs.fastfetch.enable = true;
   programs.lazydocker.enable = true;
+
+  programs.hermes-agent.enable = true;
+
+  services.hermes-agent = {
+    enable = true;
+    
+    
+    settings = {
+      model = {
+        default = "gemini-2.5-flash";
+        provider = "gemini";
+        base_url = "https://generativelanguage.googleapis.com/v1beta";
+      };
+    };
+    
+    environmentFiles = [
+      osConfig.sops.secrets."hermes-env".path
+
+    ];
+  };
 
   services.flameshot.enable = true;
   services.playerctld.enable = true;
