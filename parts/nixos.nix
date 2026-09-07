@@ -12,7 +12,7 @@ in
       inputs.sops-nix.nixosModules.sops
       inputs.lanzaboote.nixosModules.lanzaboote
       inputs.nix-flatpak.nixosModules.nix-flatpak
-      # inputs.hermes-agent.nixosModules.default
+      inputs.hermes-agent.nixosModules.default
       inputs.stylix.nixosModules.stylix
       {
         home-manager = {
