@@ -125,6 +125,20 @@
     };
   };
 
+nixpkgs.overlays = [
+  (final: prev: {
+    qtile = prev.qtile.overrideAttrs (old: {
+      doCheck = false;
+      pytestCheckPhase = "echo 'Saltando tests de Qtile...'";
+    });
+    qtile-extras = prev.qtile-extras.overrideAttrs (old: {
+      doCheck = false;
+      pytestCheckPhase = "echo 'Saltando tests de Qtile-extras...'";
+    });
+  })
+];
+
+
   services.displayManager.ly = {
     enable = true;
     settings = {

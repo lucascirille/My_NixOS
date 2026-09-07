@@ -18,6 +18,7 @@
     };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     stylix.url = "github:danth/stylix/release-26.05";
+    # hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
   outputs =
