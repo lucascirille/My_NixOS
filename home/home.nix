@@ -148,6 +148,15 @@ in
       4. Be direct, blunt, and factual.
       Respond in the language of the prompt.
     '';
+
+    # Define your MCP servers here
+    mcpServers = {
+      # Example 1: Local Filesystem MCP server
+      "filesystem" = {
+        command = "${pkgs.nodejs}/bin/npx";
+        args = [ "-y" "@modelcontextprotocol/server-filesystem" "/home/neo" ];
+      };
+    };
     
     settings = {
       model = {
