@@ -168,7 +168,9 @@ in
     settings = {
       model = {
         default = "openrouter/free";
-        provider = "openrouter"; 
+        # provider = "openrouter"; 
+        provider = "custom"; # La doc de Caveman indica usar custom
+        base_url = "http://127.0.0.1:3000/v1"; # Apuntamos al proxy local
       };
       fallback_model = {
         model = "gemini-2.5-flash";
