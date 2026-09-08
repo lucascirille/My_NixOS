@@ -186,6 +186,7 @@ in
       extraPackages = with pkgs; [
         uv        # Allows Hermes to run the 'browser-use' CLI on the fly via uvx
         chromium  # The browser engine it will control (keeps it isolated from your personal browser)
+        nodejs
       ];
     };
 
