@@ -145,7 +145,7 @@ in
         provider = "openrouter"; 
       };
       fallback_model = {
-        default = "gemini-2.5-flash";
+        model = "gemini-2.5-flash";
         provider = "gemini";
         base_url = "https://generativelanguage.googleapis.com/v1beta";
       };
