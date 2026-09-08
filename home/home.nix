@@ -159,14 +159,15 @@ in
         provider = "gemini";
         base_url = "https://generativelanguage.googleapis.com/v1beta";
       };
+
+    };
+
       mcpServers = {
         caveman = {
           command = "${pkgs.nodejs_22}/bin/npx";
-          # Necesitamos confirmar estos argumentos exactos
           args = [ "-y" "@caveman-ai/cli" "tools" "mcp" ]; 
         };
       };
-    };
 
 
     environmentFiles = [
