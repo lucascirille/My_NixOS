@@ -177,10 +177,16 @@ in
         dispatch_in_gateway = true;
         dispatch_interval_seconds = 10;
       };
+      browser = {
+        backend = "local";
+      };
       extraPackages = with pkgs; [
         uv        # Allows Hermes to run the 'browser-use' CLI on the fly via uvx
         chromium  # The browser engine it will control (keeps it isolated from your personal browser)
         nodejs
+        xdotool
+        xclip
+        maim
       ];
     };
 
