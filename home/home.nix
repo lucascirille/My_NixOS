@@ -137,9 +137,9 @@ in
     
     settings = {
       model = {
-        default = "gemini-2.5-flash";
-        provider = "gemini";
-        base_url = "https://generativelanguage.googleapis.com/v1beta";
+        default = "meta-llama/llama-3.1-8b-instruct:free";
+        provider = "openai"; # OpenRouter usa el estándar de OpenAI
+        base_url = "https://openrouter.ai/api/v1";
       };
     };
 
