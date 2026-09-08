@@ -141,8 +141,13 @@ in
     settings = {
       model = {
         default = "meta-llama/llama-3.1-8b-instruct:free";
-        provider = "openai"; # OpenRouter usa el estándar de OpenAI
-        base_url = "https://openrouter.ai/api/v1";
+        provider = "openrouter"; # Use the native OpenRouter integration
+      };
+
+    # The automatic failover model for rate limits
+      fallback_model = {
+        provider = "openrouter";
+        model = "google/gemini-2.5-flash:free"; 
       };
     };
 
