@@ -151,7 +151,7 @@ in
       };
     };
 
-    
+
     environmentFiles = [
       osConfig.sops.secrets."hermes-env".path
 
