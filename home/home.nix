@@ -131,6 +131,23 @@ in
       desktop.enable = true;
   };
 
+  # Servicio en segundo plano de Caveman Proxy
+  systemd.user.services.caveman-proxy = {
+    Unit = {
+      Description = "Caveman AI Proxy";
+      After = [ "network.target" ];
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+    Service = {
+      # Usamos npx de forma inmutable para ejecutar el proxy en el puerto 3000
+      ExecStart = "${pkgs.nodejs_22}/bin/npx -y @caveman-ai/cli proxy --port 3000";
+      Restart = "always";
+      RestartSec = "5s";
+    };
+  };
+
   services.hermes-agent = {
     enable = true;
 
