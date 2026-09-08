@@ -162,12 +162,8 @@ in
 
     };
 
-      mcpServers = {
-        caveman = {
-          command = "${pkgs.nodejs_22}/bin/npx";
-          args = [ "-y" "@caveman-ai/cli" "tools" "mcp" ]; 
-        };
-      };
+      # mcpServers = {
+      # };
 
 
     environmentFiles = [
