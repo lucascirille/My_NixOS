@@ -134,7 +134,6 @@ in
 
   services.hermes-agent = {
     enable = true;
-
     gateway.enable = true;
     backend.mode = "serve"; 
     backend.port = 9119;
@@ -149,9 +148,7 @@ in
       Respond in the language of the prompt.
     '';
 
-    # Define your MCP servers here
     mcpServers = {
-      # Example 1: Local Filesystem MCP server
       "filesystem" = {
         command = "${pkgs.nodejs}/bin/npx";
         args = [ "-y" "@modelcontextprotocol/server-filesystem" "/home/neo" ];
@@ -179,25 +176,33 @@ in
       };
       browser = {
         backend = "local";
-        # Tell the local backend to launch Chromium with debugging enabled
-        headless = false; # Set to true if you don't want the browser window to physically pop up on your screen
+        headless = false;
         cdp_url = "http://127.0.0.1:9222";
       };
+
+      toolsets = [ "all" ];
+
+      computer_use = {
+        native_wayland = true;
+        permission_mode = "standard";
+      };
+
       extraPackages = with pkgs; [
-        uv        # Allows Hermes to run the 'browser-use' CLI on the fly via uvx
-        chromium  # The browser engine it will control (keeps it isolated from your personal browser)
+        uv        
+        chromium  
         nodejs
         xdotool
         xclip
         maim
+        grim
+        slurp
+        ydotool
+        wl-clipboard
       ];
     };
 
-
-
     environmentFiles = [
       osConfig.sops.secrets."hermes-env".path
-
     ];
   };
 
