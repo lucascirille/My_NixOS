@@ -140,11 +140,9 @@ in
     
     settings = {
       model = {
-        default = "meta-llama/llama-3.1-8b-instruct:free";
-        provider = "openrouter"; # Use the native OpenRouter integration
+        default = "qwen/qwen-2.5-coder-32b-instruct:free";
+        provider = "openrouter"; 
       };
-
-    # The automatic failover model for rate limits
       fallback_model = {
         provider = "openrouter";
         model = "google/gemini-2.5-flash:free"; 
