@@ -23,6 +23,7 @@ in
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
   };
+  home.sessionPath = [ "$HOME/.local/bin" ];
   home.packages = with pkgs; [
 
     sqlite
