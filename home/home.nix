@@ -153,6 +153,11 @@ in
       model = {
         default = "openrouter/free";
         provider = "openrouter"; 
+        extra_body = {
+          reasoning = {
+            effort = "none";
+          };
+        };
       };
       fallback_model = {
         model = "gemini-2.5-flash";
@@ -162,8 +167,6 @@ in
 
     };
 
-      # mcpServers = {
-      # };
 
 
     environmentFiles = [
