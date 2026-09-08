@@ -131,22 +131,6 @@ in
       desktop.enable = true;
   };
 
-  # Servicio en segundo plano de Caveman Proxy
-  systemd.user.services.caveman-proxy = {
-    Unit = {
-      Description = "Caveman AI Proxy";
-      After = [ "network.target" ];
-    };
-    Install = {
-      WantedBy = [ "default.target" ];
-    };
-    Service = {
-      # Usamos npx de forma inmutable para ejecutar el proxy en el puerto 3000
-      ExecStart = "${pkgs.nodejs_22}/bin/npx -y @caveman-ai/cli proxy --port 3000";
-      Restart = "always";
-      RestartSec = "5s";
-    };
-  };
 
   services.hermes-agent = {
     enable = true;
@@ -168,9 +152,7 @@ in
     settings = {
       model = {
         default = "openrouter/free";
-        # provider = "openrouter"; 
-        provider = "custom"; # La doc de Caveman indica usar custom
-        base_url = "http://127.0.0.1:3000/v1"; # Apuntamos al proxy local
+        provider = "openrouter"; 
       };
       fallback_model = {
         model = "gemini-2.5-flash";
