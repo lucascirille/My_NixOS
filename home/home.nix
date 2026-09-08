@@ -521,7 +521,7 @@ initContent = ''
         btw = "echo i use nixos, btw";
         nop = "nh clean all --keep 5";
         nv = "nvim";
-        better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) ${pkgs.sops}/bin/sops";
+        better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) SOPS_EDITOR=${pkgs.neovim}/bin/nvim ${pkgs.sops}/bin/sops";
       };
       enableCompletion = true;
       autosuggestion.enable = true;
