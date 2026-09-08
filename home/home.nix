@@ -134,18 +134,20 @@ in
   services.hermes-agent = {
     enable = true;
 
-    # Levanta solo los sockets para la app de escritorio
+    gateway.enable = true;
     backend.mode = "serve"; 
     backend.port = 9119;
     
+    
     settings = {
       model = {
-        default = "qwen/qwen-2.5-coder-32b-instruct:free";
+        default = "openrouter/free";
         provider = "openrouter"; 
       };
       fallback_model = {
-        provider = "openrouter";
-        model = "google/gemini-2.5-flash:free"; 
+        default = "gemini-2.5-flash";
+        provider = "gemini";
+        base_url = "https://generativelanguage.googleapis.com/v1beta";
       };
     };
 
