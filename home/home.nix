@@ -126,7 +126,10 @@ in
   programs.fastfetch.enable = true;
   programs.lazydocker.enable = true;
 
-  programs.hermes-agent.enable = true;
+  programs.hermes-agent = {
+      enable = true;
+      desktop.enable = true;
+  };
 
   services.hermes-agent = {
     enable = true;
@@ -139,6 +142,7 @@ in
         base_url = "https://generativelanguage.googleapis.com/v1beta";
       };
     };
+
     
     environmentFiles = [
       osConfig.sops.secrets."hermes-env".path
