@@ -133,7 +133,10 @@ in
 
   services.hermes-agent = {
     enable = true;
-    
+
+    # Levanta solo los sockets para la app de escritorio
+    backend.mode = "serve"; 
+    backend.port = 9119;
     
     settings = {
       model = {
