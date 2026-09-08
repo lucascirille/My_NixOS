@@ -113,7 +113,7 @@
     };
   };
 
-  # Display Manager (Ly) & Window Manager (Qtile)
+# Display Manager (Ly) & Window Manager (Qtile)
   services.xserver = {
     enable = true;
     xkb = {
@@ -132,18 +132,22 @@
     };
   };
 
-nixpkgs.overlays = [
-  (final: prev: {
-    qtile = prev.qtile.overrideAttrs (old: {
-      doCheck = false;
-      pytestCheckPhase = "echo 'Saltando tests de Qtile...'";
-    });
-    qtile-extras = prev.qtile-extras.overrideAttrs (old: {
-      doCheck = false;
-      pytestCheckPhase = "echo 'Saltando tests de Qtile-extras...'";
-    });
-  })
-];
+  nixpkgs.overlays = [
+    (final: prev: {
+      pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+        (python-final: python-prev: {
+          qtile = python-prev.qtile.overrideAttrs (old: {
+            doCheck = false;
+            pytestCheckPhase = "echo 'Skipping Qtile tests...'";
+          });
+          qtile-extras = python-prev.qtile-extras.overrideAttrs (old: {
+            doCheck = false;
+            pytestCheckPhase = "echo 'Skipping Qtile-extras tests...'";
+          });
+        })
+      ];
+    })
+  ];
 
 
   services.displayManager.ly = {
