@@ -170,6 +170,9 @@ in
       };
       browser = {
         backend = "local";
+        # Tell the local backend to launch Chromium with debugging enabled
+        headless = false; # Set to true if you don't want the browser window to physically pop up on your screen
+        cdp_url = "http://127.0.0.1:9222";
       };
       extraPackages = with pkgs; [
         uv        # Allows Hermes to run the 'browser-use' CLI on the fly via uvx
