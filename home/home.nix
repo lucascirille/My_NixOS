@@ -22,6 +22,7 @@ in
     EDITOR = "nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
+    # SUDO_ASKPASS = "${pkgs.gnome.gnome-keyring}/bin/gnome-keyring-askpass";
   };
   home.packages = with pkgs; [
 
@@ -321,6 +322,8 @@ in
       "application/vnd.comicbook+zip" = [ "com.github.johnfactotum.Foliate.desktop" ];
     };
   };
+
+
 
   programs.obsidian = {
     enable = true;
