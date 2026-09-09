@@ -1,0 +1,77 @@
+/* --- ~/.dotfiles/home/config/rofi/config.rasi --- */
+
+/* 1. Core Settings & Icons */
+configuration {
+    modi: "drun,run";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    display-drun: "🚀 Apps";
+    display-run: "  Cmd";
+    drun-display-format: "{icon} {name}";
+    font: "sans-serif 12";
+}
+
+/* 2. Import the Stylix colors Nix generated for us */
+@import "~/.config/rofi/colors.rasi"
+
+/* 3. Global Reset */
+* {
+    background-color: transparent;
+    text-color: @fg;
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+/* 4. The Main Window */
+window {
+    background-color: @bg;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 10px;
+    width: 600px;
+    padding: 20px;
+}
+
+/* 5. The Search Bar */
+inputbar {
+    background-color: @bg-alt;
+    border-radius: 8px;
+    padding: 12px;
+    spacing: 10px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    text-color: @accent;
+    font: "sans-serif bold 12";
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: @fg;
+}
+
+/* 6. The Results List */
+listview {
+    margin: 20px 0 0 0;
+    lines: 7;
+    spacing: 8px;
+    scrollbar: false;
+}
+
+/* 7. Individual App Entries */
+element {
+    padding: 10px;
+    border-radius: 6px;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element-icon {
+    size: 24px;
+    margin: 0 10px 0 0;
+}

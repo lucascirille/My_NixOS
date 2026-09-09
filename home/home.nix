@@ -34,6 +34,7 @@ home.file.".local/bin/nixos-askpass" = {
   };
   home.packages = with pkgs; [
 
+    rofi
     sqlite
 
     heroic # Epic Launcher for Linux
@@ -131,7 +132,21 @@ home.file.".local/bin/nixos-askpass" = {
   programs.mpv.enable = true;
   programs.feh.enable = true;
   programs.cava.enable = true;
-  programs.rofi.enable = true;
+
+  stylix.targets.rofi.enable = false;
+
+  # Export Stylix colors to a Rofi-readable file
+  xdg.configFile."rofi/colors.rasi".text = ''
+    * {
+      bg: #${config.lib.stylix.colors.base00};
+      bg-alt: #${config.lib.stylix.colors.base01};
+      fg: #${config.lib.stylix.colors.base05};
+      accent: #${config.lib.stylix.colors.base0D};
+      urgent: #${config.lib.stylix.colors.base08};
+    }
+  '';
+
+
   programs.fastfetch.enable = true;
   programs.lazydocker.enable = true;
 
@@ -288,6 +303,8 @@ home.file.".local/bin/nixos-askpass" = {
 
   xdg.configFile."qtile".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/qtile";
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/nvim";
+  xdg.configFile."rofi/config.rasi".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/home/config/rofi/config.rasi";
+
 
   xdg.configFile."flameshot/flameshot.ini".text = ''
     [General]
