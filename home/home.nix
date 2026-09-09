@@ -715,6 +715,9 @@ initContent = ''
       Environment = [ 
         "DISPLAY=:0" 
         # "WAYLAND_DISPLAY=wayland-0" # Uncomment and adjust if using native Wayland later
+
+        # Required for audio and general user session access:
+        "XDG_RUNTIME_DIR=/run/user/1000"
       ];
     };
   };
