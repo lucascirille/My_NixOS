@@ -17,7 +17,7 @@
     loader = {
       systemd-boot.enable = lib.mkForce false; # Must be disabled when using lanzaboote
       efi.canTouchEfiVariables = true;
-      timeout = -1;
+      timeout = null; # Add a timeout for the boot menu (in seconds) or set to null for no timeout
     };
 
     kernel = {
