@@ -708,6 +708,17 @@ initContent = ''
     </actions>
   '';
 
+  systemd.user.services.hermes-agent = {
+    Service = {
+      # Assuming you are on X11 or XWayland. 
+      # You can verify your display variable by running `echo $DISPLAY` in your terminal.
+      Environment = [ 
+        "DISPLAY=:0" 
+        # "WAYLAND_DISPLAY=wayland-0" # Uncomment and adjust if using native Wayland later
+      ];
+    };
+  };
+
 systemd.user.services.keepassxc = {
   Unit = {
     Description = "KeePassXC password manager daemon";
