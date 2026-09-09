@@ -283,6 +283,13 @@
     ];
   };
 
+  system.activationScripts.binbash = {
+    text = ''
+      mkdir -p /bin
+      ln -sf ${pkgs.bash}/bin/bash /bin/bash
+    '';
+    deps = [];
+  };
   system.userActivationScripts.steamDevCfg.text = ''
   mkdir -p "$HOME/.local/share/Steam"
   echo "unShaderBackgroundProcessingThreads $(nproc)" > "$HOME/.local/share/Steam/steam_dev.cfg"
