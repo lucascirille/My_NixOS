@@ -25,13 +25,13 @@ in
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
   };
 home.file.".local/bin/nixos-askpass" = {
-  text = ''
-    #!/usr/bin/env bash
-    ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u critical -t 15000
-    ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password"
-  '';
-  executable = true;
-};
+    text = ''
+      #!/usr/bin/env bash
+      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
+      ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str 'window {width: 250px;} mainbox {children: [inputbar];}'
+    '';
+    executable = true;
+  };
   home.packages = with pkgs; [
 
     sqlite
