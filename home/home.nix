@@ -183,7 +183,7 @@ in
       toolsets = [ "all" ];
 
       computer_use = {
-        native_wayland = true;
+        native_wayland = false;
         permission_mode = "standard";
       };
 
