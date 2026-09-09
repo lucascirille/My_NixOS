@@ -46,6 +46,9 @@
   virtualisation.hypervGuest.enable = lib.mkDefault true;
 
 
+security.sudo.extraConfig = ''
+  Defaults env_keep += "SUDO_ASKPASS"
+'';
 
 
 

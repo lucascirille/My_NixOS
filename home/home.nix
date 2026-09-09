@@ -22,7 +22,20 @@ in
     EDITOR = "nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
+    SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
   };
+  home.file.".local/bin/nixos-askpass" = {
+  text = ''
+    #!/usr/bin/env bash
+    
+    # 1. Send the desktop notification exactly when the password is requested
+    ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Build finished! Password required to activate." -u critical -t 15000
+    
+    # 2. Prompt for password using rofi
+    ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password"
+  '';
+  executable = true;
+};
   home.packages = with pkgs; [
 
     sqlite
