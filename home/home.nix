@@ -187,18 +187,20 @@ in
         permission_mode = "standard";
       };
 
+    };
+
       extraPackages = with pkgs; [
         # The Nix-packaged cua-driver binary
-        inputs.cua.packages.${pkgs.system}.cua-driver
+        inputs.cua.packages.${pkgs.stdenv.hostPlatform.system}.cua-driver
 
         uv        
         chromium  
-        nodejs
+        nodejs_22
         xdotool
         xclip
         maim
       ];
-    };
+
 
     environmentFiles = [
       osConfig.sops.secrets."hermes-env".path
