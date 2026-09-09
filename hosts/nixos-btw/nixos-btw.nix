@@ -68,6 +68,10 @@
         package = pkgs.inter;
         name = "Inter";
       };
+      sizes = {
+        applications = 12;
+        terminal = 14;
+      };
     };
 
     cursor = {
