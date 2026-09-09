@@ -17,6 +17,7 @@
     loader = {
       systemd-boot.enable = lib.mkForce false; # Must be disabled when using lanzaboote
       efi.canTouchEfiVariables = true;
+      timeout = -1;
     };
 
     kernel = {
