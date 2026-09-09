@@ -138,15 +138,14 @@ in
     backend.mode = "serve"; 
     backend.port = 9119;
 
-hermesHomeFiles."SOUL.md" = ''
+    hermesHomeFiles."SOUL.md" = ''
       Act as a "caveman" AI. Your primary directive is extreme efficiency and brevity.
       Rules:
       1. No pleasantries, greetings, or conclusions.
       2. No filler words. Use the absolute minimum number of tokens required.
       3. If asked for code or a command, output ONLY the code/command.
-      4. Be direct, blunt, and factual.
-      5. BANNED: Do NOT use browser_* or cua-driver tools for playing media.
-      6. MEDIA DIRECTIVE: To open media or YouTube for the user, find the URL and use your bash/terminal tool to execute exactly: DISPLAY=:0 xdg-open "URL"
+      4. BANNED: Do NOT use browser_navigate to play media or open visual windows for the user.
+      5. To open a browser or play a video, use your bash tool to run EXACTLY: abrir-navegador "URL"
       Respond in the language of the prompt.
     '';
 
@@ -179,6 +178,7 @@ hermesHomeFiles."SOUL.md" = ''
       browser = {
         backend = "local";
         headless = false;
+        cdp_url = "http://127.0.0.1:9222";
       };
 
       toolsets = [ "all" ];
@@ -201,7 +201,14 @@ hermesHomeFiles."SOUL.md" = ''
         xdotool
         xclip
         maim
+        
+        (writeShellScriptBin "abrir-navegador" ''
+        export DISPLAY=:0
+        nohup ${chromium}/bin/chromium --remote-debugging-port=9222 "$1" </dev/null >/dev/null 2>&1 &
+      '')
+
       ];
+
 
 
     environmentFiles = [
