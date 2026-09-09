@@ -177,7 +177,6 @@ in
       browser = {
         backend = "local";
         headless = false;
-        cdp_url = "http://127.0.0.1:9222";
       };
 
       toolsets = [ "all" ];
