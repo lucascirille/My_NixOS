@@ -522,15 +522,28 @@ initContent = ''
 
           echo "📥 Fetching and integrating remote changes..."
           if ! git pull --rebase --autostash origin main; then
-            echo "❌ Git pull failed!"
+            echo "❌ Git pull failed! Please resolve merge conflicts before building."
             notify-send "NixOS Build" "❌ Git pull failed!" -u critical -t 10000
             cd "$orig_dir"
             return 1
           fi
 
           git add .
+
+          # 👇 STEP 1: PRE-AUTHENTICATE VIA GUI 👇
+          # This pops up a rofi password prompt, feeds it to sudo, and caches it.
+          # Because it's cached, 'nh' will NOT pause for a password later.
+          echo "🔐 Authenticating..."
+          if ! rofi -dmenu -password -p "🔐 NixOS Build Password" | sudo -S -v 2>/dev/null; then
+            echo "❌ Authentication failed!"
+            notify-send "NixOS Build" "❌ Authentication failed!" -u critical -t 10000
+            cd "$orig_dir"
+            return 1
+          fi
+
           local build_success=false
           
+          # 👇 STEP 2: BUILD (Will not pause for password) 👇
           if [ -z "$NIXOS_SPECIALISATION" ]; then
             echo "🔨 Building base NixOS configuration..."
             if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
@@ -543,18 +556,22 @@ initContent = ''
             fi
           fi
 
+          # 👇 STEP 3: FINISH NOTIFICATION 👇
           if [ "$build_success" = true ]; then
             echo "✅ Build successful!"
+            # This now triggers exactly when the build finishes!
             notify-send "NixOS Build" "✅ Build successful! System updated." -u normal -t 10000
 
             if ! git diff-index --quiet HEAD --; then
-              echo "📦 Committing and pushing..."
+              echo "📦 Committing and pushing working configuration to Git..."
               git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
               git push
+            else
+              echo "🧹 Working tree clean. Nothing to commit."
             fi
           else
-            echo "❌ Rebuild failed!"
-            notify-send "NixOS Build" "❌ Build failed! Check terminal." -u critical -t 15000
+            echo "❌ Rebuild failed! Aborting Git commit and push."
+            notify-send "NixOS Build" "❌ Build failed! Check terminal for errors." -u critical -t 15000
             cd "$orig_dir"
             return 1
           fi
