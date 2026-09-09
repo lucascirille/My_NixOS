@@ -27,7 +27,7 @@ in
 home.file.".local/bin/nixos-askpass" = {
   text = ''
     #!/usr/bin/env bash
-    ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Build finished! Password required to activate." -u critical -t 15000
+    ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u critical -t 15000
     ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password"
   '';
   executable = true;
@@ -531,10 +531,10 @@ initContent = ''
           git add .
 
           # 👇 STEP 1: PRE-AUTHENTICATE VIA GUI 👇
-          # This pops up a rofi password prompt, feeds it to sudo, and caches it.
-          # Because it's cached, 'nh' will NOT pause for a password later.
           echo "🔐 Authenticating..."
-          if ! rofi -dmenu -password -p "🔐 NixOS Build Password" | sudo -S -v 2>/dev/null; then
+          # -A tells sudo to use the program defined in SUDO_ASKPASS
+          # It will only pop up Rofi if the password cache has expired.
+          if ! sudo -A -v 2>/dev/null; then
             echo "❌ Authentication failed!"
             notify-send "NixOS Build" "❌ Authentication failed!" -u critical -t 10000
             cd "$orig_dir"
