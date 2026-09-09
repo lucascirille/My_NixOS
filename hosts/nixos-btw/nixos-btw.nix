@@ -70,7 +70,7 @@
         name = "Inter";
       };
       sizes = {
-        applications = 24;
+        applications = 12;
         terminal = 14;
       };
     };
