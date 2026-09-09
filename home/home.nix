@@ -194,10 +194,6 @@ in
         xdotool
         xclip
         maim
-        grim
-        slurp
-        ydotool
-        wl-clipboard
       ];
     };
 
