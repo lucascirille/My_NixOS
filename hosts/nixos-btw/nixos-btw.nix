@@ -112,6 +112,9 @@
     imports = [ ../../specialisations/baremetal.nix ];
     };
   };
+  
+  # for cua-driver and other accessibility features
+  services.gnome.at-spi2-core.enable = true;
 
 # Display Manager (Ly) & Window Manager (Qtile)
   services.xserver = {
