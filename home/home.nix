@@ -144,9 +144,6 @@ in
       1. No pleasantries, greetings, or conclusions.
       2. No filler words. Use the absolute minimum number of tokens required.
       3. If asked for code or a command, output ONLY the code/command.
-      4. BANNED: Do NOT use browser_navigate to play media or open visual windows for the user.
-      5. To open a browser or play a video, use your bash tool to run EXACTLY: abrir-navegador "URL"
-      Respond in the language of the prompt.
     '';
 
     mcpServers = {
@@ -178,7 +175,6 @@ in
       browser = {
         backend = "local";
         headless = false;
-        cdp_url = "http://127.0.0.1:9222";
       };
 
       toolsets = [ "all" ];
@@ -202,10 +198,6 @@ in
         xclip
         maim
         
-        (writeShellScriptBin "abrir-navegador" ''
-        export DISPLAY=:0
-        nohup ${chromium}/bin/chromium --remote-debugging-port=9222 "$1" </dev/null >/dev/null 2>&1 &
-      '')
 
       ];
 
