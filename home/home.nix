@@ -188,6 +188,9 @@ in
       };
 
       extraPackages = with pkgs; [
+        # The Nix-packaged cua-driver binary
+        inputs.cua.packages.${pkgs.system}.cua-driver
+
         uv        
         chromium  
         nodejs

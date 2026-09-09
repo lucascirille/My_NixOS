@@ -3,22 +3,39 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     flake-parts.url = "github:hercules-ci/flake-parts";
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v1.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     nix-flatpak.url = "github:gmodena/nix-flatpak";
-    stylix.url = "github:danth/stylix/release-26.05";
-    hermes-agent.url = "github:NousResearch/hermes-agent";
+
+    stylix = {
+      url = "github:danth/stylix/release-26.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+    };
+
+    cua = {
+      url = "github:trycua/cua";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
