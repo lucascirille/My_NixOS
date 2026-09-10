@@ -232,6 +232,14 @@ home.file.".local/bin/nixos-askpass" = {
     ];
   };
 
+    # Configure the Ollama service
+  services.ollama = {
+    enable = true;
+    # This specifically grabs the Vulkan-compiled version instead of ROCm or CPU
+    package = pkgs.ollama-vulkan; 
+  };
+
+
   services.flameshot.enable = true;
   services.playerctld.enable = true;
 
