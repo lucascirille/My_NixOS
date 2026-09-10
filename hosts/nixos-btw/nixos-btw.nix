@@ -120,6 +120,13 @@
     imports = [ ../../specialisations/baremetal.nix ];
     };
   };
+
+  # Configure the Ollama service
+  services.ollama = {
+    enable = true;
+    # This specifically grabs the Vulkan-compiled version instead of ROCm or CPU
+    package = pkgs.ollama-vulkan; 
+  };
   
   # for cua-driver and other accessibility features
   services.gnome.at-spi2-core.enable = true;

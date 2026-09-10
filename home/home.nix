@@ -201,6 +201,7 @@ home.file.".local/bin/nixos-askpass" = {
         headless = false;
       };
 
+      toolsets = [ "all" ];
 
       computer_use = {
         native_wayland = false;
