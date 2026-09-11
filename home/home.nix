@@ -24,7 +24,9 @@ in
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
   };
-home.file.".local/bin/nixos-askpass" = {
+
+
+  home.file.".local/bin/nixos-askpass" = {
     text = ''
       #!/usr/bin/env bash
       ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
@@ -135,6 +137,9 @@ home.file.".local/bin/nixos-askpass" = {
   programs.cava.enable = true;
 
   stylix.targets.rofi.enable = false;
+
+  xdg.configFile."stylix/colors.json".text = 
+  builtins.toJSON config.lib.stylix.colors.withHashtag;
 
   # Export Stylix colors to a Rofi-readable file
   xdg.configFile."rofi/colors.rasi".text = ''

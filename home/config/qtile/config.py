@@ -1,6 +1,7 @@
 import os
 import shutil
 import libqtile.resources
+import json
 from libqtile import bar, layout, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
@@ -17,15 +18,34 @@ mod = "mod4"
 terminal = guess_terminal()
 
 # -------------------------------------------------------------------------
-# 1. Unified Theme Control
+# 1. Unified Theme Control (Stylix Integration)
 # -------------------------------------------------------------------------
+stylix_colors_path = os.path.expanduser("~/.config/stylix/colors.json")
+
+# Fallback (Tu tema original TokyoNight)
+fallback_colors = {
+    "base00": "#1a1b26", # Fondo oscuro
+    "base01": "#24283b", # Superficies
+    "base05": "#a9b1d6", # Texto normal
+    "base0D": "#7aa2f7", # Acento principal (Azul)
+    "base08": "#f7768e", # Crítico (Rojo)
+    "base0B": "#9ece6a", # Ok (Verde)
+}
+
+try:
+    with open(stylix_colors_path, "r") as f:
+        stylix = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    stylix = fallback_colors
+
+# Mapeamos el estándar Base16 de Stylix a las variables de tu barra
 colors = {
-    "bg": "#1a1b26",
-    "surface": "#24283b",
-    "fg": "#a9b1d6",
-    "accent": "#7aa2f7",
-    "critical": "#f7768e",
-    "ok": "#9ece6a",
+    "bg": stylix.get("base00", fallback_colors["base00"]),
+    "surface": stylix.get("base01", fallback_colors["base01"]),
+    "fg": stylix.get("base05", fallback_colors["base05"]),
+    "accent": stylix.get("base0D", fallback_colors["base0D"]),
+    "critical": stylix.get("base08", fallback_colors["base08"]),
+    "ok": stylix.get("base0B", fallback_colors["base0B"]),
 }
 
 widget_defaults = dict(
@@ -120,6 +140,15 @@ def create_bar(primary=True):
             **get_decoration(colors["bg"])
         ),
         widget.Spacer(length=8),
+        
+        widget.CurrentLayout(
+            fmt='󰕰 {}',
+            foreground=colors["bg"],
+            **get_decoration(colors["accent"]) 
+        ),
+        widget.Spacer(length=8),
+        # ---------------------------------
+
         widget.WindowName(
             foreground=colors["accent"],
             max_chars=40,
