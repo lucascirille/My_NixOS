@@ -22,7 +22,6 @@ terminal = guess_terminal()
 # -------------------------------------------------------------------------
 stylix_colors_path = os.path.expanduser("~/.config/stylix/colors.json")
 
-# Fallback (Tu tema original TokyoNight)
 fallback_colors = {
     "base00": "#1a1b26", # Fondo oscuro
     "base01": "#24283b", # Superficies
@@ -32,13 +31,26 @@ fallback_colors = {
     "base0B": "#9ece6a", # Ok (Verde)
 }
 
-try:
-    with open(stylix_colors_path, "r") as f:
-        stylix = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError):
-    stylix = fallback_colors
+# Iniciamos stylix con los colores por defecto
+stylix = fallback_colors.copy()
 
-# Mapeamos el estándar Base16 de Stylix a las variables de tu barra
+try:
+    if os.path.exists(stylix_colors_path):
+        with open(stylix_colors_path, "r") as f:
+            data = json.load(f)
+            
+            # Si Nix serializó el JSON como un string envuelto en comillas, lo parseamos de nuevo
+            if isinstance(data, str):
+                data = json.loads(data)
+                
+            # Si ahora sí es un diccionario válido, lo usamos
+            if isinstance(data, dict):
+                stylix = data
+except Exception:
+    # Si el archivo está corrupto o falta, Qtile usará fallback_colors sin colgarse
+    pass
+
+# Mapeo a las variables de tu barra usando .get() de forma segura
 colors = {
     "bg": stylix.get("base00", fallback_colors["base00"]),
     "surface": stylix.get("base01", fallback_colors["base01"]),
