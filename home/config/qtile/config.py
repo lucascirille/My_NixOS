@@ -1,44 +1,41 @@
+# =========================================================================
+# 0. IMPORTS (Grouped and ordered by PEP 8 standard)
+# =========================================================================
+# Standard Python libraries
 import os
-import shutil
-import libqtile.resources
 import json
-from libqtile import bar, layout, qtile
-from libqtile.config import Click, Drag, Group, Key, Match, Screen
+import shutil
+import subprocess
+
+# Qtile Core
+import libqtile.resources
+from libqtile import bar, hook, layout, qtile
+from libqtile.config import Click, Drag, DropDown, Group, Key, Match, ScratchPad, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+
+# Qtile Extras (qtile_extras)
 from qtile_extras import widget
 from qtile_extras.widget.decorations import RectDecoration
-import subprocess
-from libqtile import hook
 
-
-# Intenta obtener la imagen de Stylix, si falla, usa el fallback
-wallpaper_path = stylix.get("image", os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/current.jpg"))
-
+# =========================================================================
+# 1. GLOBAL VARIABLES & THEME (Full Wallpaper-Derived Stylix Integration)
+# =========================================================================
 mod = "mod4"
 terminal = guess_terminal()
-
-# -------------------------------------------------------------------------
-# 1. Unified Theme Control (Stylix Integration)
-# -------------------------------------------------------------------------
 stylix_colors_path = os.path.expanduser("~/.config/stylix/colors.json")
 
-# 1. Diccionario base (Tu fallback TokyoNight)
+# Base dictionary (Fallback palette if JSON is missing)
 stylix = {
-    "base00": "#1a1b26", # bg
-    "base01": "#24283b", # surface
-    "base05": "#a9b1d6", # fg
-    "base08": "#f7768e", # red
-    "base09": "#ff9e64", # orange
-    "base0A": "#e0af68", # yellow
-    "base0B": "#9ece6a", # green
-    "base0C": "#7dcfff", # cyan
-    "base0D": "#7aa2f7", # blue
-    "base0E": "#bb9af7", # magenta
-    "base0F": "#c0caf5", # brown/white
+    "base00": "#1a1b26", "base01": "#24283b", "base02": "#414868", 
+    "base03": "#565f89", "base04": "#c0caf5", "base05": "#a9b1d6", 
+    "base06": "#cfc9c2", "base07": "#3d59a1", "base08": "#f7768e", 
+    "base09": "#ff9e64", "base0A": "#e0af68", "base0B": "#9ece6a", 
+    "base0C": "#7dcfff", "base0D": "#7aa2f7", "base0E": "#bb9af7", 
+    "base0F": "#b4f9f8"
 }
 
-# 2. Intentamos sobreescribir con los colores generados por Nix
+# Overwrite fully with the wallpaper-derived palette from Nix
 try:
     with open(stylix_colors_path, "r") as f:
         data = json.load(f)
@@ -47,22 +44,22 @@ try:
 except (FileNotFoundError, json.JSONDecodeError):
     pass
 
-# 3. Mapeo final a las variables de tu barra
+wallpaper_path = stylix.get("image", os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/current.jpg"))
+
+# Fully mapped to wallpaper-extracted Base16 colors
 colors = {
-    "bg": stylix["base00"],
-    "surface": stylix["base01"],
-    "fg": stylix["base05"],
+    "bg": stylix["base00"],         # Wallpaper background tone
+    "surface": stylix["base01"],    # Wallpaper surface tone
+    "fg": stylix["base05"],         # Wallpaper foreground/text tone
     
-    # Semantic colors (good for logical UI states)
-    "accent": stylix["base0D"],    # Blue
-    "critical": stylix["base08"],  # Red
-    "ok": stylix["base0B"],        # Green
-    "warning": stylix["base0A"],   # Yellow
-    
-    # Literal colors (good for decorating widgets)
-    "orange": stylix["base09"],
-    "cyan": stylix["base0C"],
-    "magenta": stylix["base0E"],
+    # Fully dynamic accents derived from your current wallpaper
+    "accent": stylix["base0D"],     # Primary wallpaper accent (Blue-ish)
+    "critical": stylix["base08"],   # Wallpaper error/red tone
+    "ok": stylix["base0B"],         # Wallpaper success/green tone
+    "warning": stylix["base0A"],    # Wallpaper warning/yellow tone
+    "orange": stylix["base09"],     # Wallpaper orange tone
+    "cyan": stylix["base0C"],       # Wallpaper cyan tone
+    "magenta": stylix["base0E"],    # Wallpaper magenta tone
 }
 
 widget_defaults = dict(
@@ -72,11 +69,10 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-# -------------------------------------------------------------------------
-# 2. Functional & Hardware Detection Helpers
-# -------------------------------------------------------------------------
+# =========================================================================
+# 2. HARDWARE & UTILITY FUNCTIONS
+# =========================================================================
 def get_wlan_interface():
-    """Detects the first available Wi-Fi interface (usually starts with 'w')."""
     sys_net = "/sys/class/net"
     if os.path.exists(sys_net):
         for dev in os.listdir(sys_net):
@@ -85,14 +81,12 @@ def get_wlan_interface():
     return None
 
 def has_battery():
-    """Checks if a battery device exists in sysfs (Laptops)."""
     sys_power = "/sys/class/power_supply"
     if os.path.exists(sys_power):
         return any(dev.startswith("BAT") for dev in os.listdir(sys_power))
     return False
 
 def get_backlight_name():
-    """Detects available backlight device name (Intel, AMD, ACPI, etc.)."""
     sys_backlight = "/sys/class/backlight"
     if os.path.exists(sys_backlight):
         devices = os.listdir(sys_backlight)
@@ -101,7 +95,6 @@ def get_backlight_name():
     return None
 
 def volume_osd(action):
-    """Generates shell commands for dunst volume notifications."""
     if action == "up":
         cmd = "pamixer -i 5 && dunstify -a System -u low -h string:x-dunst-stack-tag:volume -h int:value:$(pamixer --get-volume) 'Volume'"
     elif action == "down":
@@ -111,7 +104,6 @@ def volume_osd(action):
     return f"sh -c \"{cmd}\""
 
 def brightness_osd(action):
-    """Generates shell commands for dunst brightness notifications."""
     if action == "up":
         cmd = "brightnessctl set +5% && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
     elif action == "down":
@@ -119,7 +111,6 @@ def brightness_osd(action):
     return f"sh -c \"{cmd}\""
 
 def power_menu_cmd():
-    """Unified DRY power menu sequence for rofi."""
     return (
         "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
         "rofi -dmenu -i -p \"Power\") && "
@@ -133,7 +124,6 @@ def power_menu_cmd():
     )
 
 def get_decoration(color, is_group=True):
-    """Optimized decoration builder to keep code DRY."""
     return {
         "decorations": [
             RectDecoration(colour=color, radius=8, filled=True, padding_y=4, group=is_group)
@@ -141,12 +131,10 @@ def get_decoration(color, is_group=True):
         "padding": 10,
     }
 
-# -------------------------------------------------------------------------
-# 3. Universal Bar Instance Generator
-# -------------------------------------------------------------------------
+# =========================================================================
+# 3. BAR AND WIDGETS
+# =========================================================================
 def create_bar(primary=True):
-    """Returns a fresh Bar instance customized for any hardware or display backend."""
-    
     bar_widgets = [
         widget.GroupBox(
             highlight_method='line',
@@ -160,7 +148,7 @@ def create_bar(primary=True):
         widget.CurrentLayout(
             fmt='󰕰 {}',
             foreground=colors["bg"],
-            **get_decoration(colors["magenta"]) # Cambiado a Magenta para que resalte
+            **get_decoration(colors["magenta"])
         ),
         widget.Spacer(length=8),
 
@@ -172,7 +160,6 @@ def create_bar(primary=True):
         widget.Spacer(),
     ]
 
-    # Systray placed first on the right side
     if primary:
         if getattr(qtile, "core", None) and qtile.core.name == "wayland":
             bar_widgets.append(widget.StatusNotifier(padding=5))
@@ -180,24 +167,22 @@ def create_bar(primary=True):
             bar_widgets.append(widget.Systray(padding=5))
         bar_widgets.append(widget.Spacer(length=8))
 
-    # Right side hardware metrics - Aplicando la nueva paleta de colores
     bar_widgets.extend([
         widget.CPU(
             format='  {load_percent}%',
             update_interval=5.0,
-            mouse_callbacks={'Button1': lazy.spawn("ghostty -e btop")},
-            foreground=colors["bg"], # Texto oscuro para contraste
-            **get_decoration(colors["cyan"]) # Fondo Cyan
+            mouse_callbacks={'Button1': lazy.group["scratchpad"].dropdown_toggle("btop")},
+            foreground=colors["bg"],
+            **get_decoration(colors["cyan"])
         ),
         widget.Memory(
             format='  {MemUsed: .0f}MB',
             update_interval=5.0,
-            foreground=colors["bg"], # Texto oscuro para contraste
-            **get_decoration(colors["orange"]) # Fondo Naranja
+            foreground=colors["bg"],
+            **get_decoration(colors["warning"])
         ),
     ])
 
-    # Conditionally add Backlight widget (Laptops only)
     backlight_dev = get_backlight_name()
     if backlight_dev:
         bar_widgets.append(
@@ -206,13 +191,12 @@ def create_bar(primary=True):
                 format='󰃟  {percent:2.0%}',
                 step=5, 
                 change_command='brightnessctl set {0}%',
-                update_interval=0.1, 
+                update_interval=2.0, 
                 foreground=colors["bg"],
-                **get_decoration(colors["warning"]) # Fondo Amarillo
+                **get_decoration(colors["warning"])
             )
         )
 
-    # Conditionally add Wi-Fi widget (Hardware with wireless cards only)
     wlan_dev = get_wlan_interface()
     if wlan_dev:
         bar_widgets.append(
@@ -221,13 +205,12 @@ def create_bar(primary=True):
                 format='󰤨  {essid} {percent:2.0%}',
                 disconnected_message='󰤭  Offline',
                 update_interval=5.0,
-                mouse_callbacks={'Button1': lazy.spawn(f"{terminal} -e nmtui")},
+                mouse_callbacks={'Button1': lazy.group["scratchpad"].dropdown_toggle("nmtui")},
                 foreground=colors["bg"],
-                **get_decoration(colors["accent"]) # Fondo Azul
+                **get_decoration(colors["accent"])
             )
         )
 
-    # Conditionally add Battery widget (Laptops only)
     if has_battery():
         bar_widgets.append(
             widget.Battery(
@@ -239,31 +222,30 @@ def create_bar(primary=True):
                 low_percentage=0.2,
                 low_foreground=colors["critical"],
                 update_interval=15,
-                foreground=colors["fg"], # Mantengo el texto claro aquí
-                **get_decoration(colors["surface"]) # Fondo oscuro para que se vea el rojo si está baja
+                foreground=colors["fg"],
+                **get_decoration(colors["surface"])
             )
         )
 
-    # Volume, clock, and power menu
     bar_widgets.extend([
         widget.PulseVolume(
             fmt='󰕾 {}',
             limit_max_volume=True,
             mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
             foreground=colors["bg"],
-            **get_decoration(colors["ok"]) # Fondo Verde
+            **get_decoration(colors["ok"])
         ),
         widget.Clock(
             format='󰃭 %d/%m %H:%M',
-            foreground=colors["accent"], # Texto azul
-            **get_decoration(colors["surface"]) # Fondo neutral
+            foreground=colors["accent"],
+            **get_decoration(colors["surface"])
         ),
         widget.TextBox(
             text="󰐥",
             fontsize=14,
             mouse_callbacks={'Button1': lazy.spawn(power_menu_cmd())},
             foreground=colors["bg"],
-            **get_decoration(colors["critical"]), # Botón Rojo de apagar
+            **get_decoration(colors["critical"]),
         ), 
     ])
 
@@ -274,11 +256,10 @@ def create_bar(primary=True):
         background="#00000000",
     )
 
-# -------------------------------------------------------------------------
-# 4. Keyboard Shortcuts & Input Mapping
-# -------------------------------------------------------------------------
+# =========================================================================
+# 4. KEYBINDINGS
+# =========================================================================
 keys = [
-    # Navigation & Management
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
@@ -305,29 +286,22 @@ keys = [
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
     
-    # App Launchers
     Key([mod], "b", lazy.spawn("brave")),
     Key([mod], "d", lazy.spawn("rofi -show drun"), desc="Launch application launcher"),
     Key([mod], "r", lazy.spawn("rofi -show run"), desc="Run terminal command"),
 
-    # Dunst Control
     Key(["control"], "space", lazy.spawn("dunstctl close"), desc="Close latest notification"),
     Key(["control", "shift"], "space", lazy.spawn("dunstctl close-all"), desc="Close all notifications"),
     Key(["control"], "grave", lazy.spawn("dunstctl history-pop"), desc="Show notification history"),
 
-    # Hardware Multimedia Keys
     Key([], "XF86AudioRaiseVolume", lazy.spawn(volume_osd("up"))),
     Key([], "XF86AudioLowerVolume", lazy.spawn(volume_osd("down"))),
     Key([], "XF86AudioMute", lazy.spawn(volume_osd("mute"))),
+    Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness"),
+    Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness"),
 
-    # Hardware Brightness Keys
-    Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness with OSD"),
-    Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness with OSD"),
-
-    # Power Menu
     Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
 
-    # Screenshots (Wayland / X11 compatible)
     Key([mod, "shift"], "s", lazy.spawn("flameshot gui")),
     Key([], "Print", lazy.spawn(
         "bash -c 'mkdir -p ~/Pictures/Screenshots && "
@@ -340,29 +314,67 @@ keys = [
     )),
 ]
 
-# Virtual Console Mappings (Wayland safe)
 for vt in range(1, 8):
     keys.append(
         Key(
-            ["control", "mod1"],
-            f"f{vt}",
+            ["control", "mod1"], f"f{vt}",
             lazy.core.change_vt(vt).when(func=lambda: getattr(qtile, "core", None) and qtile.core.name == "wayland"),
             desc=f"Switch to VT{vt}",
         )
     )
 
-# -------------------------------------------------------------------------
-# 5. Groups, Layouts & Screen Setup
-# -------------------------------------------------------------------------
-groups = [Group(i) for i in "123456789"]
+# =========================================================================
+# 5. GROUPS & SCRATCHPAD
+# =========================================================================
+group_labels = [
+    ("1", " "), ("2", "󰈹 "), ("3", "󰨞 "), 
+    ("4", " "), ("5", "󰙯 "), ("6", "󰓇 "), 
+    ("7", "󰎆 "), ("8", "󰙴 "), ("9", "󰕧 "),
+]
+
+groups = [Group(name, label=label) for name, label in group_labels]
+
 for i in groups:
     keys.extend([
         Key([mod], i.name, lazy.group[i.name].toscreen(), desc=f"Switch to group {i.name}"),
         Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True)),
     ])
 
+groups.append(
+    ScratchPad("scratchpad", [
+        # 1. Main Terminal (Mod + F12)
+        DropDown(
+            "term",
+            "ghostty --title=scratchterm --gtk-single-instance=false",
+            match=Match(title="scratchterm"),
+            width=0.6, height=0.6, x=0.2, y=0.2, opacity=0.95,
+            on_focus_lost_hide=False
+        ),
+        # 2. System Monitor (For CPU Widget)
+        DropDown(
+            "btop",
+            "ghostty --title=scratchbtop --gtk-single-instance=false -e btop",
+            match=Match(title="scratchbtop"),
+            width=0.7, height=0.7, x=0.15, y=0.15, opacity=0.95,
+            on_focus_lost_hide=False
+        ),
+        # 3. Network Manager (For Wlan Widget)
+        DropDown(
+            "nmtui",
+            "ghostty --title=scratchnmtui --gtk-single-instance=false -e nmtui",
+            match=Match(title="scratchnmtui"),
+            width=0.4, height=0.5, x=0.3, y=0.25, opacity=0.95,
+            on_focus_lost_hide=False
+        ),
+    ])
+)
+
+keys.append(Key([mod], "F12", lazy.group["scratchpad"].dropdown_toggle("term")))
+
+# =========================================================================
+# 6. LAYOUTS AND SCREENS
+# =========================================================================
 layouts = [
-    # Aquí aplicamos los colores dinámicos a los bordes de las ventanas
     layout.Columns(
         border_focus=colors["accent"],
         border_normal=colors["surface"],
@@ -383,7 +395,9 @@ screens = [
     ),
 ]
 
-# Mouse Bindings & Compositor Settings
+# =========================================================================
+# 7. MOUSE AND FLOATING RULES
+# =========================================================================
 mouse = [
     Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
     Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),

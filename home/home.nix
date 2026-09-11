@@ -139,20 +139,23 @@ in
   stylix.targets.rofi.enable = false;
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
-  base00 = config.lib.stylix.colors.withHashtag.base00; # Background
-  base01 = config.lib.stylix.colors.withHashtag.base01; # Lighter Background
-  base05 = config.lib.stylix.colors.withHashtag.base05; # Foreground
-  # Accent Colors
-  base08 = config.lib.stylix.colors.withHashtag.base08; # Red
-  base09 = config.lib.stylix.colors.withHashtag.base09; # Orange
-  base0A = config.lib.stylix.colors.withHashtag.base0A; # Yellow
-  base0B = config.lib.stylix.colors.withHashtag.base0B; # Green
-  base0C = config.lib.stylix.colors.withHashtag.base0C; # Cyan
-  base0D = config.lib.stylix.colors.withHashtag.base0D; # Blue
-  base0E = config.lib.stylix.colors.withHashtag.base0E; # Magenta
-  base0F = config.lib.stylix.colors.withHashtag.base0F; # Brown
-
-  image = "${config.stylix.image}"; # Exporta la ruta exacta de la imagen del tema
+  base00 = config.lib.stylix.colors.withHashtag.base00; # Default Background
+  base01 = config.lib.stylix.colors.withHashtag.base01; # Lighter Background (Status bar, etc)
+  base02 = config.lib.stylix.colors.withHashtag.base02; # Selection Background
+  base03 = config.lib.stylix.colors.withHashtag.base03; # Comments, Invisibles
+  base04 = config.lib.stylix.colors.withHashtag.base04; # Dark Foreground
+  base05 = config.lib.stylix.colors.withHashtag.base05; # Default Foreground
+  base06 = config.lib.stylix.colors.withHashtag.base06; # Light Foreground
+  base07 = config.lib.stylix.colors.withHashtag.base07; # Light Background
+  base08 = config.lib.stylix.colors.withHashtag.base08; # Variables, XML Tags, Markup Red (Critical)
+  base09 = config.lib.stylix.colors.withHashtag.base09; # Integers, Boolean, Constants, Orange
+  base0A = config.lib.stylix.colors.withHashtag.base0A; # Classes, Search Text, Yellow (Warning)
+  base0B = config.lib.stylix.colors.withHashtag.base0B; # Strings, Inherited Class, Green (Ok)
+  base0C = config.lib.stylix.colors.withHashtag.base0C; # Support, Regular Expressions, Cyan
+  base0D = config.lib.stylix.colors.withHashtag.base0D; # Functions, Methods, Accent Blue
+  base0E = config.lib.stylix.colors.withHashtag.base0E; # Keywords, Storage, Magenta
+  base0F = config.lib.stylix.colors.withHashtag.base0F; # Deprecated, Brown/Other
+  image  = config.stylix.image;
 };
 
   # Export Stylix colors to a Rofi-readable file
