@@ -22,7 +22,8 @@ terminal = guess_terminal()
 # -------------------------------------------------------------------------
 stylix_colors_path = os.path.expanduser("~/.config/stylix/colors.json")
 
-fallback_colors = {
+# 1. Diccionario base (Tu fallback TokyoNight)
+stylix = {
     "base00": "#1a1b26", # Fondo oscuro
     "base01": "#24283b", # Superficies
     "base05": "#a9b1d6", # Texto normal
@@ -31,33 +32,23 @@ fallback_colors = {
     "base0B": "#9ece6a", # Ok (Verde)
 }
 
-# Iniciamos stylix con los colores por defecto
-stylix = fallback_colors.copy()
-
+# 2. Intentamos sobreescribir con los colores generados por Nix
 try:
-    if os.path.exists(stylix_colors_path):
-        with open(stylix_colors_path, "r") as f:
-            data = json.load(f)
-            
-            # Si Nix serializó el JSON como un string envuelto en comillas, lo parseamos de nuevo
-            if isinstance(data, str):
-                data = json.loads(data)
-                
-            # Si ahora sí es un diccionario válido, lo usamos
-            if isinstance(data, dict):
-                stylix = data
-except Exception:
-    # Si el archivo está corrupto o falta, Qtile usará fallback_colors sin colgarse
+    with open(stylix_colors_path, "r") as f:
+        data = json.load(f)
+        if isinstance(data, dict):
+            stylix.update(data)
+except (FileNotFoundError, json.JSONDecodeError):
     pass
 
-# Mapeo a las variables de tu barra usando .get() de forma segura
+# 3. Mapeo final a las variables de tu barra
 colors = {
-    "bg": stylix.get("base00", fallback_colors["base00"]),
-    "surface": stylix.get("base01", fallback_colors["base01"]),
-    "fg": stylix.get("base05", fallback_colors["base05"]),
-    "accent": stylix.get("base0D", fallback_colors["base0D"]),
-    "critical": stylix.get("base08", fallback_colors["base08"]),
-    "ok": stylix.get("base0B", fallback_colors["base0B"]),
+    "bg": stylix["base00"],
+    "surface": stylix["base01"],
+    "fg": stylix["base05"],
+    "accent": stylix["base0D"],
+    "critical": stylix["base08"],
+    "ok": stylix["base0B"],
 }
 
 widget_defaults = dict(
@@ -250,7 +241,7 @@ def create_bar(primary=True):
         ),
         widget.Clock(
             format='󰃭 %d/%m %H:%M',
-            **get_decoration(colors["ok"]),
+            **get_decoration(colors["surface"]),
             foreground=colors["bg"]
         ),
         widget.TextBox(
