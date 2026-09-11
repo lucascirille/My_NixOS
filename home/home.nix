@@ -138,8 +138,14 @@ in
 
   stylix.targets.rofi.enable = false;
 
-  xdg.configFile."stylix/colors.json".text = 
-  builtins.toJSON config.lib.stylix.colors.withHashtag;
+    xdg.configFile."stylix/colors.json".text = builtins.toJSON {
+      base00 = config.lib.stylix.colors.withHashtag.base00;
+      base01 = config.lib.stylix.colors.withHashtag.base01;
+      base05 = config.lib.stylix.colors.withHashtag.base05;
+      base08 = config.lib.stylix.colors.withHashtag.base08;
+      base0B = config.lib.stylix.colors.withHashtag.base0B;
+      base0D = config.lib.stylix.colors.withHashtag.base0D;
+  };
 
   # Export Stylix colors to a Rofi-readable file
   xdg.configFile."rofi/colors.rasi".text = ''
