@@ -372,9 +372,7 @@ home.file.".local/bin/nixos-askpass" = {
         spellcheck = true;
       };
 
-      appearance = {
-        accentColor = "#7aa2f7";
-      };
+
 
       corePlugins = [
         "backlink"
