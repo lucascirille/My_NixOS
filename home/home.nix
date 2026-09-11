@@ -33,6 +33,7 @@ home.file.".local/bin/nixos-askpass" = {
     executable = true;
   };
   home.packages = with pkgs; [
+    libreoffice
 
     rofi
     sqlite
