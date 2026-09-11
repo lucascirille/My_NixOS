@@ -12,7 +12,8 @@ import subprocess
 from libqtile import hook
 
 
-wallpaper_path = os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/current.jpg")
+# Intenta obtener la imagen de Stylix, si falla, usa el fallback
+wallpaper_path = stylix.get("image", os.path.expanduser("~/.dotfiles/home/assets/Wallpapers/current.jpg"))
 
 mod = "mod4"
 terminal = guess_terminal()
@@ -24,12 +25,17 @@ stylix_colors_path = os.path.expanduser("~/.config/stylix/colors.json")
 
 # 1. Diccionario base (Tu fallback TokyoNight)
 stylix = {
-    "base00": "#1a1b26", # Fondo oscuro
-    "base01": "#24283b", # Superficies
-    "base05": "#a9b1d6", # Texto normal
-    "base0D": "#7aa2f7", # Acento principal (Azul)
-    "base08": "#f7768e", # Crítico (Rojo)
-    "base0B": "#9ece6a", # Ok (Verde)
+    "base00": "#1a1b26", # bg
+    "base01": "#24283b", # surface
+    "base05": "#a9b1d6", # fg
+    "base08": "#f7768e", # red
+    "base09": "#ff9e64", # orange
+    "base0A": "#e0af68", # yellow
+    "base0B": "#9ece6a", # green
+    "base0C": "#7dcfff", # cyan
+    "base0D": "#7aa2f7", # blue
+    "base0E": "#bb9af7", # magenta
+    "base0F": "#c0caf5", # brown/white
 }
 
 # 2. Intentamos sobreescribir con los colores generados por Nix
@@ -46,9 +52,17 @@ colors = {
     "bg": stylix["base00"],
     "surface": stylix["base01"],
     "fg": stylix["base05"],
-    "accent": stylix["base0D"],
-    "critical": stylix["base08"],
-    "ok": stylix["base0B"],
+    
+    # Semantic colors (good for logical UI states)
+    "accent": stylix["base0D"],    # Blue
+    "critical": stylix["base08"],  # Red
+    "ok": stylix["base0B"],        # Green
+    "warning": stylix["base0A"],   # Yellow
+    
+    # Literal colors (good for decorating widgets)
+    "orange": stylix["base09"],
+    "cyan": stylix["base0C"],
+    "magenta": stylix["base0E"],
 }
 
 widget_defaults = dict(
@@ -66,8 +80,7 @@ def get_wlan_interface():
     sys_net = "/sys/class/net"
     if os.path.exists(sys_net):
         for dev in os.listdir(sys_net):
-            # Wi-Fi interfaces typically start with 'w' (e.g., wlan0, wlo1)
-            if dev.startswith("w") and dev != "wg0": # exclude wireguard
+            if dev.startswith("w") and dev != "wg0":
                 return dev
     return None
 
@@ -147,10 +160,9 @@ def create_bar(primary=True):
         widget.CurrentLayout(
             fmt='󰕰 {}',
             foreground=colors["bg"],
-            **get_decoration(colors["accent"]) 
+            **get_decoration(colors["magenta"]) # Cambiado a Magenta para que resalte
         ),
         widget.Spacer(length=8),
-        # ---------------------------------
 
         widget.WindowName(
             foreground=colors["accent"],
@@ -168,18 +180,20 @@ def create_bar(primary=True):
             bar_widgets.append(widget.Systray(padding=5))
         bar_widgets.append(widget.Spacer(length=8))
 
-    # Right side hardware metrics
+    # Right side hardware metrics - Aplicando la nueva paleta de colores
     bar_widgets.extend([
         widget.CPU(
             format='  {load_percent}%',
             update_interval=5.0,
             mouse_callbacks={'Button1': lazy.spawn("ghostty -e btop")},
-            **get_decoration(colors["surface"])
+            foreground=colors["bg"], # Texto oscuro para contraste
+            **get_decoration(colors["cyan"]) # Fondo Cyan
         ),
         widget.Memory(
             format='  {MemUsed: .0f}MB',
             update_interval=5.0,
-            **get_decoration(colors["surface"])
+            foreground=colors["bg"], # Texto oscuro para contraste
+            **get_decoration(colors["orange"]) # Fondo Naranja
         ),
     ])
 
@@ -190,12 +204,11 @@ def create_bar(primary=True):
             widget.Backlight(
                 backlight_name=backlight_dev,
                 format='󰃟  {percent:2.0%}',
-                # Enable mouse wheel scrolling to change brightness by 5%
                 step=5, 
                 change_command='brightnessctl set {0}%',
-                # Lower the update interval so the UI reacts instantly when scrolling
                 update_interval=0.1, 
-                **get_decoration(colors["surface"])
+                foreground=colors["bg"],
+                **get_decoration(colors["warning"]) # Fondo Amarillo
             )
         )
 
@@ -208,9 +221,9 @@ def create_bar(primary=True):
                 format='󰤨  {essid} {percent:2.0%}',
                 disconnected_message='󰤭  Offline',
                 update_interval=5.0,
-                # Left click opens NetworkManager TUI in your terminal
                 mouse_callbacks={'Button1': lazy.spawn(f"{terminal} -e nmtui")},
-                **get_decoration(colors["surface"])
+                foreground=colors["bg"],
+                **get_decoration(colors["accent"]) # Fondo Azul
             )
         )
 
@@ -226,7 +239,8 @@ def create_bar(primary=True):
                 low_percentage=0.2,
                 low_foreground=colors["critical"],
                 update_interval=15,
-                **get_decoration(colors["surface"])
+                foreground=colors["fg"], # Mantengo el texto claro aquí
+                **get_decoration(colors["surface"]) # Fondo oscuro para que se vea el rojo si está baja
             )
         )
 
@@ -236,20 +250,20 @@ def create_bar(primary=True):
             fmt='󰕾 {}',
             limit_max_volume=True,
             mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
-            **get_decoration(colors["accent"]),
-            foreground=colors["bg"]
+            foreground=colors["bg"],
+            **get_decoration(colors["ok"]) # Fondo Verde
         ),
         widget.Clock(
             format='󰃭 %d/%m %H:%M',
-            **get_decoration(colors["surface"]),
-            foreground=colors["bg"]
+            foreground=colors["accent"], # Texto azul
+            **get_decoration(colors["surface"]) # Fondo neutral
         ),
         widget.TextBox(
             text="󰐥",
             fontsize=14,
             mouse_callbacks={'Button1': lazy.spawn(power_menu_cmd())},
-            **get_decoration(colors["critical"]),
             foreground=colors["bg"],
+            **get_decoration(colors["critical"]), # Botón Rojo de apagar
         ), 
     ])
 
@@ -348,7 +362,14 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+    # Aquí aplicamos los colores dinámicos a los bordes de las ventanas
+    layout.Columns(
+        border_focus=colors["accent"],
+        border_normal=colors["surface"],
+        border_focus_stack=[colors["orange"], colors["magenta"]],
+        border_normal_stack=[colors["surface"], colors["surface"]],
+        border_width=4
+    ),
     layout.Max(),
 ]
 
@@ -385,7 +406,10 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),
         Match(title="branchdialog"),
         Match(title="pinentry"),
-    ]
+    ],
+    border_focus=colors["accent"],
+    border_normal=colors["surface"],
+    border_width=4
 )
 
 auto_fullscreen = True

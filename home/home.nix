@@ -139,9 +139,10 @@ in
   stylix.targets.rofi.enable = false;
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
-  base00 = config.lib.stylix.colors.withHashtag.base00;
-  base01 = config.lib.stylix.colors.withHashtag.base01;
-  base05 = config.lib.stylix.colors.withHashtag.base05;
+  base00 = config.lib.stylix.colors.withHashtag.base00; # Background
+  base01 = config.lib.stylix.colors.withHashtag.base01; # Lighter Background
+  base05 = config.lib.stylix.colors.withHashtag.base05; # Foreground
+  # Accent Colors
   base08 = config.lib.stylix.colors.withHashtag.base08; # Red
   base09 = config.lib.stylix.colors.withHashtag.base09; # Orange
   base0A = config.lib.stylix.colors.withHashtag.base0A; # Yellow
@@ -150,6 +151,8 @@ xdg.configFile."stylix/colors.json".text = builtins.toJSON {
   base0D = config.lib.stylix.colors.withHashtag.base0D; # Blue
   base0E = config.lib.stylix.colors.withHashtag.base0E; # Magenta
   base0F = config.lib.stylix.colors.withHashtag.base0F; # Brown
+
+  image = "${config.stylix.image}"; # Exporta la ruta exacta de la imagen del tema
 };
 
   # Export Stylix colors to a Rofi-readable file
