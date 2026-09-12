@@ -98,6 +98,8 @@ in
 
 
   home.packages = with pkgs; [
+    love
+
     nixos-askpass
     nos-script
     not-script
