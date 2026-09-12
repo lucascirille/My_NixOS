@@ -17,7 +17,7 @@ let
   '';
 
   # Build & Commit (nos)
-  nos-script = pkgs.writeShellScriptBin "nos" ''
+nos-script = pkgs.writeShellScriptBin "nos" ''
     export SUDO_ASKPASS="${nixos-askpass}/bin/nixos-askpass"
 
     cd ~/.dotfiles || exit 1
@@ -38,7 +38,8 @@ let
       exit 1
     fi
 
-    local build_success=false
+    # 👇 Aquí está la corrección 👇
+    build_success=false
     
     if [ -z "$NIXOS_SPECIALISATION" ]; then
       echo "🔨 Building base NixOS configuration..."
