@@ -290,6 +290,8 @@ keys = [
     Key([mod], "d", lazy.spawn("rofi -show drun"), desc="Launch application launcher"),
     Key([mod], "r", lazy.spawn("rofi -show run"), desc="Run terminal command"),
 
+    Key([mod], "period", lazy.spawn("rofimoji --action type --files emojis nerd_font"), desc="Launch emoji picker"),
+
     Key(["control"], "space", lazy.spawn("dunstctl close"), desc="Close latest notification"),
     Key(["control", "shift"], "space", lazy.spawn("dunstctl close-all"), desc="Close all notifications"),
     Key(["control"], "grave", lazy.spawn("dunstctl history-pop"), desc="Show notification history"),
