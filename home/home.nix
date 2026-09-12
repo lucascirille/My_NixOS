@@ -105,6 +105,8 @@ in
     libreoffice
 
     rofi
+    rofimoji
+
     sqlite
 
     heroic # Epic Launcher for Linux
