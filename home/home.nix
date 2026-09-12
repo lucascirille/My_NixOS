@@ -10,6 +10,76 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  # Askpass
+  nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
+    ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
+    ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str ' mainbox {children: [inputbar];}'
+  '';
+
+  # Build & Commit (nos)
+  nos-script = pkgs.writeShellScriptBin "nos" ''
+    export SUDO_ASKPASS="${nixos-askpass}/bin/nixos-askpass"
+
+    cd ~/.dotfiles || exit 1
+
+    echo "📥 Fetching and integrating remote changes..."
+    if ! git pull --rebase --autostash origin main; then
+      echo "❌ Git pull failed! Please resolve merge conflicts before building."
+      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "❌ Git pull failed!" -u critical -t 10000
+      exit 1
+    fi
+
+    git add .
+
+    echo "🔐 Authenticating..."
+    if ! sudo -A -v 2>/dev/null; then
+      echo "❌ Authentication failed!"
+      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "❌ Authentication failed!" -u critical -t 10000
+      exit 1
+    fi
+
+    local build_success=false
+    
+    if [ -z "$NIXOS_SPECIALISATION" ]; then
+      echo "🔨 Building base NixOS configuration..."
+      if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
+        build_success=true
+      fi
+    else
+      echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
+      if nh os switch /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh; then
+        build_success=true
+      fi
+    fi
+
+    if [ "$build_success" = true ]; then
+      echo "✅ Build successful!"
+      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "✅ Build successful! System updated." -u normal -t 10000
+
+      if ! git diff-index --quiet HEAD --; then
+        echo "📦 Committing and pushing working configuration to Git..."
+        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+        git push
+      else
+        echo "🧹 Working tree clean. Nothing to commit."
+      fi
+    else
+      echo "❌ Rebuild failed! Aborting Git commit and push."
+      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "❌ Build failed! Check terminal for errors." -u critical -t 15000
+      exit 1
+    fi
+  '';
+
+  # Test Configuration (not)
+  not-script = pkgs.writeShellScriptBin "not" ''
+    if [ -z "$NIXOS_SPECIALISATION" ]; then
+      echo "🧪 Testing base NixOS configuration..."
+      nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
+    else
+      echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
+      nh os test /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh
+    fi
+  '';
 in
 {
   imports = [
@@ -27,10 +97,9 @@ in
 
 
   home.packages = with pkgs; [
-    (pkgs.writeShellScriptBin "nixos-askpass" ''
-      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
-      ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str ' mainbox {children: [inputbar];}'
-    '')
+    nixos-askpass
+    nos-script
+    not-script
 
     libreoffice
 
@@ -549,79 +618,79 @@ programs.zsh = {
         theme = "robbyrussell";
       };
 
-initContent = ''
-        not() {
-          if [ -z "$NIXOS_SPECIALISATION" ]; then
-            nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
-          else
-            echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            nh os test /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh
-          fi
-        }
-
-        nos() {
-          local orig_dir="$PWD"
-          cd ~/.dotfiles || return 1
-
-          echo "📥 Fetching and integrating remote changes..."
-          if ! git pull --rebase --autostash origin main; then
-            echo "❌ Git pull failed! Please resolve merge conflicts before building."
-            notify-send "NixOS Build" "❌ Git pull failed!" -u critical -t 10000
-            cd "$orig_dir"
-            return 1
-          fi
-
-          git add .
-
-          # 👇 STEP 1: PRE-AUTHENTICATE VIA GUI 👇
-          echo "🔐 Authenticating..."
-          # -A tells sudo to use the program defined in SUDO_ASKPASS
-          # It will only pop up Rofi if the password cache has expired.
-          if ! sudo -A -v 2>/dev/null; then
-            echo "❌ Authentication failed!"
-            notify-send "NixOS Build" "❌ Authentication failed!" -u critical -t 10000
-            cd "$orig_dir"
-            return 1
-          fi
-
-          local build_success=false
-          
-          # 👇 STEP 2: BUILD (Will not pause for password) 👇
-          if [ -z "$NIXOS_SPECIALISATION" ]; then
-            echo "🔨 Building base NixOS configuration..."
-            if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
-              build_success=true
-            fi
-          else
-            echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-            if nh os switch /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh; then
-              build_success=true
-            fi
-          fi
-
-          # 👇 STEP 3: FINISH NOTIFICATION 👇
-          if [ "$build_success" = true ]; then
-            echo "✅ Build successful!"
-            # This now triggers exactly when the build finishes!
-            notify-send "NixOS Build" "✅ Build successful! System updated." -u normal -t 10000
-
-            if ! git diff-index --quiet HEAD --; then
-              echo "📦 Committing and pushing working configuration to Git..."
-              git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-              git push
-            else
-              echo "🧹 Working tree clean. Nothing to commit."
-            fi
-          else
-            echo "❌ Rebuild failed! Aborting Git commit and push."
-            notify-send "NixOS Build" "❌ Build failed! Check terminal for errors." -u critical -t 15000
-            cd "$orig_dir"
-            return 1
-          fi
-
-          cd "$orig_dir"
-        }
-      '';
+# initContent = ''
+#         not() {
+#           if [ -z "$NIXOS_SPECIALISATION" ]; then
+#             nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
+#           else
+#             echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
+#             nh os test /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh
+#           fi
+#         }
+#
+#         nos() {
+#           local orig_dir="$PWD"
+#           cd ~/.dotfiles || return 1
+#
+#           echo "📥 Fetching and integrating remote changes..."
+#           if ! git pull --rebase --autostash origin main; then
+#             echo "❌ Git pull failed! Please resolve merge conflicts before building."
+#             notify-send "NixOS Build" "❌ Git pull failed!" -u critical -t 10000
+#             cd "$orig_dir"
+#             return 1
+#           fi
+#
+#           git add .
+#
+#           # 👇 STEP 1: PRE-AUTHENTICATE VIA GUI 👇
+#           echo "🔐 Authenticating..."
+#           # -A tells sudo to use the program defined in SUDO_ASKPASS
+#           # It will only pop up Rofi if the password cache has expired.
+#           if ! sudo -A -v 2>/dev/null; then
+#             echo "❌ Authentication failed!"
+#             notify-send "NixOS Build" "❌ Authentication failed!" -u critical -t 10000
+#             cd "$orig_dir"
+#             return 1
+#           fi
+#
+#           local build_success=false
+#
+#           # 👇 STEP 2: BUILD (Will not pause for password) 👇
+#           if [ -z "$NIXOS_SPECIALISATION" ]; then
+#             echo "🔨 Building base NixOS configuration..."
+#             if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
+#               build_success=true
+#             fi
+#           else
+#             echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
+#             if nh os switch /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh; then
+#               build_success=true
+#             fi
+#           fi
+#
+#           # 👇 STEP 3: FINISH NOTIFICATION 👇
+#           if [ "$build_success" = true ]; then
+#             echo "✅ Build successful!"
+#             # This now triggers exactly when the build finishes!
+#             notify-send "NixOS Build" "✅ Build successful! System updated." -u normal -t 10000
+#
+#             if ! git diff-index --quiet HEAD --; then
+#               echo "📦 Committing and pushing working configuration to Git..."
+#               git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+#               git push
+#             else
+#               echo "🧹 Working tree clean. Nothing to commit."
+#             fi
+#           else
+#             echo "❌ Rebuild failed! Aborting Git commit and push."
+#             notify-send "NixOS Build" "❌ Build failed! Check terminal for errors." -u critical -t 15000
+#             cd "$orig_dir"
+#             return 1
+#           fi
+#
+#           cd "$orig_dir"
+#         }
+#       '';
 
       shellAliases = {
         btw = "echo i use nixos, btw";
