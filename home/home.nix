@@ -253,9 +253,10 @@ programs.ssh = {
       # Your GitHub configuration using the new upstream directive names
       "github.com" = {
         HostName = "ssh.github.com";
-      # Change the port to 443 for GitHub SSH over HTTPS
+        # Change the port to 443 for GitHub SSH over HTTPS
         Port = 443;
         User = "git";
+        # Using the new AddressFamily directive to force IPv4, as GitHub's SSH over HTTPS works better with IPv4
         AddressFamily = "inet";
       };
     };
