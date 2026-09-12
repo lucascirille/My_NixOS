@@ -238,6 +238,19 @@ xdg.configFile."stylix/colors.json".text = builtins.toJSON {
     }
   '';
 
+  programs.ssh = {
+    enable = true;
+    matchBlocks = {
+      "github.com" = {
+        hostname = "ssh.github.com";
+        port = 443;
+        user = "git";
+        extraOptions = {
+          AddressFamily = "inet";
+        };
+      };
+    };
+  };
 
   programs.fastfetch.enable = true;
   programs.lazydocker.enable = true;
