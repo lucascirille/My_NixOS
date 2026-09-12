@@ -26,15 +26,12 @@ in
   };
 
 
-  home.file.".local/bin/nixos-askpass" = {
-    text = ''
-      #!/usr/bin/env bash
+  home.packages = with pkgs; [
+    (pkgs.writeShellScriptBin "nixos-askpass" ''
       ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
       ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str ' mainbox {children: [inputbar];}'
-    '';
-    executable = true;
-  };
-  home.packages = with pkgs; [
+    '')
+
     libreoffice
 
     rofi
