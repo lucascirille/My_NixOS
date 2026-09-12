@@ -102,6 +102,9 @@ in
     nos-script
     not-script
 
+    qalculate-gtk
+
+
     libreoffice
 
     rofi
