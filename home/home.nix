@@ -336,7 +336,7 @@ xdg.configFile."stylix/colors.json".text = builtins.toJSON {
   programs.ghostty = {
     enable = true;
     settings = {
-      # command = "tmux";
+      command = "tmux";
 
       # We use a double backslash here so Nix outputs it as \x00
       keybind = "ctrl+space=text:\\x00";
