@@ -238,16 +238,24 @@ xdg.configFile."stylix/colors.json".text = builtins.toJSON {
     }
   '';
 
-  programs.ssh = {
+programs.ssh = {
     enable = true;
-    matchBlocks = {
+    
+    # This silences the warning about default values being removed in the future
+    enableDefaultConfig = false; 
+
+    settings = {
+      # This manually adds back the standard default that Home Manager used to provide
+      "*" = {
+        SendEnv = "LANG LC_*";
+      };
+      
+      # Your GitHub configuration using the new upstream directive names
       "github.com" = {
-        hostname = "ssh.github.com";
-        port = 443;
-        user = "git";
-        extraOptions = {
-          AddressFamily = "inet";
-        };
+        HostName = "ssh.github.com";
+        Port = 443;
+        User = "git";
+        AddressFamily = "inet";
       };
     };
   };
