@@ -285,6 +285,8 @@ keys = [
     Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+
+    Key([mod], "w", lazy.spawn("change-theme"), desc="Change animated wallpaper and Stylix theme"),
     
     Key([mod], "b", lazy.spawn("brave")),
     Key([mod], "d", lazy.spawn("rofi -show drun"), desc="Launch application launcher"),

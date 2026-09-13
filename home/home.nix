@@ -81,6 +81,37 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
       nh os test /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh
     fi
   '';
+
+changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
+    WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
+    
+    # 1. Open GUI
+    PREVIEW_SELECTED=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png})
+
+    if [ -z "$PREVIEW_SELECTED" ]; then
+        exit 0
+    fi
+
+    # 2. Extract IDs
+    WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
+    WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
+
+    echo "Generating new color palette for Stylix..."
+
+    # 3. Use the exact paths from your tree!
+    IMAGE_PATH="$HOME/.dotfiles/home/wallpaper/Wallpapers/current.jpg"
+    TEXT_PATH="$HOME/.dotfiles/home/wallpaper/wallpaper-id.txt"
+
+    ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID"
+    echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
+
+    # 4. Run your 'nos' script (it handles the git add and rebuild automatically)
+    ${pkgs.ghostty}/bin/ghostty -e bash -c "
+        ${nos-script}/bin/nos
+        echo 'Theme applied successfully! Press any key to exit.'
+        read -n 1
+    "
+  '';
 in
 {
   imports = [
@@ -98,6 +129,8 @@ in
 
 
   home.packages = with pkgs; [
+    changeThemeScript
+    
     love
 
     nixos-askpass
@@ -157,6 +190,8 @@ in
 
     foliate # Dedicated e-book reader
 
+    linux-wallpaperengine
+
     nsxiv # Fast, lightweight image viewer with gallery mode
 
     # Screenshot tools
@@ -211,6 +246,7 @@ in
   programs.cava.enable = true;
 
   stylix.targets.rofi.enable = false;
+  stylix.targets.feh.enable = false;
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
   base00 = config.lib.stylix.colors.withHashtag.base00; # Default Background
@@ -358,6 +394,16 @@ programs.ssh = {
     # This specifically grabs the Vulkan-compiled version instead of ROCm or CPU
     package = pkgs.ollama-vulkan; 
   };
+
+services.linux-wallpaperengine = {
+  enable = true;
+  wallpapers = [
+    {
+      monitor = "HDMI-1"; # Or whatever your monitor is
+      wallpaperId = builtins.readFile ./wallpaper/wallpaper-id.txt; 
+    }
+  ];
+};
 
 
   services.flameshot.enable = true;
