@@ -99,8 +99,8 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Generating new color palette for Stylix..."
 
     # 3. Use the exact paths from your tree!
-    IMAGE_PATH="$HOME/.dotfiles/home/wallpaper/Wallpapers/current.jpg"
-    TEXT_PATH="$HOME/.dotfiles/home/wallpaper/wallpaper-id.txt"
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
+    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
     ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID"
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
@@ -400,7 +400,7 @@ services.linux-wallpaperengine = {
   wallpapers = [
     {
       monitor = "HDMI-1"; # Or whatever your monitor is
-      wallpaperId = builtins.readFile ./wallpaper/wallpaper-id.txt; 
+      wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
     }
   ];
 };

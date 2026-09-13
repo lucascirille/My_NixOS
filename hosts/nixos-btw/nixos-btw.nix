@@ -57,7 +57,7 @@
 
   stylix = {
     enable = true;
-    image = ../../home/wallpaper/Wallpapers/current.jpg;
+    image = ../../home/assets/Wallpapers/current.jpg;
     polarity = "dark";
 
     fonts = {
