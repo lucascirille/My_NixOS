@@ -83,29 +83,34 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
+    # This prevents the .png error if no pngs exist!
+    shopt -s nullglob
+
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
-    # 1. Open GUI
-    PREVIEW_SELECTED=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png})
+    # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png})
 
-    if [ -z "$PREVIEW_SELECTED" ]; then
+    # Exit if nothing was marked
+    if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 2. Extract IDs
+    # 2. Get only the first marked image (in case you pressed 'm' twice)
+    PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
+
+    # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
     echo "Generating new color palette for Stylix..."
 
-    # 3. Use the exact paths from your tree!
     IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
     ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID"
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
-    # 4. Run your 'nos' script (it handles the git add and rebuild automatically)
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
         echo 'Theme applied successfully! Press any key to exit.'
