@@ -88,7 +88,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
     
     # 1. Collect preview images into a bash array
-    PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
+    PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg,mp4})
 
     # 2. Check if the folder is empty
     if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
