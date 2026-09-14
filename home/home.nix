@@ -86,42 +86,29 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # Prevent globbing error if no images exist
     shopt -s nullglob
 
-    # 1. FIXED NOTIFICATIONS: 
-    # This string hint tells your notification daemon to overwrite the previous notification smoothly
     NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher' -h string:x-canonical-private-synchronous:theme-progress"
-    
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
-    # 2. FIXED SELECTION (Press 's' to select):
-    # We create a temporary isolated config so we don't mess with your global dotfiles
+    # 1. Open GUI using feh (Thumbnail Grid Mode)
+    # We use a temporary file to capture the output since feh doesn't print to stdout by default
     TEMP_FILE=$(mktemp)
-    TEMP_CONF=$(mktemp -d)
-    mkdir -p "$TEMP_CONF/nsxiv/exec"
+    
+    # Left-Clicking (or pressing Enter) on an image triggers the --action.
+    # The action writes the image path to our temp file and immediately closes the window.
+    ${pkgs.feh}/bin/feh --thumbnail \
+        --title "Click an image (or press Enter) to select" \
+        --action "echo %F > $TEMP_FILE; kill \$PPID" \
+        "$WORKSHOP_DIR"/*/*.{jpg,png,gif}
 
-    # Inject a temporary key-handler. If the user presses 's', save the image and quit.
-    cat << EOF > "$TEMP_CONF/nsxiv/exec/key-handler"
-    #!/usr/bin/env bash
-    if [ "\$1" = "s" ]; then
-        read -r image
-        echo "\$image" > "$TEMP_FILE"
-        kill -TERM \$PPID
-    fi
-    EOF
-    chmod +x "$TEMP_CONF/nsxiv/exec/key-handler"
-
-    # Open GUI with our temporary config (Remember: just press 's' on the image you want!)
-    XDG_CONFIG_HOME="$TEMP_CONF" ${pkgs.nsxiv}/bin/nsxiv -t "$WORKSHOP_DIR"/*/*.{jpg,png,gif}
-
-    # Read what was selected and clean up temp files
     PREVIEW_SELECTED=$(cat "$TEMP_FILE")
-    rm -rf "$TEMP_CONF" "$TEMP_FILE"
+    rm -f "$TEMP_FILE"
 
-    # Exit silently if nothing was selected (user just closed the window)
+    # Exit silently if nothing was selected (e.g., user pressed Esc or the 'X' button)
     if [ -z "$PREVIEW_SELECTED" ]; then
         exit 0
     fi
 
-    # Extract IDs
+    # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
