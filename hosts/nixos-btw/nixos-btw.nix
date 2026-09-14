@@ -143,8 +143,11 @@
         ];
     };
 
-    displayManager.sessionCommands = ''
-  ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY XAUTHORITY
+displayManager.sessionCommands = ''
+  # Import all necessary graphical and session variables into systemd
+  ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY XAUTHORITY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+
+  # Announce that the graphical environment is ready
   ${pkgs.systemd}/bin/systemctl --user start graphical-session.target
 '';
 
