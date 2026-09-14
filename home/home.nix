@@ -116,8 +116,6 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Generating new color palette for Stylix..."
 
     IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
-    
-    # We rename this text file to reflect it holds a path now, not just an ID
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
     # 5. Extract the first frame using FFmpeg (this generates the image for Stylix)
@@ -864,6 +862,21 @@ programs.zsh = {
       </action>
     </actions>
   '';
+
+  systemd.user.services.hidamari = {
+  Unit = {
+    Description = "Hidamari Video Wallpaper";
+    After = [ "graphical-session.target" ];
+  };
+  Install = {
+    WantedBy = [ "graphical-session.target" ];
+  };
+  Service = {
+    # Reads the video path from the text file and launches in the background
+ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.flatpak}/bin/flatpak run io.github.jeffshee.Hidamari --background \"$(cat %h/.dotfiles/home/assets/wallpaper-video.txt)\"'";
+    Restart = "on-failure";
+  };
+};
 
   systemd.user.services.hermes-agent = {
     Service = {

@@ -187,26 +187,34 @@
 
   # --- Native Application Sandboxing ---
 
-  services.flatpak = {
-    enable = true;
+services.flatpak = {
+  enable = true;
 
-    # Declaramos los repositorios que queremos usar
-    remotes = lib.mkOptionDefault [
-      {
-        name = "flathub";
-        location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
-      }
+  # Declaramos los repositorios que queremos usar
+  remotes = lib.mkOptionDefault [
+    {
+      name = "flathub";
+      location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
+    }
+  ];
+
+  # Declaramos exactamente qué aplicaciones instalar
+  packages = [
+    "com.github.tchx84.Flatseal"
+    "net.davidotek.pupgui2"
+    "io.github.jeffshee.Hidamari"
+  ];
+
+  # Limpieza automática de apps que quites de la lista
+  uninstallUnmanaged = true;
+
+  # Configuración declarativa de permisos (reemplaza a Flatseal)
+  overrides = {
+    "io.github.jeffshee.Hidamari".Context.filesystems = [
+      "~/.local/share/Steam:ro" 
     ];
-
-    # Declaramos exactamente qué aplicaciones instalar
-    packages = [
-      "com.github.tchx84.Flatseal"
-      "net.davidotek.pupgui2"
-    ];
-
-    # Limpieza automática de apps que quites de la lista
-    uninstallUnmanaged = true;
   };
+};
 
   xdg.portal = {
     enable = true;
