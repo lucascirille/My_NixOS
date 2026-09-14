@@ -85,7 +85,7 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     shopt -s nullglob
 
-    WALLPAPER_DIR="$HOME/assets/wallpaper"
+    WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpaper"
     
     # 1. Collect preview images into a bash array
     PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
