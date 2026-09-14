@@ -83,75 +83,45 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
+    # This prevents the .png error if no pngs exist!
     shopt -s nullglob
 
-    WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
-    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
+    WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
-    # 1. Automatically generate missing thumbnails for any mp4/webm videos
-    for video in "$WALLPAPER_DIR"/*.{mp4,webm}; do
-        [ -e "$video" ] || continue
-        filename="$(basename "$video")"
-        basename_no_ext="''${filename%.*}"
-        thumb_path="$WALLPAPER_DIR/$basename_no_ext.jpg"
+    # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png,gif})
 
-        if [ ! -f "$thumb_path" ]; then
-            echo "Generating thumbnail for $filename..."
-            ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 "$thumb_path" -hide_banner -loglevel error
-        fi
-    done
-
-    # 2. Collect only image previews for nsxiv to render safely
-    PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
-
-    if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
-        echo "Error: No preview images found in $WALLPAPER_DIR"
-        read -n 1 -s -r -p "Press any key to exit..."
-        exit 1
-    fi
-
-    # 3. Open GUI in the current terminal window
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
-
+    # Exit if nothing was marked
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
-    BASENAME=$(basename "$SELECTED_IMAGE")
-    FILENAME="''${BASENAME%.*}"
-    
-    if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
-        VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
-    elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
-        VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.webm"
-    else
-        VIDEO_FILE=""
-    fi
+    # 2. Get only the first marked image (in case you pressed 'm' twice)
+    PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
+
+    # 3. Extract IDs
+    WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
+    WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
     echo "Generating new color palette for Stylix..."
 
-    # 4. Handle Video vs Static Image logic & enforce current.jpg naming for Stylix
-    if [ -n "$VIDEO_FILE" ]; then
-        echo "Video detected! Extracting frame as current.jpg for Stylix..."
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
-        HIDAMARI_ACTION="systemctl --user restart hidamari"
-    else
-        echo "Static image detected! Setting current.jpg for Stylix..."
-        cp "$SELECTED_IMAGE" "$IMAGE_PATH"
-        HIDAMARI_ACTION="systemctl --user stop hidamari"
-    fi
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
+    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
-    # 5. Run system rebuild and apply changes directly in this terminal
-    echo "Running system rebuild (nos)..."
-    ${nos-script}/bin/nos
+    # Take the screenshot first (this generates the image for Stylix)
+    timeout 3 ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID" || true
+    
+    # Save the new ID to the text file so Nix can read it
+    echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
-    echo "Applying background update..."
-    systemctl --user reset-failed hidamari.service
-    $HIDAMARI_ACTION
-
-    echo "Theme applied successfully!"
-'';
+    # Run the rebuild and restart the service *after* the configuration is updated
+    ${pkgs.ghostty}/bin/ghostty -e bash -c "
+        ${nos-script}/bin/nos
+        systemctl --user restart linux-wallpaperengine
+        echo 'Theme applied successfully! Press any key to exit.'
+        read -n 1
+    "
+  '';
 in
 {
   imports = [
@@ -169,8 +139,6 @@ in
 
 
   home.packages = with pkgs; [
-    ffmpeg
-    
     changeThemeScript
     
     love
@@ -232,6 +200,7 @@ in
 
     foliate # Dedicated e-book reader
 
+    linux-wallpaperengine
 
     nsxiv # Fast, lightweight image viewer with gallery mode
 
@@ -436,6 +405,15 @@ programs.ssh = {
     package = pkgs.ollama-vulkan; 
   };
 
+services.linux-wallpaperengine = {
+  enable = true;
+  wallpapers = [
+    {
+      monitor = "HDMI-1"; # Or whatever your monitor is
+      wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
+    }
+  ];
+};
 
 
   services.flameshot.enable = true;
@@ -882,21 +860,6 @@ programs.zsh = {
       </action>
     </actions>
   '';
-
-systemd.user.services.hidamari = {
-  Unit = {
-    Description = "Hidamari Video Wallpaper";
-    After = [ "graphical-session.target" ];
-  };
-  Install = {
-    WantedBy = [ "graphical-session.target" ];
-  };
-  Service = {
-    ExecStart = "${pkgs.flatpak}/bin/flatpak run io.github.jeffshee.Hidamari --background";
-    Restart = "on-failure";
-    RestartSec = 3;
-  };
-};
 
   systemd.user.services.hermes-agent = {
     Service = {
