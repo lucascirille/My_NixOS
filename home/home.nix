@@ -87,7 +87,6 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
-    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
     
     # 1. Automatically generate missing thumbnails for any mp4/webm videos
     for video in "$WALLPAPER_DIR"/*.{mp4,webm}; do
@@ -136,7 +135,6 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     if [ -n "$VIDEO_FILE" ]; then
         echo "Video detected! Extracting frame as current.jpg for Stylix..."
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
-        echo -n "$VIDEO_FILE" > "$TEXT_PATH"
         HIDAMARI_ACTION="systemctl --user restart hidamari"
     else
         echo "Static image detected! Setting current.jpg for Stylix..."
@@ -149,6 +147,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     ${nos-script}/bin/nos
 
     echo "Applying background update..."
+    systemctl --user reset-failed hidamari.service
     $HIDAMARI_ACTION
 
     echo "Theme applied successfully!"
@@ -893,12 +892,7 @@ systemd.user.services.hidamari = {
     WantedBy = [ "graphical-session.target" ];
   };
   Service = {
-    ExecStart = pkgs.writeShellScript "hidamari-launcher" ''
-      VIDEO_PATH=$(cat "$HOME/.dotfiles/home/assets/wallpapers/wallpaper-video.txt")
-      if [ -n "$VIDEO_PATH" ]; then
-          exec flatpak run io.github.jeffshee.Hidamari --background "$VIDEO_PATH"
-      fi
-    '';
+    ExecStart = "${pkgs.flatpak}/bin/flatpak run io.github.jeffshee.Hidamari --background";
     Restart = "on-failure";
     RestartSec = 3;
   };
