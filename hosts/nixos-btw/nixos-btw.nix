@@ -143,6 +143,13 @@
         ];
     };
 
+displayManager.sessionCommands = ''
+  # Import all necessary graphical and session variables into systemd
+  ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY XAUTHORITY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+
+  # Announce that the graphical environment is ready
+  ${pkgs.systemd}/bin/systemctl --user start graphical-session.target
+'';
 
   };
 
@@ -187,31 +194,26 @@
 
   # --- Native Application Sandboxing ---
 
-services.flatpak = {
-  enable = true;
+  services.flatpak = {
+    enable = true;
 
-  remotes = lib.mkOptionDefault [
-    {
-      name = "flathub";
-      location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
-    }
-  ];
-
-  packages = [
-    "com.github.tchx84.Flatseal"
-    "net.davidotek.pupgui2"
-    "io.github.jeffshee.Hidamari"
-  ];
-
-  uninstallUnmanaged = true;
-
-  overrides = {
-    "io.github.jeffshee.Hidamari".Context.filesystems = [
-      "home:ro"
-      "xdg-videos:rw"
+    # Declaramos los repositorios que queremos usar
+    remotes = lib.mkOptionDefault [
+      {
+        name = "flathub";
+        location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
+      }
     ];
+
+    # Declaramos exactamente qué aplicaciones instalar
+    packages = [
+      "com.github.tchx84.Flatseal"
+      "net.davidotek.pupgui2"
+    ];
+
+    # Limpieza automática de apps que quites de la lista
+    uninstallUnmanaged = true;
   };
-};
 
   xdg.portal = {
     enable = true;

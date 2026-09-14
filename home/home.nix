@@ -86,65 +86,42 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # This prevents the .png error if no pngs exist!
     shopt -s nullglob
 
-    # Note: If you use Flatpak Steam, this path needs to be:
-    # "$HOME/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/workshop/content/431960"
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
-    # Collect all preview images into a bash array
-    PREVIEW_FILES=("$WORKSHOP_DIR"/*/*.{jpg,png,gif})
-
-    # Check if the array is empty before opening nsxiv
-    if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
-        echo "Error: No preview images found!"
-        echo "Looked in: $WORKSHOP_DIR"
-        read -n 1 -s -r -p "Press any key to exit..."
-        exit 1
-    fi
-
-    # 1. Open GUI with the array of files
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
+    # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png,gif})
 
     # Exit if nothing was marked
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 2. Get only the first marked image
+    # 2. Get only the first marked image (in case you pressed 'm' twice)
     PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
 
-    # 3. Extract paths
+    # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
-    
-    # 4. Find the video file (.mp4 or .webm)
-    VIDEO_FILE=$(ls "$WALLPAPER_DIR"/*.{mp4,webm} 2>/dev/null | head -n 1)
-
-    # Exit safely if the selected wallpaper is not a video
-    if [ -z "$VIDEO_FILE" ]; then
-        echo "Error: No video file (.mp4 or .webm) found in this folder."
-        echo "Hidamari requires video wallpapers."
-        read -n 1 -s -r -p "Press any key to exit..."
-        exit 1
-    fi
+    WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
     echo "Generating new color palette for Stylix..."
 
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
-    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
+    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
-    # 5. Extract the first frame using FFmpeg
-    ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
+    # Take the screenshot first (this generates the image for Stylix)
+    ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID"
     
-    # 6. Save the full absolute path of the video
-    echo -n "$VIDEO_FILE" > "$TEXT_PATH"
+    # Save the new ID to the text file so Nix can read it
+    echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
-    # Run the rebuild and restart the service
+    # Run the rebuild and restart the service *after* the configuration is updated
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
-        systemctl --user restart hidamari
+        systemctl --user restart linux-wallpaperengine
         echo 'Theme applied successfully! Press any key to exit.'
         read -n 1
     "
-'';
+  '';
 in
 {
   imports = [
