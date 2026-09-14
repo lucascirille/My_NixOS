@@ -83,64 +83,54 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
-    # This prevents the .png error if no pngs exist!
     shopt -s nullglob
 
-    # Note: If you use Flatpak Steam, this path needs to be:
-    # "$HOME/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/workshop/content/431960"
-    WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
+    # Your new local directory
+    WALLPAPER_DIR="$HOME/assets/wallpaper"
     
-    # Collect all preview images into a bash array
-    PREVIEW_FILES=("$WORKSHOP_DIR"/*/*.{jpg,png,gif})
+    # 1. Open GUI to pick an image/thumbnail
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WALLPAPER_DIR"/*.{jpg,png,jpeg})
 
-    # Check if the array is empty before opening nsxiv
-    if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
-        echo "Error: No preview images found!"
-        echo "Looked in: $WORKSHOP_DIR"
-        read -n 1 -s -r -p "Press any key to exit..."
-        exit 1
-    fi
-
-    # 1. Open GUI with the array of files
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
-
-    # Exit if nothing was marked
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 2. Get only the first marked image
-    PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
-
-    # 3. Extract paths
-    WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
+    # 2. Get the selected image and its base name (without extension)
+    SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
+    BASENAME=$(basename "$SELECTED_IMAGE")
+    FILENAME="''${BASENAME%.*}"
     
-    # 4. Find the video file (.mp4 or .webm)
-    VIDEO_FILE=$(ls "$WALLPAPER_DIR"/*.{mp4,webm} 2>/dev/null | head -n 1)
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
+    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
-    # Exit safely if the selected wallpaper is not a video
-    if [ -z "$VIDEO_FILE" ]; then
-        echo "Error: No video file (.mp4 or .webm) found in this folder."
-        echo "Hidamari requires video wallpapers."
-        read -n 1 -s -r -p "Press any key to exit..."
-        exit 1
+    # 3. Check if a matching video file exists
+    if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
+        VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
+    elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
+        VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.webm"
+    else
+        VIDEO_FILE=""
     fi
 
     echo "Generating new color palette for Stylix..."
 
-    IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
-    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
+    # 4. Handle Video vs Static Image logic
+    if [ -n "$VIDEO_FILE" ]; then
+        echo "Video detected! Extracting frame and preparing Hidamari..."
+        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
+        echo -n "$VIDEO_FILE" > "$TEXT_PATH"
+        HIDAMARI_ACTION="systemctl --user restart hidamari"
+    else
+        echo "Static image detected! Preparing standard desktop..."
+        cp "$SELECTED_IMAGE" "$IMAGE_PATH"
+        # Stop Hidamari so the static Stylix wallpaper shows underneath
+        HIDAMARI_ACTION="systemctl --user stop hidamari"
+    fi
 
-    # 5. Extract the first frame using FFmpeg
-    ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
-    
-    # 6. Save the full absolute path of the video
-    echo -n "$VIDEO_FILE" > "$TEXT_PATH"
-
-    # Run the rebuild and restart the service
+    # 5. Rebuild and apply the correct background state
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
-        systemctl --user restart hidamari
+        $HIDAMARI_ACTION
         echo 'Theme applied successfully! Press any key to exit.'
         read -n 1
     "
