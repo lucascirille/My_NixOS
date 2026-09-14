@@ -190,7 +190,6 @@
 services.flatpak = {
   enable = true;
 
-  # Declaramos los repositorios que queremos usar
   remotes = lib.mkOptionDefault [
     {
       name = "flathub";
@@ -198,20 +197,18 @@ services.flatpak = {
     }
   ];
 
-  # Declaramos exactamente qué aplicaciones instalar
   packages = [
     "com.github.tchx84.Flatseal"
     "net.davidotek.pupgui2"
     "io.github.jeffshee.Hidamari"
   ];
 
-  # Limpieza automática de apps que quites de la lista
   uninstallUnmanaged = true;
 
-  # Configuración declarativa de permisos (reemplaza a Flatseal)
   overrides = {
     "io.github.jeffshee.Hidamari".Context.filesystems = [
-      "~/.local/share/Steam:ro" 
+      "home:ro"
+      "xdg-videos:rw"
     ];
   };
 };
