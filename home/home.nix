@@ -86,10 +86,11 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # This prevents the globbing error if no images exist
     shopt -s nullglob
 
+    # Base notify command (without replace/print flags so we can append them later)
     NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher'"
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
-    # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
+    # 1. Open GUI
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WORKSHOP_DIR"/*/*.{jpg,png,gif})
 
     # Exit silently if nothing was marked or selected
@@ -97,44 +98,56 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         exit 0
     fi
 
-    # 2. Get only the first marked image (in case you pressed 'm' twice)
+    # 2. Extract selected image
     PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
-
-    # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
-
-    echo "Generating new color palette for Stylix..."
-    $NOTIFY -i "$PREVIEW_SELECTED" "Theme Update" "Selected wallpaper. Generating palette..."
 
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
-    # Use ffmpeg to instantly format the selected nsxiv preview directly into current.jpg
+    echo "Generating new color palette for Stylix..."
+    
+    # 🌟 PROGRESS: 20%
+    # We use -p to print the ID of this new notification and save it to NOTIFY_ID
+    NOTIFY_ID=$($NOTIFY -p -i "$PREVIEW_SELECTED" "Theme Update" "Processing image..." -h int:value:20)
+
+    # 3. Process image with ffmpeg
     if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
-        $NOTIFY -u critical "Theme Error" "Failed to process image with ffmpeg!"
+        # Replace (-r) the notification with a critical error if it fails
+        $NOTIFY -r "$NOTIFY_ID" -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process image!"
         exit 1
     fi
     
-    # Save the new ID to the text file so Nix can read it
+    # Save the new ID to the text file
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
-    # 4. Run the rebuild
     echo "Running system rebuild (nos)..."
     
-    # Run the nos script. If it fails, nos handles the error notification, so we just exit.
+    # 🌟 PROGRESS: 50%
+    # Update the existing notification using -r $NOTIFY_ID
+    $NOTIFY -r "$NOTIFY_ID" -i "$IMAGE_PATH" "Theme Update" "Running system rebuild..." -h int:value:50
+    
+    # Run the nos script
     if ! ${nos-script}/bin/nos; then
         echo "Rebuild failed, aborting theme application."
+        $NOTIFY -r "$NOTIFY_ID" -u critical -i "$IMAGE_PATH" "Theme Error" "Rebuild failed. Aborting."
         exit 1
     fi
 
     echo "Applying background update..."
-    # Clear the lockout just in case it crashed previously
+    
+    # 🌟 PROGRESS: 80%
+    $NOTIFY -r "$NOTIFY_ID" -i "$IMAGE_PATH" "Theme Update" "Restarting wallpaper engine..." -h int:value:80
+    
+    # Clear the lockout and restart
     systemctl --user reset-failed linux-wallpaperengine.service
     systemctl --user restart linux-wallpaperengine.service
 
     echo "Theme applied successfully!"
-    $NOTIFY -i "$IMAGE_PATH" "Theme Update" "Wallpaper engine restarted. Theme fully applied!"
+    
+    # 🌟 PROGRESS: 100% (Complete)
+    $NOTIFY -r "$NOTIFY_ID" -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
 in
 {
