@@ -98,15 +98,12 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
             return 1
         fi
         
-        # Get video duration using ffprobe (part of the ffmpeg package)
         local duration=$(${pkgs.ffmpeg}/bin/ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$video_file" 2>/dev/null)
         
-        # Fallback to 1 second if duration is empty or invalid
         if [ -z "$duration" ] || ! [[ "$duration" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
             duration="1"
         fi
         
-        # Extract frame at a random position within the video duration
         local random_time=$(awk -v dur="$duration" 'BEGIN {srand(); printf "%.2f", rand() * dur}')
         
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video_file" -ss "$random_time" -frames:v 1 -qscale:v 2 "$output_path" -hide_banner -loglevel error 2>/dev/null
@@ -119,11 +116,9 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         basename_no_ext="''${filename%.*}"
         thumb_path="$WALLPAPER_DIR/$basename_no_ext.jpg"
 
-        # Skip if thumbnail already exists
         [ -f "$thumb_path" ] && continue
 
         echo "Generating thumbnail for $filename..."
-        # Try 1 second first, fall back to 0 seconds for very short videos
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 -qscale:v 2 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 0 -vframes 1 -qscale:v 2 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
         echo "Warning: Failed to generate thumbnail for $filename"
@@ -132,26 +127,25 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 2. Collect image previews for nsxiv
     PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
 
-    # 3. Check if the folder is empty
     if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
         echo "Error: No preview images found in $WALLPAPER_DIR"
         read -n 1 -s -r -p "Press any key to exit..."
         exit 1
     fi
 
-    # 4. Open GUI with the image thumbnails
+    # 3. Open GUI with the image thumbnails
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}" 2>/dev/null) || exit 0
 
     if [ -z "$PREVIEWS" ]; then
-        exit 0 # User closed nsxiv without selecting
+        exit 0
     fi
 
-    # 5. Get the selected image and its base name
+    # 4. Get the selected image and its base name
     SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
 
-    # 6. Check if a matching video file exists
+    # 5. Check if a matching video file exists
     VIDEO_FILE=""
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
@@ -162,35 +156,58 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Selected: $FILENAME"
     echo "Generating new color palette for Stylix..."
 
-    # 7. Handle Video vs Static Image logic
+    # 6. Handle Video vs Static Image logic
     if [ -n "$VIDEO_FILE" ]; then
         echo "Video detected! Extracting frame and preparing Hidamari..."
         extract_current_frame "$VIDEO_FILE" "$IMAGE_PATH"
-        # Use printf to guarantee NO trailing newline, which can break media players
         printf "%s" "$VIDEO_FILE" > "$TEXT_PATH"
-        HIDAMARI_ACTION="systemctl --user restart hidamari"
+        WALLPAPER_TYPE="video"
     else
         echo "Static image detected! Preparing standard desktop..."
         cp "$SELECTED_IMAGE" "$IMAGE_PATH"
-        # Clean up the video text file so Stylix/Hidamari doesn't get confused
         rm -f "$TEXT_PATH"
-        HIDAMARI_ACTION="systemctl --user stop hidamari"
+        WALLPAPER_TYPE="static"
     fi
 
-    # 8. Rebuild and apply the correct background state (NO GUI)
+    # 7. Rebuild configuration (This applies Stylix colors and static wallpaper)
     echo "Applying theme (running nos)..."
-    
-    # Run your rebuild script
     ${nos-script}/bin/nos
     
-    # CRITICAL FIX: Reset systemd failed state before restarting
-    # This prevents the "attempted too often" error if Hidamari crashed previously
+    # 8. Finalize Wallpaper State AFTER rebuild
+    # This is crucial: we start/stop Hidamari AFTER 'nos' finishes, 
+    # ensuring it isn't immediately covered by a Stylix wallpaper setter.
+    echo "Finalizing wallpaper state..."
+    
+    # Reset any failed states from previous crashes
     systemctl --user reset-failed hidamari.service 2>/dev/null
     
-    # Execute the start/stop/restart action
-    echo "Applying Hidamari state..."
-    eval "$HIDAMARI_ACTION"
-    
+    if [ "$WALLPAPER_TYPE" = "video" ]; then
+        echo "Starting Hidamari for video playback..."
+        
+        # OPTIONAL FIX: If you use swww, feh, or nitrogen, they might aggressively 
+        # redraw over the video. If the video still doesn't show, uncomment the line below:
+        # killall swww-daemon feh nitrogen 2>/dev/null || true
+        
+        systemctl --user restart hidamari.service
+        
+        # Give it a moment to initialize and decode the video
+        sleep 2
+        
+        # Verify it actually started successfully
+        if systemctl --user is-active --quiet hidamari.service; then
+            echo "✅ Hidamari started successfully. Video should now be playing."
+        else
+            echo "❌ ERROR: Hidamari failed to start!"
+            echo "The static image is showing because the video player crashed."
+            echo "Please check the logs to see why:"
+            echo "👉 Run: journalctl --user -u hidamari.service -n 15 --no-pager"
+        fi
+    else
+        echo "Stopping Hidamari for static image..."
+        systemctl --user stop hidamari.service
+        echo "✅ Static image applied via Stylix/nos."
+    fi
+
     echo "Theme applied successfully!"
 '';
 in
