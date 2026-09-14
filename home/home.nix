@@ -86,11 +86,13 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     shopt -s nullglob
 
     WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
+    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
     
     # 1. Automatically generate missing thumbnails for any mp4/webm videos
     for video in "$WALLPAPER_DIR"/*.{mp4,webm}; do
         [ -e "$video" ] || continue
-        filename="''$(basename "$video")"
+        filename="$(basename "$video")"
         basename_no_ext="''${filename%.*}"
         thumb_path="$WALLPAPER_DIR/$basename_no_ext.jpg"
 
@@ -124,10 +126,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
     
-    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
-    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
-
-    # 6. Check if a matching video file exists in the folder
+    # Check if a matching video file exists in the folder
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
     elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
@@ -138,19 +137,20 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     echo "Generating new color palette for Stylix..."
 
-    # 7. Handle Video vs Static Image logic
+    # 6. Handle Video vs Static Image logic & enforce current.jpg naming for Stylix
     if [ -n "$VIDEO_FILE" ]; then
-        echo "Video detected! Extracting frame and preparing Hidamari..."
+        echo "Video detected! Extracting frame as current.jpg for Stylix..."
+        # Extract directly to current.jpg so Stylix reads it immediately
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
         echo -n "$VIDEO_FILE" > "$TEXT_PATH"
         HIDAMARI_ACTION="systemctl --user restart hidamari"
     else
-        echo "Static image detected! Preparing standard desktop..."
+        echo "Static image detected! Setting current.jpg for Stylix..."
         cp "$SELECTED_IMAGE" "$IMAGE_PATH"
         HIDAMARI_ACTION="systemctl --user stop hidamari"
     fi
 
-    # 8. Rebuild and apply the correct background state
+    # 7. Rebuild and apply the correct background state
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
         $HIDAMARI_ACTION
