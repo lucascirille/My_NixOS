@@ -142,6 +142,12 @@
           qtile-extras
         ];
     };
+
+    displayManager.sessionCommands = ''
+  ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY XAUTHORITY
+  ${pkgs.systemd}/bin/systemctl --user start graphical-session.target
+'';
+
   };
 
   nixpkgs.overlays = [
@@ -428,6 +434,7 @@
     dates = "weekly";
     options = "--delete-older-than 14d";
   };
+
 
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
