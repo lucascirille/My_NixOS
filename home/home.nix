@@ -85,17 +85,27 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     shopt -s nullglob
 
-    # Your new local directory
     WALLPAPER_DIR="$HOME/assets/wallpaper"
     
-    # 1. Open GUI to pick an image/thumbnail
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WALLPAPER_DIR"/*.{jpg,png,jpeg})
+    # 1. Collect preview images into a bash array
+    PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
+
+    # 2. Check if the folder is empty
+    if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
+        echo "Error: No preview images found in $WALLPAPER_DIR"
+        echo "Make sure you have placed your .jpg/.png images (and matching .mp4 videos) here."
+        read -n 1 -s -r -p "Press any key to exit..."
+        exit 1
+    fi
+
+    # 3. Open GUI with the array of files
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
 
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 2. Get the selected image and its base name (without extension)
+    # 4. Get the selected image and its base name (without extension)
     SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
@@ -103,7 +113,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
-    # 3. Check if a matching video file exists
+    # 5. Check if a matching video file exists
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
     elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
@@ -114,7 +124,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     echo "Generating new color palette for Stylix..."
 
-    # 4. Handle Video vs Static Image logic
+    # 6. Handle Video vs Static Image logic
     if [ -n "$VIDEO_FILE" ]; then
         echo "Video detected! Extracting frame and preparing Hidamari..."
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
@@ -123,11 +133,10 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     else
         echo "Static image detected! Preparing standard desktop..."
         cp "$SELECTED_IMAGE" "$IMAGE_PATH"
-        # Stop Hidamari so the static Stylix wallpaper shows underneath
         HIDAMARI_ACTION="systemctl --user stop hidamari"
     fi
 
-    # 5. Rebuild and apply the correct background state
+    # 7. Rebuild and apply the correct background state
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
         $HIDAMARI_ACTION
