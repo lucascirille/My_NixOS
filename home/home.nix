@@ -85,7 +85,7 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     shopt -s nullglob
 
-    WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpaper"
+    WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
     
     # 1. Collect preview images into a bash array
     PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
@@ -110,7 +110,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
     
-    IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
     # 5. Check if a matching video file exists
