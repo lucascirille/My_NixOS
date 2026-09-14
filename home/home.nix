@@ -128,7 +128,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     echo "Generating new color palette for Stylix..."
 
-    IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
     # 5. Extract the first frame using FFmpeg
