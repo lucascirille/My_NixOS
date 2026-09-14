@@ -87,18 +87,18 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
     
-    # 1. Collect preview images into a bash array
-    PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg,mp4})
+    # 1. Collect only image previews for nsxiv to render safely
+    PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
 
     # 2. Check if the folder is empty
     if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
         echo "Error: No preview images found in $WALLPAPER_DIR"
-        echo "Make sure you have placed your .jpg/.png images (and matching .mp4 videos) here."
+        echo "Make sure you have placed your .jpg/.png thumbnail images here."
         read -n 1 -s -r -p "Press any key to exit..."
         exit 1
     fi
 
-    # 3. Open GUI with the array of files
+    # 3. Open GUI with the image thumbnails
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
 
     if [ -z "$PREVIEWS" ]; then
@@ -113,7 +113,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
-    # 5. Check if a matching video file exists
+    # 5. Check if a matching video file exists in the folder
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
     elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
