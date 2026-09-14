@@ -884,7 +884,7 @@ programs.zsh = {
     </actions>
   '';
 
-  systemd.user.services.hidamari = {
+systemd.user.services.hidamari = {
   Unit = {
     Description = "Hidamari Video Wallpaper";
     After = [ "graphical-session.target" ];
@@ -893,9 +893,14 @@ programs.zsh = {
     WantedBy = [ "graphical-session.target" ];
   };
   Service = {
-    # Reads the video path from the text file and launches in the background
-ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.flatpak}/bin/flatpak run io.github.jeffshee.Hidamari --background \"$(cat %h/.dotfiles/home/assets/wallpaper-video.txt)\"'";
+    ExecStart = pkgs.writeShellScript "hidamari-launcher" ''
+      VIDEO_PATH=$(cat "$HOME/.dotfiles/home/assets/wallpapers/wallpaper-video.txt")
+      if [ -n "$VIDEO_PATH" ]; then
+          exec flatpak run io.github.jeffshee.Hidamari --background "$VIDEO_PATH"
+      fi
+    '';
     Restart = "on-failure";
+    RestartSec = 3;
   };
 };
 
