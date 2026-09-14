@@ -548,7 +548,6 @@ programs.obsidian = {
     app = {
       alwaysUpdateLinks = true;
       spellcheck = true;
-      vimMode = true;
     };
 
     corePlugins = [
@@ -564,6 +563,18 @@ programs.obsidian = {
       "tag-pane"
       "templates"
       "word-count"
+    ];
+
+    cssSnippets = [
+      {
+        name = "font-size";
+        text = ''
+          .markdown-source-view,
+          .markdown-preview-view {
+            font-size: 18px;
+          }
+        '';
+      }
     ];
   };
 };
