@@ -113,6 +113,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
+        systemctl --user restart linux-wallpaperengine
         echo 'Theme applied successfully! Press any key to exit.'
         read -n 1
     "
