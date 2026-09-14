@@ -86,129 +86,77 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     shopt -s nullglob
 
     WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
-    IMAGE_PATH="$WALLPAPER_DIR/current.jpg"
+    IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
     
-    # Function to extract a frame from video for Stylix
-    extract_current_frame() {
-        local video_file="$1"
-        local output_path="$2"
-        
-        if [ -z "$video_file" ] || [ ! -f "$video_file" ]; then
-            return 1
-        fi
-        
-        local duration=$(${pkgs.ffmpeg}/bin/ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$video_file" 2>/dev/null)
-        
-        if [ -z "$duration" ] || ! [[ "$duration" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-            duration="1"
-        fi
-        
-        local random_time=$(awk -v dur="$duration" 'BEGIN {srand(); printf "%.2f", rand() * dur}')
-        
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video_file" -ss "$random_time" -frames:v 1 -qscale:v 2 "$output_path" -hide_banner -loglevel error 2>/dev/null
-    }
-    
-    # 1. Generate thumbnails for videos
+    # 1. Automatically generate missing thumbnails for any mp4/webm videos
     for video in "$WALLPAPER_DIR"/*.{mp4,webm}; do
         [ -e "$video" ] || continue
         filename="$(basename "$video")"
         basename_no_ext="''${filename%.*}"
         thumb_path="$WALLPAPER_DIR/$basename_no_ext.jpg"
 
-        [ -f "$thumb_path" ] && continue
-
-        echo "Generating thumbnail for $filename..."
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 -qscale:v 2 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 0 -vframes 1 -qscale:v 2 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
-        echo "Warning: Failed to generate thumbnail for $filename"
+        # Only generate the thumbnail if it does not already exist
+        if [ ! -f "$thumb_path" ]; then
+            echo "Generating thumbnail for $filename..."
+            ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 "$thumb_path" -hide_banner -loglevel error
+        fi
     done
 
-    # 2. Collect image previews for nsxiv
+    # 2. Collect only image previews for nsxiv to render safely
     PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
 
+    # 3. Check if the folder is empty
     if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
         echo "Error: No preview images found in $WALLPAPER_DIR"
+        echo "Make sure you have placed your video files here."
         read -n 1 -s -r -p "Press any key to exit..."
         exit 1
     fi
 
-    # 3. Open GUI with the image thumbnails
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}" 2>/dev/null) || exit 0
+    # 4. Open GUI with the image thumbnails
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
 
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 4. Get the selected image and its base name
+    # 5. Get the selected image and its base name (without extension)
     SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
-
-    # 5. Check if a matching video file exists
-    VIDEO_FILE=""
+    
+    # Check if a matching video file exists in the folder
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
     elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.webm"
+    else
+        VIDEO_FILE=""
     fi
 
-    echo "Selected: $FILENAME"
     echo "Generating new color palette for Stylix..."
 
-    # 6. Handle Video vs Static Image logic
+    # 6. Handle Video vs Static Image logic & enforce current.jpg naming for Stylix
     if [ -n "$VIDEO_FILE" ]; then
-        echo "Video detected! Extracting frame and preparing Hidamari..."
-        extract_current_frame "$VIDEO_FILE" "$IMAGE_PATH"
-        printf "%s" "$VIDEO_FILE" > "$TEXT_PATH"
-        WALLPAPER_TYPE="video"
+        echo "Video detected! Extracting frame as current.jpg for Stylix..."
+        # Extract directly to current.jpg so Stylix reads it immediately
+        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
+        echo -n "$VIDEO_FILE" > "$TEXT_PATH"
+        HIDAMARI_ACTION="systemctl --user restart hidamari"
     else
-        echo "Static image detected! Preparing standard desktop..."
+        echo "Static image detected! Setting current.jpg for Stylix..."
         cp "$SELECTED_IMAGE" "$IMAGE_PATH"
-        rm -f "$TEXT_PATH"
-        WALLPAPER_TYPE="static"
+        HIDAMARI_ACTION="systemctl --user stop hidamari"
     fi
 
-    # 7. Rebuild configuration (This applies Stylix colors and static wallpaper)
-    echo "Applying theme (running nos)..."
-    ${nos-script}/bin/nos
-    
-    # 8. Finalize Wallpaper State AFTER rebuild
-    # This is crucial: we start/stop Hidamari AFTER 'nos' finishes, 
-    # ensuring it isn't immediately covered by a Stylix wallpaper setter.
-    echo "Finalizing wallpaper state..."
-    
-    # Reset any failed states from previous crashes
-    systemctl --user reset-failed hidamari.service 2>/dev/null
-    
-    if [ "$WALLPAPER_TYPE" = "video" ]; then
-        echo "Starting Hidamari for video playback..."
-        
-        # OPTIONAL FIX: If you use swww, feh, or nitrogen, they might aggressively 
-        # redraw over the video. If the video still doesn't show, uncomment the line below:
-        # killall swww-daemon feh nitrogen 2>/dev/null || true
-        
-        systemctl --user restart hidamari.service
-        
-        # Give it a moment to initialize and decode the video
-        sleep 2
-        
-        # Verify it actually started successfully
-        if systemctl --user is-active --quiet hidamari.service; then
-            echo "✅ Hidamari started successfully. Video should now be playing."
-        else
-            echo "❌ ERROR: Hidamari failed to start!"
-            echo "The static image is showing because the video player crashed."
-            echo "Please check the logs to see why:"
-            echo "👉 Run: journalctl --user -u hidamari.service -n 15 --no-pager"
-        fi
-    else
-        echo "Stopping Hidamari for static image..."
-        systemctl --user stop hidamari.service
-        echo "✅ Static image applied via Stylix/nos."
-    fi
-
-    echo "Theme applied successfully!"
+    # 7. Rebuild and apply the correct background state
+    ${pkgs.ghostty}/bin/ghostty -e bash -c "
+        ${nos-script}/bin/nos
+        $HIDAMARI_ACTION
+        echo 'Theme applied successfully! Press any key to exit.'
+        read -n 1
+    "
 '';
 in
 {
