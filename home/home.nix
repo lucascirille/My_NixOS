@@ -408,14 +408,23 @@ programs.ssh = {
     package = pkgs.ollama-vulkan; 
   };
 
-services.linux-wallpaperengine = {
-  enable = true;
-  wallpapers = [
-    {
-      monitor = "HDMI-1"; # Or whatever your monitor is
-      wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
-    }
-  ];
+systemd.user.services.linux-wallpaperengine = {
+  Unit = {
+    Description = "Implementation of Wallpaper Engine on Linux";
+    After = [ "graphical-session.target" ];
+  };
+  Install = {
+    WantedBy = [ "graphical-session.target" ];
+  };
+  Service = {
+    Environment = [
+      "DISPLAY=:0"
+      "XAUTHORITY=%h/.Xauthority"
+    ];
+    ExecStart = "${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screen-root=HDMI-1 ${builtins.readFile ./assets/wallpaper-id.txt}";
+    Restart = "on-failure";
+    RestartSec = 3;
+  };
 };
 
 
