@@ -99,29 +99,41 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 2. Get only the first marked image (in case you pressed 'm' twice)
     PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
 
-    # 3. Extract IDs
+    # 3. Extract paths
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
-    WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
+    
+    # 4. Find the video file (.mp4 or .webm)
+    VIDEO_FILE=$(ls $WALLPAPER_DIR/*.{mp4,webm} 2>/dev/null | head -n 1)
+
+    # Exit safely if the selected wallpaper is not a video
+    if [ -z "$VIDEO_FILE" ]; then
+        echo "Error: No video file (.mp4 or .webm) found in this folder."
+        echo "Hidamari requires video wallpapers."
+        read -n 1 -s -r -p "Press any key to exit..."
+        exit 1
+    fi
 
     echo "Generating new color palette for Stylix..."
 
     IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
-    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
-
-    # Take the screenshot first (this generates the image for Stylix)
-    timeout 3 ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID" || true
     
-    # Save the new ID to the text file so Nix can read it
-    echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
+    # We rename this text file to reflect it holds a path now, not just an ID
+    TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
+
+    # 5. Extract the first frame using FFmpeg (this generates the image for Stylix)
+    ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
+    
+    # 6. Save the full absolute path of the video to the text file
+    echo -n "$VIDEO_FILE" > "$TEXT_PATH"
 
     # Run the rebuild and restart the service *after* the configuration is updated
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
-        systemctl --user restart linux-wallpaperengine
+        systemctl --user restart hidamari
         echo 'Theme applied successfully! Press any key to exit.'
         read -n 1
     "
-  '';
+'';
 in
 {
   imports = [
@@ -139,6 +151,8 @@ in
 
 
   home.packages = with pkgs; [
+    ffmpeg
+    
     changeThemeScript
     
     love
@@ -200,7 +214,6 @@ in
 
     foliate # Dedicated e-book reader
 
-    linux-wallpaperengine
 
     nsxiv # Fast, lightweight image viewer with gallery mode
 
@@ -405,15 +418,6 @@ programs.ssh = {
     package = pkgs.ollama-vulkan; 
   };
 
-services.linux-wallpaperengine = {
-  enable = true;
-  wallpapers = [
-    {
-      monitor = "HDMI-1"; # Or whatever your monitor is
-      wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
-    }
-  ];
-};
 
 
   services.flameshot.enable = true;
