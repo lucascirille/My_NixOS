@@ -83,15 +83,16 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
-    # This prevents the .png error if no pngs exist!
+    # This prevents the globbing error if no images exist
     shopt -s nullglob
 
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
     # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png,gif})
+    # Added quotes around the path to prevent spaces from breaking the search
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WORKSHOP_DIR"/*/*.{jpg,png,gif})
 
-    # Exit if nothing was marked
+    # Exit if nothing was marked or selected
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
@@ -108,8 +109,9 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
-    # Take the screenshot first (this generates the image for Stylix)
-    ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID"
+    # FIX: Completely bypass the broken linux-wallpaperengine screenshot.
+    # We use ffmpeg to instantly format the selected nsxiv preview directly into current.jpg
+    ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
     
     # Save the new ID to the text file so Nix can read it
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
@@ -121,7 +123,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         echo 'Theme applied successfully! Press any key to exit.'
         read -n 1
     "
-  '';
+'';
 in
 {
   imports = [
