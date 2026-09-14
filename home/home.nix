@@ -108,16 +108,13 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     IMAGE_PATH="$HOME/.dotfiles/home/assets/Wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
-    # Take the screenshot first (this generates the image for Stylix)
+    systemctl --user restart linux-wallpaperengine
+
     ${pkgs.linux-wallpaperengine}/bin/linux-wallpaperengine --screenshot "$IMAGE_PATH" "$WALLPAPER_ID"
-    
-    # Save the new ID to the text file so Nix can read it
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
-    # Run the rebuild and restart the service *after* the configuration is updated
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
-        systemctl --user restart linux-wallpaperengine
         echo 'Theme applied successfully! Press any key to exit.'
         read -n 1
     "
