@@ -87,25 +87,39 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     WALLPAPER_DIR="$HOME/.dotfiles/home/assets/wallpapers"
     
-    # 1. Collect only image previews for nsxiv to render safely
+    # 1. Automatically generate missing thumbnails for any mp4/webm videos
+    for video in "$WALLPAPER_DIR"/*.{mp4,webm}; do
+        [ -e "$video" ] || continue
+        filename="''$(basename "$video")"
+        basename_no_ext="''${filename%.*}"
+        thumb_path="$WALLPAPER_DIR/$basename_no_ext.jpg"
+
+        # Only generate the thumbnail if it does not already exist
+        if [ ! -f "$thumb_path" ]; then
+            echo "Generating thumbnail for $filename..."
+            ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 "$thumb_path" -hide_banner -loglevel error
+        fi
+    done
+
+    # 2. Collect only image previews for nsxiv to render safely
     PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
 
-    # 2. Check if the folder is empty
+    # 3. Check if the folder is empty
     if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
         echo "Error: No preview images found in $WALLPAPER_DIR"
-        echo "Make sure you have placed your .jpg/.png thumbnail images here."
+        echo "Make sure you have placed your video files here."
         read -n 1 -s -r -p "Press any key to exit..."
         exit 1
     fi
 
-    # 3. Open GUI with the image thumbnails
+    # 4. Open GUI with the image thumbnails
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
 
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 4. Get the selected image and its base name (without extension)
+    # 5. Get the selected image and its base name (without extension)
     SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
@@ -113,7 +127,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-video.txt"
 
-    # 5. Check if a matching video file exists in the folder
+    # 6. Check if a matching video file exists in the folder
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
     elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
@@ -124,7 +138,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     echo "Generating new color palette for Stylix..."
 
-    # 6. Handle Video vs Static Image logic
+    # 7. Handle Video vs Static Image logic
     if [ -n "$VIDEO_FILE" ]; then
         echo "Video detected! Extracting frame and preparing Hidamari..."
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
@@ -136,7 +150,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         HIDAMARI_ACTION="systemctl --user stop hidamari"
     fi
 
-    # 7. Rebuild and apply the correct background state
+    # 8. Rebuild and apply the correct background state
     ${pkgs.ghostty}/bin/ghostty -e bash -c "
         ${nos-script}/bin/nos
         $HIDAMARI_ACTION
