@@ -86,12 +86,13 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # This prevents the globbing error if no images exist
     shopt -s nullglob
 
+    NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher'"
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
     # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WORKSHOP_DIR"/*/*.{jpg,png,gif})
 
-    # Exit if nothing was marked or selected
+    # Exit silently if nothing was marked or selected
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
@@ -104,19 +105,28 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
     echo "Generating new color palette for Stylix..."
+    $NOTIFY -i "$PREVIEW_SELECTED" "Theme Update" "Selected wallpaper. Generating palette..."
 
     IMAGE_PATH="$HOME/.dotfiles/home/assets/wallpapers/current.jpg"
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
     # Use ffmpeg to instantly format the selected nsxiv preview directly into current.jpg
-    ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
+    if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
+        $NOTIFY -u critical "Theme Error" "Failed to process image with ffmpeg!"
+        exit 1
+    fi
     
     # Save the new ID to the text file so Nix can read it
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
-    # 4. Run the rebuild and restart the service in the CURRENT terminal
+    # 4. Run the rebuild
     echo "Running system rebuild (nos)..."
-    ${nos-script}/bin/nos
+    
+    # Run the nos script. If it fails, nos handles the error notification, so we just exit.
+    if ! ${nos-script}/bin/nos; then
+        echo "Rebuild failed, aborting theme application."
+        exit 1
+    fi
 
     echo "Applying background update..."
     # Clear the lockout just in case it crashed previously
@@ -124,6 +134,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     systemctl --user restart linux-wallpaperengine.service
 
     echo "Theme applied successfully!"
+    $NOTIFY -i "$IMAGE_PATH" "Theme Update" "Wallpaper engine restarted. Theme fully applied!"
 '';
 in
 {
