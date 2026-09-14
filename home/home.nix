@@ -83,27 +83,32 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
-    # Prevent globbing error if no images exist
     shopt -s nullglob
 
     NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher' -h string:x-canonical-private-synchronous:theme-progress"
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
-    # 1. Open GUI using feh (Thumbnail Grid Mode)
-    # We use a temporary file to capture the output since feh doesn't print to stdout by default
+    # 1. FIXED REPEATS: Use find to gather strict, unique files only
+    mapfile -t PREVIEWS < <(find "$WORKSHOP_DIR" -maxdepth 2 -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.gif" \) | sort -u)
+
+    # Exit if no wallpapers are found
+    if [ ''${#PREVIEWS[@]} -eq 0 ]; then
+        exit 0
+    fi
+
     TEMP_FILE=$(mktemp)
     
-    # Left-Clicking (or pressing Enter) on an image triggers the --action.
-    # The action writes the image path to our temp file and immediately closes the window.
-    ${pkgs.feh}/bin/feh --thumbnail \
-        --title "Click an image (or press Enter) to select" \
-        --action "echo %F > $TEMP_FILE; kill \$PPID" \
-        "$WORKSHOP_DIR"/*/*.{jpg,png,gif}
+    # 2. INTUITIVE GUI: Fullscreen Carousel Mode
+    # Use Left/Right arrows to look at wallpapers. Press Enter to select.
+    ${pkgs.feh}/bin/feh --scale-down --auto-zoom \
+        --title "Cycle with Left/Right arrows. Press Enter to select!" \
+        --action "echo '%F' > $TEMP_FILE; kill \$PPID" \
+        "''${PREVIEWS[@]}"
 
     PREVIEW_SELECTED=$(cat "$TEMP_FILE")
     rm -f "$TEMP_FILE"
 
-    # Exit silently if nothing was selected (e.g., user pressed Esc or the 'X' button)
+    # Exit silently if you press Escape or close the window without picking
     if [ -z "$PREVIEW_SELECTED" ]; then
         exit 0
     fi
