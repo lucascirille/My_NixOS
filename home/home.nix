@@ -89,7 +89,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
     
     # 1. Open GUI (Remember: press 'm' to mark, then 'q' to quit!)
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png})
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o $WORKSHOP_DIR/*/*.{jpg,png,gif})
 
     # Exit if nothing was marked
     if [ -z "$PREVIEWS" ]; then
