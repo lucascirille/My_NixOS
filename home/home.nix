@@ -96,7 +96,6 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         basename_no_ext="''${filename%.*}"
         thumb_path="$WALLPAPER_DIR/$basename_no_ext.jpg"
 
-        # Only generate the thumbnail if it does not already exist
         if [ ! -f "$thumb_path" ]; then
             echo "Generating thumbnail for $filename..."
             ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 "$thumb_path" -hide_banner -loglevel error
@@ -106,27 +105,23 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 2. Collect only image previews for nsxiv to render safely
     PREVIEW_FILES=("$WALLPAPER_DIR"/*.{jpg,png,jpeg})
 
-    # 3. Check if the folder is empty
     if [ ''${#PREVIEW_FILES[@]} -eq 0 ]; then
         echo "Error: No preview images found in $WALLPAPER_DIR"
-        echo "Make sure you have placed your video files here."
         read -n 1 -s -r -p "Press any key to exit..."
         exit 1
     fi
 
-    # 4. Open GUI with the image thumbnails
+    # 3. Open GUI in the current terminal window
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "''${PREVIEW_FILES[@]}")
 
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 5. Get the selected image and its base name (without extension)
     SELECTED_IMAGE=$(echo "$PREVIEWS" | head -n 1)
     BASENAME=$(basename "$SELECTED_IMAGE")
     FILENAME="''${BASENAME%.*}"
     
-    # Check if a matching video file exists in the folder
     if [ -f "$WALLPAPER_DIR/$FILENAME.mp4" ]; then
         VIDEO_FILE="$WALLPAPER_DIR/$FILENAME.mp4"
     elif [ -f "$WALLPAPER_DIR/$FILENAME.webm" ]; then
@@ -137,10 +132,9 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     echo "Generating new color palette for Stylix..."
 
-    # 6. Handle Video vs Static Image logic & enforce current.jpg naming for Stylix
+    # 4. Handle Video vs Static Image logic & enforce current.jpg naming for Stylix
     if [ -n "$VIDEO_FILE" ]; then
         echo "Video detected! Extracting frame as current.jpg for Stylix..."
-        # Extract directly to current.jpg so Stylix reads it immediately
         ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error
         echo -n "$VIDEO_FILE" > "$TEXT_PATH"
         HIDAMARI_ACTION="systemctl --user restart hidamari"
@@ -150,13 +144,14 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         HIDAMARI_ACTION="systemctl --user stop hidamari"
     fi
 
-    # 7. Rebuild and apply the correct background state
-    ${pkgs.ghostty}/bin/ghostty -e bash -c "
-        ${nos-script}/bin/nos
-        $HIDAMARI_ACTION
-        echo 'Theme applied successfully! Press any key to exit.'
-        read -n 1
-    "
+    # 5. Run system rebuild and apply changes directly in this terminal
+    echo "Running system rebuild (nos)..."
+    ${nos-script}/bin/nos
+
+    echo "Applying background update..."
+    $HIDAMARI_ACTION
+
+    echo "Theme applied successfully!"
 '';
 in
 {
