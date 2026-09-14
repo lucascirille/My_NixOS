@@ -109,7 +109,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         # Extract frame at a random position within the video duration
         local random_time=$(awk -v dur="$duration" 'BEGIN {srand(); printf "%.2f", rand() * dur}')
         
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video_file" -ss "$random_time" -frames:v 1 "$output_path" -hide_banner -loglevel error 2>/dev/null
+        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video_file" -ss "$random_time" -frames:v 1 -qscale:v 2 "$output_path" -hide_banner -loglevel error 2>/dev/null
     }
     
     # 1. Generate thumbnails for videos
@@ -124,8 +124,8 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
         echo "Generating thumbnail for $filename..."
         # Try 1 second first, fall back to 0 seconds for very short videos
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
-        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 0 -vframes 1 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
+        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 00:00:01 -vframes 1 -qscale:v 2 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
+        ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$video" -ss 0 -vframes 1 -qscale:v 2 "$thumb_path" -hide_banner -loglevel error 2>/dev/null || \
         echo "Warning: Failed to generate thumbnail for $filename"
     done
 
@@ -166,24 +166,32 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     if [ -n "$VIDEO_FILE" ]; then
         echo "Video detected! Extracting frame and preparing Hidamari..."
         extract_current_frame "$VIDEO_FILE" "$IMAGE_PATH"
-        echo -n "$VIDEO_FILE" > "$TEXT_PATH"
+        # Use printf to guarantee NO trailing newline, which can break media players
+        printf "%s" "$VIDEO_FILE" > "$TEXT_PATH"
         HIDAMARI_ACTION="systemctl --user restart hidamari"
     else
         echo "Static image detected! Preparing standard desktop..."
         cp "$SELECTED_IMAGE" "$IMAGE_PATH"
-        # Clean up the video text file so Stylix doesn't get confused
+        # Clean up the video text file so Stylix/Hidamari doesn't get confused
         rm -f "$TEXT_PATH"
         HIDAMARI_ACTION="systemctl --user stop hidamari"
     fi
 
-    # 8. Rebuild and apply the correct background state
-    echo "Applying theme..."
-    ${pkgs.ghostty}/bin/ghostty -e bash -c "
-        ${nos-script}/bin/nos
-        $HIDAMARI_ACTION
-        echo 'Theme applied successfully! Press any key to exit.'
-        read -n 1 -s -r
-    "
+    # 8. Rebuild and apply the correct background state (NO GUI)
+    echo "Applying theme (running nos)..."
+    
+    # Run your rebuild script
+    ${nos-script}/bin/nos
+    
+    # CRITICAL FIX: Reset systemd failed state before restarting
+    # This prevents the "attempted too often" error if Hidamari crashed previously
+    systemctl --user reset-failed hidamari.service 2>/dev/null
+    
+    # Execute the start/stop/restart action
+    echo "Applying Hidamari state..."
+    eval "$HIDAMARI_ACTION"
+    
+    echo "Theme applied successfully!"
 '';
 in
 {
