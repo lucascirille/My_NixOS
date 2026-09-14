@@ -422,6 +422,8 @@ floating_layout = layout.Floating(
         Match(wm_class="makebranch"),
         Match(wm_class="maketag"),
         Match(wm_class="ssh-askpass"),
+        Match(wm_class="linux-wallpaperengine"),
+        Match(title="linux-wallpaperengine"),
         Match(title="branchdialog"),
         Match(title="pinentry"),
     ],
