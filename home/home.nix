@@ -537,37 +537,36 @@ services.linux-wallpaperengine = {
 
 
 
-  programs.obsidian = {
-    enable = true;
+programs.obsidian = {
+  enable = true;
 
-    vaults.notes = {
-      target = "Documents/second_brain";
-    };
-
-    defaultSettings = {
-      app = {
-        alwaysUpdateLinks = true;
-        spellcheck = true;
-      };
-
-
-
-      corePlugins = [
-        "backlink"
-        "bookmarks"
-        "command-palette"
-        "daily-notes"
-        "file-explorer"
-        "global-search"
-        "outgoing-link"
-        "page-preview"
-        "switcher"
-        "tag-pane"
-        "templates"
-        "word-count"
-      ];
-    };
+  vaults.notes = {
+    target = "Documents/second_brain";
   };
+
+  defaultSettings = {
+    app = {
+      alwaysUpdateLinks = true;
+      spellcheck = true;
+      vimMode = true;
+    };
+
+    corePlugins = [
+      "backlink"
+      "bookmarks"
+      "command-palette"
+      "daily-notes"
+      "file-explorer"
+      "global-search"
+      "outgoing-link"
+      "page-preview"
+      "switcher"
+      "tag-pane"
+      "templates"
+      "word-count"
+    ];
+  };
+};
 
   programs.git = {
     enable = true;
