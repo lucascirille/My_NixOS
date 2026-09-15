@@ -455,7 +455,7 @@ services.linux-wallpaperengine = {
       # Using the native module options you found!
       audio = {
         processing = false; # Disables audio reactive features (--no-audio-processing)
-        automute = false;   # Prevents pipewire sync dropping (--noautomute)
+        # automute = false;   # Prevents pipewire sync dropping (--noautomute)
       };
     }
   ];
