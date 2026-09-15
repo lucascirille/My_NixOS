@@ -86,7 +86,10 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # Prevent globbing error if no images exist
     shopt -s nullglob
 
-    NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher' -h string:x-canonical-private-synchronous:theme-progress"
+    # FIXED: Use a Bash function instead of a variable to handle quoted spaces correctly
+    send_notification() {
+        ${pkgs.libnotify}/bin/notify-send -a "Theme Switcher" -h string:x-canonical-private-synchronous:theme-progress "$@"
+    }
     
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
@@ -112,11 +115,11 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Generating new color palette for Stylix..."
     
     # 🌟 PROGRESS: 20%
-    $NOTIFY -i "$PREVIEW_SELECTED" "Theme Update" "Processing image..." -h int:value:20
+    send_notification -i "$PREVIEW_SELECTED" "Theme Update" "Processing image..." -h int:value:20
 
     # Process image with ffmpeg
     if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
-        $NOTIFY -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process image!"
+        send_notification -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process image!"
         exit 1
     fi
     
@@ -126,19 +129,19 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Running system rebuild (nos)..."
     
     # 🌟 PROGRESS: 50%
-    $NOTIFY -i "$IMAGE_PATH" "Theme Update" "Running system rebuild..." -h int:value:50
+    send_notification -i "$IMAGE_PATH" "Theme Update" "Running system rebuild..." -h int:value:50
     
     # Run the nos script
     if ! ${nos-script}/bin/nos; then
         echo "Rebuild failed, aborting theme application."
-        $NOTIFY -u critical -i "$IMAGE_PATH" "Theme Error" "Rebuild failed. Aborting."
+        send_notification -u critical -i "$IMAGE_PATH" "Theme Error" "Rebuild failed. Aborting."
         exit 1
     fi
 
     echo "Applying background update..."
     
     # 🌟 PROGRESS: 80%
-    $NOTIFY -i "$IMAGE_PATH" "Theme Update" "Restarting wallpaper engine..." -h int:value:80
+    send_notification -i "$IMAGE_PATH" "Theme Update" "Restarting wallpaper engine..." -h int:value:80
     
     # Clear the lockout and restart
     systemctl --user reset-failed linux-wallpaperengine.service
@@ -147,7 +150,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Theme applied successfully!"
     
     # 🌟 PROGRESS: 100%
-    $NOTIFY -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
+    send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
 in
 {
