@@ -86,7 +86,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # Prevent globbing error if no images exist
     shopt -s nullglob
 
-    # FIXED: Use a Bash function instead of a variable to handle quoted spaces correctly
+    # FIXED: Use a Bash function to handle quoted spaces correctly
     send_notification() {
         ${pkgs.libnotify}/bin/notify-send -a "Theme Switcher" -h string:x-canonical-private-synchronous:theme-progress "$@"
     }
@@ -102,7 +102,7 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
         exit 0
     fi
 
-    # 2. Get only the first marked image (in case you pressed 'm' twice)
+    # 2. Get only the first marked image
     PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
 
     # 3. Extract IDs
@@ -143,9 +143,19 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 🌟 PROGRESS: 80%
     send_notification -i "$IMAGE_PATH" "Theme Update" "Restarting wallpaper engine..." -h int:value:80
     
-    # Clear the lockout and restart
+    # ---------------------------------------------------------
+    # NEW AUDIO FIX: Aggressively kill ghost processes
+    # ---------------------------------------------------------
+    systemctl --user stop linux-wallpaperengine.service
+    
+    # Force kill any lingering instances to prevent audio overlap
+    killall -9 linux-wallpaperengine 2>/dev/null || true
+    killall -9 mpv 2>/dev/null || true
+    
+    # Clear the lockout and start fresh
     systemctl --user reset-failed linux-wallpaperengine.service
-    systemctl --user restart linux-wallpaperengine.service
+    systemctl --user start linux-wallpaperengine.service
+    # ---------------------------------------------------------
 
     echo "Theme applied successfully!"
     
