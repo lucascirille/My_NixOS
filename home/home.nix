@@ -83,35 +83,39 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
-    # Prevent globbing error if no images exist
     shopt -s nullglob
-
     NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher' -h string:x-canonical-private-synchronous:theme-progress"
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
-    # Gather files quickly and format them nicely
-    mapfile -t PREVIEWS < <(find "$WORKSHOP_DIR" -maxdepth 2 -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.gif" \) | sort -u)
+    # 1. Create a temporary folder and symlink all images into it
+    # This prevents you from having to click into individual Steam ID folders
+    FLAT_DIR=$(mktemp -d)
+    for img in "$WORKSHOP_DIR"/*/*.{jpg,png,gif}; do
+        # We save the ID in the filename so the script remembers it
+        ID=$(basename "$(dirname "$img")")
+        EXT="''${img##*.}"
+        ln -s "$img" "$FLAT_DIR/''${ID}.''${EXT}"
+    done
 
-    if [ ''${#PREVIEWS[@]} -eq 0 ]; then
+    # 2. Open a fast GUI File Dialog with a preview pane
+    # Arrow keys to navigate up/down, Enter to select and close!
+    SELECTED=$(${pkgs.yad}/bin/yad --file \
+        --title="Select Wallpaper (Arrows to move, Enter to apply)" \
+        --filename="$FLAT_DIR/" \
+        --add-preview \
+        --width=1000 --height=700 \
+        --file-filter="Images | *.jpg *.png *.gif")
+
+    # Clean up the temporary folder
+    rm -rf "$FLAT_DIR"
+
+    # Exit silently if you press Escape or Cancel
+    if [ -z "$SELECTED" ]; then
         exit 0
     fi
 
-    # 1. ULTRA-FAST TERMINAL GUI
-    # We pipe the files into fzf. As you arrow up/down, chafa dynamically renders the image to fit the preview window.
-    # Press Enter to select, or Escape to cancel.
-    PREVIEW_SELECTED=$(printf "%s\n" "''${PREVIEWS[@]}" | ${pkgs.fzf}/bin/fzf \
-        --prompt="Select Wallpaper: " \
-        --preview="${pkgs.chafa}/bin/chafa --size=\$FZF_PREVIEW_COLUMNSx\$FZF_PREVIEW_LINES --align=center {}" \
-        --preview-window="right:60%:border-left" \
-        --layout=reverse \
-        --border="rounded")
-
-    # Exit silently if user presses Escape
-    if [ -z "$PREVIEW_SELECTED" ]; then
-        exit 0
-    fi
-
-    # 3. Extract IDs
+    # 3. Find the real path of the selected symlink to extract the Steam ID
+    PREVIEW_SELECTED=$(readlink -f "$SELECTED")
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
