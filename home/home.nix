@@ -87,20 +87,29 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     shopt -s nullglob
 
     NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher' -h string:x-canonical-private-synchronous:theme-progress"
-    
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
-    # 1. Open GUI (Grid mode). 
-    # REMEMBER: Arrows to navigate -> 'm' to mark -> 'q' to quit and apply
-    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WORKSHOP_DIR"/*/*.{jpg,png,gif})
+    # Gather files quickly and format them nicely
+    mapfile -t PREVIEWS < <(find "$WORKSHOP_DIR" -maxdepth 2 -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.gif" \) | sort -u)
 
-    # Exit silently if nothing was marked or selected
-    if [ -z "$PREVIEWS" ]; then
+    if [ ''${#PREVIEWS[@]} -eq 0 ]; then
         exit 0
     fi
 
-    # 2. Get only the first marked image (in case you pressed 'm' twice)
-    PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
+    # 1. ULTRA-FAST TERMINAL GUI
+    # We pipe the files into fzf. As you arrow up/down, chafa dynamically renders the image to fit the preview window.
+    # Press Enter to select, or Escape to cancel.
+    PREVIEW_SELECTED=$(printf "%s\n" "''${PREVIEWS[@]}" | ${pkgs.fzf}/bin/fzf \
+        --prompt="Select Wallpaper: " \
+        --preview="${pkgs.chafa}/bin/chafa --size=\$FZF_PREVIEW_COLUMNSx\$FZF_PREVIEW_LINES --align=center {}" \
+        --preview-window="right:60%:border-left" \
+        --layout=reverse \
+        --border="rounded")
+
+    # Exit silently if user presses Escape
+    if [ -z "$PREVIEW_SELECTED" ]; then
+        exit 0
+    fi
 
     # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
