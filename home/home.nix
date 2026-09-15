@@ -449,8 +449,14 @@ services.linux-wallpaperengine = {
   enable = true;
   wallpapers = [
     {
-      monitor = "HDMI-1"; # Or whatever your monitor is
+      monitor = "HDMI-1"; 
       wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
+      
+      # Using the native module options you found!
+      audio = {
+        processing = false; # Disables audio reactive features (--no-audio-processing)
+        automute = false;   # Prevents pipewire sync dropping (--noautomute)
+      };
     }
   ];
 };
