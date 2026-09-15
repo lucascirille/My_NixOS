@@ -179,6 +179,9 @@ in
 
 
   home.packages = with pkgs; [
+    
+    gcalcli
+
     changeThemeScript
     
     love
