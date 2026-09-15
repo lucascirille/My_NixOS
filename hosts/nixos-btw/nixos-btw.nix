@@ -85,18 +85,36 @@
 
 
 
-  # Secret manager using ssh host key
-  sops = {
+sops = {
     defaultSopsFile = ../../secrets/hosts/nixos-btw.yaml;
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-    # Define the secret for the neo user password
-    secrets."neo_password" = {
-      neededForUsers = true;
-    };
-    # Define the Hermes Agent secret
-    secrets."hermes-env" = {
-      # This allows your user 'neo' to read the decrypted .env file
-      owner = config.users.users.neo.name; 
+    
+    # Group ALL secrets under a single 'secrets' attribute
+    secrets = {
+      
+      # Define the secret for the neo user password
+      "neo_password" = {
+        neededForUsers = true;
+      };
+      
+      # Define the Hermes Agent secret
+      "hermes-env" = {
+        owner = config.users.users.neo.name; 
+      };
+      
+      "gcalcli_oauth" = {
+        # Check your relative path depth here! It might need to be ../../
+        sopsFile = ../../secrets/hosts/gcalcli_oauth.enc;
+        format = "binary";
+        
+        # Fixed path for NixOS system configuration
+        path = "/home/neo/.local/share/gcalcli/oauth";
+        mode = "0600";
+        
+        # CRITICAL: Allow the Qtile user to actually read the file
+        owner = config.users.users.neo.name;
+      };
+      
     };
   };
 
