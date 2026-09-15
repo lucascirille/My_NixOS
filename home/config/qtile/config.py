@@ -349,11 +349,15 @@ def create_bar(primary=True):
         ),
         # Insert this right ABOVE widget.Clock
         widget.GenPollText(
-            update_interval=300,  # Updates every 5 minutes
+            update_interval=300, 
             func=get_next_event,
             fmt='󰃭  {}',
             foreground=colors["bg"],
-            mouse_callbacks={'Button1': lazy.group["scratchpad"].dropdown_toggle("calendar")},
+            mouse_callbacks={
+                'Button1': lazy.group["scratchpad"].dropdown_toggle("calendar"), # Clic izquierdo: Abre Ghostty con gcalcli
+                'Button2': lazy.spawn("brave https://calendar.google.com"),      # Clic central: Abre Google Calendar en Brave
+                'Button3': lazy.spawn("brave https://calendar.google.com"),      # Clic central: Abre Google Calendar en Brave
+            },
             **get_decoration(colors["orange"])
         ),
         widget.Clock(
