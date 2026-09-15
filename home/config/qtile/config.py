@@ -408,6 +408,8 @@ keys = [
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
 
     Key([mod], "w", lazy.spawn("change-theme"), desc="Change animated wallpaper and Stylix theme"),
+    Key([mod], "p", lazy.spawn("pkill -STOP -f linux-wallpaperengine"), desc="Freeze Wallpaper"),
+    Key([mod, "shift"], "p", lazy.spawn("pkill -CONT -f linux-wallpaperengine"), desc="Resume Wallpaper"),
     
     Key([mod], "b", lazy.spawn("brave")),
     Key([mod], "d", lazy.spawn("rofi -show drun"), desc="Launch application launcher"),
