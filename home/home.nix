@@ -83,39 +83,26 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
   '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
+    # Prevent globbing error if no images exist
     shopt -s nullglob
+
     NOTIFY="${pkgs.libnotify}/bin/notify-send -a 'Theme Switcher' -h string:x-canonical-private-synchronous:theme-progress"
+    
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
-    # 1. Create a temporary folder and symlink all images into it
-    # This prevents you from having to click into individual Steam ID folders
-    FLAT_DIR=$(mktemp -d)
-    for img in "$WORKSHOP_DIR"/*/*.{jpg,png,gif}; do
-        # We save the ID in the filename so the script remembers it
-        ID=$(basename "$(dirname "$img")")
-        EXT="''${img##*.}"
-        ln -s "$img" "$FLAT_DIR/''${ID}.''${EXT}"
-    done
+    # 1. Open GUI (Grid mode). 
+    # REMEMBER: Arrows to navigate -> 'm' to mark -> 'q' to quit and apply
+    PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WORKSHOP_DIR"/*/*.{jpg,png,gif})
 
-    # 2. Open a fast GUI File Dialog with a preview pane
-    # Arrow keys to navigate up/down, Enter to select and close!
-    SELECTED=$(${pkgs.yad}/bin/yad --file \
-        --title="Select Wallpaper (Arrows to move, Enter to apply)" \
-        --filename="$FLAT_DIR/" \
-        --add-preview \
-        --width=1000 --height=700 \
-        --file-filter="Images | *.jpg *.png *.gif")
-
-    # Clean up the temporary folder
-    rm -rf "$FLAT_DIR"
-
-    # Exit silently if you press Escape or Cancel
-    if [ -z "$SELECTED" ]; then
+    # Exit silently if nothing was marked or selected
+    if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 3. Find the real path of the selected symlink to extract the Steam ID
-    PREVIEW_SELECTED=$(readlink -f "$SELECTED")
+    # 2. Get only the first marked image (in case you pressed 'm' twice)
+    PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
+
+    # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
