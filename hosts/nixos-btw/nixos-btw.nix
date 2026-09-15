@@ -241,23 +241,24 @@ services.pipewire = {
     # ---------------------------------------------------------
     # Prevent PipeWire from suspending idle streams
     # This stops the mpv timestamps from breaking during automute
+    # Warning! : This may cause some applications to not suspend when idle, leading to higher CPU usage.
     # ---------------------------------------------------------
-    wireplumber.extraConfig = {
-      "10-disable-suspend" = {
-        "monitor.alsa.rules" = [
-          {
-            matches = [
-              { "node.name" = "~alsa_output.*"; }
-            ];
-            actions = {
-              update-props = {
-                "session.suspend-timeout-seconds" = 0;
-              };
-            };
-          }
-        ];
-      };
-    };
+    # wireplumber.extraConfig = {
+    #   "10-disable-suspend" = {
+    #     "monitor.alsa.rules" = [
+    #       {
+    #         matches = [
+    #           { "node.name" = "~alsa_output.*"; }
+    #         ];
+    #         actions = {
+    #           update-props = {
+    #             "session.suspend-timeout-seconds" = 0;
+    #           };
+    #         };
+    #       }
+    #     ];
+    #   };
+    # };
   };
 
   # Allow ubridge to set network permissions (packet capture / tap devices)
