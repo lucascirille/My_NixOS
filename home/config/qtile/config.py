@@ -72,6 +72,118 @@ extension_defaults = widget_defaults.copy()
 # =========================================================================
 # 2. HARDWARE & UTILITY FUNCTIONS
 # =========================================================================
+def get_next_event():
+    import subprocess
+    from datetime import datetime
+
+    # 1. Define your calendars here. 
+    # Replace the keys with the exact names from `gcalcli list`.
+    my_calendars = {
+        "lucas.cirille@gmail.com": " ",  # Personal icon
+        "Amo las flores": "󰴈",
+        "Tu Amor": "󱝁",
+    }
+
+    try:
+        now = datetime.now()
+        valid_events = []
+
+        # 2. Query each calendar individually to apply the correct icon
+        for cal_name, tag in my_calendars.items():
+            # Try-except block ensures Qtile doesn't crash if one calendar is empty
+            try:
+                cmd = ["gcalcli", "--calendar", cal_name, "agenda", "--tsv"]
+                output = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL)
+            except subprocess.CalledProcessError:
+                continue 
+                
+            lines = [line for line in output.splitlines() if line.strip()]
+
+            for line in lines:
+                parts = line.split('\t')
+                if len(parts) < 2:
+                    continue
+                
+                start_date = parts[0].strip()
+                if start_date == "start_date" or "date" in start_date.lower():
+                    continue
+                
+                start_time = parts[1].strip()
+                end_date = parts[2].strip() if len(parts) > 2 else start_date
+                end_time = parts[3].strip() if len(parts) > 3 else ""
+                title = parts[4].strip() if len(parts) > 4 else "Event"
+                
+                start_dt = None
+                end_dt = None
+                
+                if start_time:
+                    try:
+                        start_dt = datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+                        if end_time:
+                            end_dt = datetime.strptime(f"{end_date} {end_time}", "%Y-%m-%d %H:%M")
+                    except ValueError:
+                        pass
+                else:
+                    # Handle All-Day events safely so they don't break the timeline
+                    try:
+                        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                        end_dt = datetime.strptime(f"{start_date} 23:59", "%Y-%m-%d %H:%M")
+                    except ValueError:
+                        pass
+                
+                if end_dt and end_dt < now:
+                    continue
+                elif not end_dt and start_dt and start_dt < now:
+                    continue
+                    
+                valid_events.append({
+                    "start_str": start_time if start_time else "All Day",
+                    "end_str": end_time,
+                    "title": f"{title} {tag}",  # <--- Attach the Nerd Font icon here!
+                    "start_dt": start_dt,
+                    "end_dt": end_dt
+                })
+                
+        if not valid_events:
+            return "Free schedule"
+
+        # 3. Re-sort all events chronologically (since we fetched them separately)
+        valid_events.sort(key=lambda x: x["start_dt"] if x["start_dt"] else datetime.min)
+
+        # 4. Grab the next event and check for overlaps
+        first_event = valid_events[0]
+        display_items = []
+        
+        def format_event(ev):
+            time_block = f"{ev['start_str']}-{ev['end_str']}" if ev['end_str'] else ev['start_str']
+            return f"{time_block} {ev['title']}"
+            
+        display_items.append(format_event(first_event))
+        
+        # Prevent "All Day" events from swallowing the entire day's schedule
+        if first_event["start_str"] == "All Day":
+            current_max_end = first_event["start_dt"] 
+        else:
+            current_max_end = first_event["end_dt"]
+        
+        if current_max_end:
+            for event in valid_events[1:]:
+                if event["start_dt"] and event["start_dt"] < current_max_end:
+                    display_items.append(format_event(event))
+                    
+                    if event["end_dt"] and event["end_dt"] > current_max_end:
+                        current_max_end = event["end_dt"]
+                else:
+                    break 
+                    
+        display_text = " / ".join(display_items)
+        
+        # Increased limit slightly to 85 characters to make room for the new icons
+        return display_text[:85] + "..." if len(display_text) > 85 else display_text
+
+    except Exception as e:
+        return f"Err: {str(e)[:15]}"
+
 def get_wlan_interface():
     sys_net = "/sys/class/net"
     if os.path.exists(sys_net):
@@ -235,6 +347,15 @@ def create_bar(primary=True):
             foreground=colors["bg"],
             **get_decoration(colors["ok"])
         ),
+        # Insert this right ABOVE widget.Clock
+        widget.GenPollText(
+            update_interval=300,  # Updates every 5 minutes
+            func=get_next_event,
+            fmt='󰃭  {}',
+            foreground=colors["bg"],
+            mouse_callbacks={'Button1': lazy.group["scratchpad"].dropdown_toggle("calendar")},
+            **get_decoration(colors["orange"])
+        ),
         widget.Clock(
             format='󰃭 %d/%m %H:%M',
             foreground=colors["accent"],
@@ -368,6 +489,15 @@ groups.append(
             "ghostty --title=scratchnmtui --gtk-single-instance=false -e nmtui",
             match=Match(title="scratchnmtui"),
             width=0.4, height=0.5, x=0.3, y=0.25, opacity=0.95,
+            on_focus_lost_hide=False
+        ),
+        # 4. Google Calendar (Clicking the bar widget)
+        DropDown(
+            "calendar",
+            # Runs gcalcli weekly view, then drops you into a bash shell so you can add/edit events
+            "ghostty --title=scratchcal --gtk-single-instance=false -e bash -c 'gcalcli calw; exec bash'",
+            match=Match(title="scratchcal"),
+            width=0.6, height=0.6, x=0.2, y=0.2, opacity=0.95,
             on_focus_lost_hide=False
         ),
     ])
