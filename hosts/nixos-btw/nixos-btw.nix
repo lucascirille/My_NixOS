@@ -232,11 +232,32 @@ displayManager.sessionCommands = ''
   # Enable sound with PipeWire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  services.pipewire = {
+services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+
+    # ---------------------------------------------------------
+    # Prevent PipeWire from suspending idle streams
+    # This stops the mpv timestamps from breaking during automute
+    # ---------------------------------------------------------
+    wireplumber.extraConfig = {
+      "10-disable-suspend" = {
+        "monitor.alsa.rules" = [
+          {
+            matches = [
+              { "node.name" = "~alsa_output.*"; }
+            ];
+            actions = {
+              update-props = {
+                "session.suspend-timeout-seconds" = 0;
+              };
+            };
+          }
+        ];
+      };
+    };
   };
 
   # Allow ubridge to set network permissions (packet capture / tap devices)
