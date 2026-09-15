@@ -72,6 +72,27 @@ extension_defaults = widget_defaults.copy()
 # =========================================================================
 # 2. HARDWARE & UTILITY FUNCTIONS
 # =========================================================================
+def update_wallpaper_state():
+    # Check if the current workspace has any windows
+    if len(qtile.current_group.windows) > 0:
+        os.system("pkill -STOP -f linux-wallpaperengine")
+    else:
+        os.system("pkill -CONT -f linux-wallpaperengine")
+
+# Trigger instantly when switching workspaces or opening new windows
+@hook.subscribe.setgroup
+@hook.subscribe.client_managed
+def _(*args, **kwargs):
+    update_wallpaper_state()
+
+# Trigger with a delay when closing a window
+@hook.subscribe.client_killed
+def _(client):
+    # Wait 0.1 seconds so Qtile has time to fully delete the window from memory
+    # before we count how many are left.
+    qtile.call_later(0.1, update_wallpaper_state)
+
+
 def get_next_event():
     import subprocess
     from datetime import datetime
