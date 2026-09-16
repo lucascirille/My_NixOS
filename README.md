@@ -124,6 +124,8 @@ sudo sbctl enroll-keys -m  # para Microsoft
 ```
 
 
+
+
 4. **Gestión de Secretos (`sops`)**:
 Obtené la clave pública (age) de la máquina destino:
 ```bash
@@ -131,9 +133,16 @@ nix-shell -p ssh-to-age --run 'ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub'
 
 ```
 
+5. **(Opcional) Habilitar/Cargar pase de contraseña de LUKS con tpm2**:
+En el caso de tener TPM2 en su placa madre, podran cargarle las credenciales con este comando:
+```bash
+sudo systemd-cryptenroll --tpm2-device=auto /dev/(nombre de la particion cifrada con LUKS)
+```
+
+
 
 *Nota: Deberás agregar esta clave devuelta al archivo `.sops.yaml` y re-encriptar los secretos con `sops updatekeys secrets/hosts/nixos-btw.yaml`.*
-5. **Compilar y activar el sistema**:
+6. **Compilar y activar el sistema**:
 * Usando el comando estándar de NixOS:
 ```bash
 sudo nixos-rebuild switch --flake .#nixos-btw
@@ -150,6 +159,8 @@ nh os switch
 ## 💻 Scripts Personalizados y Alias
 
 El entorno incluye utilidades de línea de comandos y alias empaquetados directamente a través de Nix para agilizar el mantenimiento diario y la gestión de secretos:
+
+> ⚠️ **Aviso:** Es necesario que el hostname sea identico al nombre de la configuracion que se declaró en el flake, ya que se utiliza en los scripts
 
 * **`nos` (NixOS Switch & Sync):** Simplifica el ciclo de vida de la configuración. Reconstruye el sistema, crea una nueva generación y hace un `commit` y `push` automático de los cambios locales al repositorio Git.
 * **`not` (NixOS Test):** Alias para `nh os test`. Permite probar los cambios en la configuración del sistema de forma segura, sin añadirlos permanentemente al gestor de arranque.
