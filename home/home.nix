@@ -20,10 +20,10 @@ let
   nos-script = pkgs.writeShellScriptBin "nos" ''
     export SUDO_ASKPASS="${nixos-askpass}/bin/nixos-askpass"
 
-    # Capture the first argument, default to "nixos-btw" if nothing is passed
+    # Capture the first argument. If empty, auto-detect the current hostname!
     TARGET_CONFIG=$1
     if [ -z "$TARGET_CONFIG" ]; then
-      TARGET_CONFIG="nixos-btw"
+      TARGET_CONFIG=$(hostname)
     fi
 
     cd ~/.dotfiles || exit 1
@@ -78,9 +78,10 @@ let
 
   # Test Configuration (not)
   not-script = pkgs.writeShellScriptBin "not" ''
+    # Capture the first argument. If empty, auto-detect the current hostname!
     TARGET_CONFIG=$1
     if [ -z "$TARGET_CONFIG" ]; then
-      TARGET_CONFIG="nixos-btw"
+      TARGET_CONFIG=$(hostname)
     fi
 
     if [ -z "$NIXOS_SPECIALISATION" ]; then
@@ -92,30 +93,6 @@ let
     fi
   '';
 
-# Rofi GUI Menu (nos-menu)
-  nos-menu-script = pkgs.writeShellScriptBin "nos-menu" ''
-    # Define your available configurations
-    CONFIGS="nixos-btw\nlaptop"
-
-    # 1. Ask what action to perform
-    ACTION=$(echo -e "Switch (nos)\nTest (not)" | ${pkgs.rofi}/bin/rofi -dmenu -i -p "Action:")
-    
-    # Exit if you press Escape
-    [ -z "$ACTION" ] && exit 0
-
-    # 2. Ask which configuration to target
-    TARGET=$(echo -e "$CONFIGS" | ${pkgs.rofi}/bin/rofi -dmenu -i -p "Config:")
-    
-    # Exit if you press Escape
-    [ -z "$TARGET" ] && exit 0
-
-    # 3. Execute the chosen script inside a new Ghostty terminal window
-    if [[ "$ACTION" == *"nos"* ]]; then
-      ghostty -e bash -c "nos $TARGET; echo; read -p 'Press Enter to close...'"
-    else
-      ghostty -e bash -c "not $TARGET; echo; read -p 'Press Enter to close...'"
-    fi
-  '';
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # Prevent globbing error if no images exist
@@ -221,7 +198,6 @@ in
     
     love
 
-    nos-menu-script
     nixos-askpass
     nos-script
     not-script
