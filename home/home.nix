@@ -16,9 +16,15 @@ let
     ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str ' mainbox {children: [inputbar];}'
   '';
 
-  # Build & Commit (nos)
-nos-script = pkgs.writeShellScriptBin "nos" ''
+# Build & Commit (nos)
+  nos-script = pkgs.writeShellScriptBin "nos" ''
     export SUDO_ASKPASS="${nixos-askpass}/bin/nixos-askpass"
+
+    # Capture the first argument, default to "nixos-btw" if nothing is passed
+    TARGET_CONFIG=$1
+    if [ -z "$TARGET_CONFIG" ]; then
+      TARGET_CONFIG="nixos-btw"
+    fi
 
     cd ~/.dotfiles || exit 1
 
@@ -38,17 +44,16 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
       exit 1
     fi
 
-    # 👇 Aquí está la corrección 👇
     build_success=false
     
     if [ -z "$NIXOS_SPECIALISATION" ]; then
-      echo "🔨 Building base NixOS configuration..."
-      if nh os switch /home/neo/.dotfiles#nixos-btw -- --refresh; then
+      echo "🔨 Building NixOS configuration: $TARGET_CONFIG..."
+      if nh os switch /home/neo/.dotfiles#"$TARGET_CONFIG" -- --refresh; then
         build_success=true
       fi
     else
-      echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION..."
-      if nh os switch /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh; then
+      echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION for $TARGET_CONFIG..."
+      if nh os switch /home/neo/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh; then
         build_success=true
       fi
     fi
@@ -73,12 +78,42 @@ nos-script = pkgs.writeShellScriptBin "nos" ''
 
   # Test Configuration (not)
   not-script = pkgs.writeShellScriptBin "not" ''
+    TARGET_CONFIG=$1
+    if [ -z "$TARGET_CONFIG" ]; then
+      TARGET_CONFIG="nixos-btw"
+    fi
+
     if [ -z "$NIXOS_SPECIALISATION" ]; then
-      echo "🧪 Testing base NixOS configuration..."
-      nh os test /home/neo/.dotfiles#nixos-btw -- --refresh
+      echo "🧪 Testing NixOS configuration: $TARGET_CONFIG..."
+      nh os test /home/neo/.dotfiles#"$TARGET_CONFIG" -- --refresh
     else
-      echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION..."
-      nh os test /home/neo/.dotfiles#nixos-btw -s "$NIXOS_SPECIALISATION" -- --refresh
+      echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION for $TARGET_CONFIG..."
+      nh os test /home/neo/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh
+    fi
+  '';
+
+# Rofi GUI Menu (nos-menu)
+  nos-menu-script = pkgs.writeShellScriptBin "nos-menu" ''
+    # Define your available configurations
+    CONFIGS="nixos-btw\nlaptop"
+
+    # 1. Ask what action to perform
+    ACTION=$(echo -e "Switch (nos)\nTest (not)" | ${pkgs.rofi}/bin/rofi -dmenu -i -p "Action:")
+    
+    # Exit if you press Escape
+    [ -z "$ACTION" ] && exit 0
+
+    # 2. Ask which configuration to target
+    TARGET=$(echo -e "$CONFIGS" | ${pkgs.rofi}/bin/rofi -dmenu -i -p "Config:")
+    
+    # Exit if you press Escape
+    [ -z "$TARGET" ] && exit 0
+
+    # 3. Execute the chosen script inside a new Ghostty terminal window
+    if [[ "$ACTION" == *"nos"* ]]; then
+      ghostty -e bash -c "nos $TARGET; echo; read -p 'Press Enter to close...'"
+    else
+      ghostty -e bash -c "not $TARGET; echo; read -p 'Press Enter to close...'"
     fi
   '';
 
@@ -186,6 +221,7 @@ in
     
     love
 
+    nos-menu-script
     nixos-askpass
     nos-script
     not-script
