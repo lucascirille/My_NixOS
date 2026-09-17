@@ -224,6 +224,7 @@ displayManager.sessionCommands = ''
     uninstallUnmanaged = true;
   };
 
+
   xdg.portal = {
     enable = true;
     xdgOpenUsePortal = true; # Directs all xdg-open calls to the portal handler
