@@ -292,7 +292,6 @@ in
     mangojuice
   ];
 
-  programs.keepassxc.enable = true;
   
   programs.ttyper.enable = true;
 
