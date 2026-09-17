@@ -975,7 +975,7 @@ systemd.user.services.keepassxc = {
   Service = {
     # Keep the sleep just in case your compositor takes a moment to settle
     ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-    ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized";
+    ExecStart = "${pkgs.keepassxc}/bin/keepassxc --minimized /home/${username}/Passwords.kdbx";
     Restart = "on-failure";
   };
   Install = {
