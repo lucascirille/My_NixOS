@@ -191,6 +191,10 @@ in
 
 
   home.packages = with pkgs; [
+    # wineWowPackages.stable
+    # winetricks
+
+    cabextract
     
     gcalcli
 
@@ -288,7 +292,7 @@ in
     mangojuice
   ];
 
-  programs.keepassxc.enable = true;
+  # programs.keepassxc.enable = true;
   
   programs.ttyper.enable = true;
 
