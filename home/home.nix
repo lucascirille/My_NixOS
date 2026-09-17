@@ -236,7 +236,6 @@ in
 
     mat2 # CLI tool to strip metadata (GPS, EXIF) from files/images before sharing
 
-    keepassxc
 
 
     # --- Ciberseguridad (Host Seguro) ---
@@ -315,6 +314,8 @@ in
 
   stylix.targets.rofi.enable = false;
   stylix.targets.feh.enable = false;
+
+  programs.keepassxc.enable = true;
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
   base00 = config.lib.stylix.colors.withHashtag.base00; # Default Background
