@@ -191,7 +191,6 @@ in
 
 
   home.packages = with pkgs; [
-    bottles
 
     cabextract
     

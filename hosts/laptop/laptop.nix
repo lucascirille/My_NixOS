@@ -217,6 +217,7 @@ displayManager.sessionCommands = ''
     packages = [
       "com.github.tchx84.Flatseal"
       "net.davidotek.pupgui2"
+      "com.usebottles.bottles"
     ];
 
     # Limpieza automática de apps que quites de la lista
