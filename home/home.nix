@@ -425,11 +425,11 @@ services.hermes-agent = {
           reasoning = { effort = "none"; };
         };
       };
-      fallback_model = {
-        model = "gemini-2.5-flash";
-        provider = "gemini";
-        base_url = "https://generativelanguage.googleapis.com/v1beta";
-      };
+      # fallback_model = {
+      #   model = "gemini-2.5-flash";
+      #   provider = "gemini";
+      #   base_url = "https://generativelanguage.googleapis.com/v1beta";
+      # };
       kanban = {
         dispatch_in_gateway = true;
         dispatch_interval_seconds = 10;
