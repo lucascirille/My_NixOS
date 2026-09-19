@@ -174,6 +174,21 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 🌟 PROGRESS: 100%
     send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
+omnirouteConfig = pkgs.writeText "omniroute-config.json" ''
+    {
+      "combos": {
+        "gemini-2.5-flash": {
+          "strategy": "fallback",
+          "models": [
+            "in-ai/gemini-2.5-flash",
+            "t3chat/gemini-2.5-flash",
+            "cinf/gemini-2.5-flash",
+            "gemini/gemini-2.5-flash"
+          ]
+        }
+      }
+    }
+  '';
 in
 {
   imports = [
@@ -468,12 +483,11 @@ systemd.user.services.omniroute = {
     };
 
     Service = {
-      ExecStartPre = [
-        "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
-        # Optional: Write a declarative config file directly into the data volume on startup if needed
-        # "${pkgs.coreutils}/bin/cat << 'EOF' > %h/.local/share/omniroute/data/config.json\n...\nEOF"
-        "-${pkgs.podman}/bin/podman rm -f omniroute"
-      ];
+ExecStartPre = [
+  "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
+  "${pkgs.coreutils}/bin/cp -f ${omnirouteConfig} %h/.local/share/omniroute/data/config.json"
+  "-${pkgs.podman}/bin/podman rm -f omniroute"
+];
       
       ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U --env-file ${osConfig.sops.secrets."hermes-env".path} ghcr.io/diegosouzapw/omniroute:latest";
       
