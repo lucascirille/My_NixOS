@@ -406,6 +406,8 @@ programs.ssh = {
         default = "auto";
         provider = "openai"; 
         base_url = "http://localhost:20128/v1";
+        # ── Add a dummy key to bypass the setup wizard ──
+        api_key = "sk-dummy-key-for-omniroute";
         extra_body = {
           reasoning = { effort = "none"; };
         };
