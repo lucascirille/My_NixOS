@@ -482,7 +482,7 @@ programs.ssh = {
       ];
       
       # Run the container (using --rm to auto-delete the container when stopped)
-      ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data ghcr.io/diegosouzapw/omniroute:latest";
+      ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U ghcr.io/diegosouzapw/omniroute:latest";
       
       # Ensure clean shutdown
       ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
