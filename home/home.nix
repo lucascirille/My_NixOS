@@ -174,21 +174,6 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 🌟 PROGRESS: 100%
     send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
-omnirouteConfig = pkgs.writeText "omniroute-config.json" ''
-    {
-      "combos": {
-        "gemini-2.5-flash": {
-          "strategy": "fallback",
-          "models": [
-            "in-ai/gemini-2.5-flash",
-            "t3chat/gemini-2.5-flash",
-            "cinf/gemini-2.5-flash",
-            "gemini/gemini-2.5-flash"
-          ]
-        }
-      }
-    }
-  '';
 in
 {
   imports = [
@@ -449,7 +434,6 @@ services.hermes-agent = {
         bundled.enable = true;
         optional = [ "creative/archify" ];
         external_dirs = [
-          "${inputs.omniroute-skill}"
           "${inputs.mattpocock-skills}"
           "${inputs.openmontage-skill}"
         ];
@@ -474,33 +458,6 @@ services.hermes-agent = {
     ];
   };
 
-systemd.user.services.omniroute = {
-    Unit = {
-      Description = "OmniRoute Rootless Podman Container";
-      BindsTo = [ "hermes-agent.service" ];
-      PartOf = [ "hermes-agent.service" ];
-      Before = [ "hermes-agent.service" ];
-    };
-
-Service = {
-  ExecStartPre = [
-    "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
-    "-${pkgs.podman}/bin/podman rm -f omniroute"
-  ];
-  
-  # Note the new -v ${omnirouteConfig}:/app/data/config.json:ro passed here
-ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U -v ${omnirouteConfig}:/app/data/config.json:ro --env-file ${osConfig.sops.secrets."hermes-env".path} ghcr.io/diegosouzapw/omniroute:latest";
-  
-  ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
-  
-  Restart = "on-failure";
-  RestartSec = "5s";
-};
-
-    Install = {
-      WantedBy = [ "hermes-agent.service" ];
-    };
-  };
 
 
     # Configure the Ollama service

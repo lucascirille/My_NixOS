@@ -37,10 +37,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    omniroute-skill = {
-      url = "github:diegosouzapw/OmniRoute";
-      flake = false;
-    };
     mattpocock-skills = {
       url = "github:mattpocock/skills";
       flake = false;
