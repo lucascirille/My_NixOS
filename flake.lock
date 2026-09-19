@@ -483,6 +483,22 @@
         "type": "github"
       }
     },
+    "openmontage-skill": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788670932,
+        "narHash": "sha256-iMTrtzxb57vLAsz2MJhTeb8YKtXa0HSaj5IeC1HiyiA=",
+        "owner": "calesthio",
+        "repo": "OpenMontage",
+        "rev": "08e2151fa02de28a5d6a312b3d575692bf147ad7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "calesthio",
+        "repo": "OpenMontage",
+        "type": "github"
+      }
+    },
     "pre-commit": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -566,6 +582,7 @@
         "mattpocock-skills": "mattpocock-skills",
         "nix-flatpak": "nix-flatpak",
         "nixpkgs": "nixpkgs_2",
+        "openmontage-skill": "openmontage-skill",
         "sops-nix": "sops-nix",
         "stylix": "stylix"
       }

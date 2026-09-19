@@ -446,9 +446,7 @@ programs.ssh = {
     };
 
       extraPackages = with pkgs; [
-        # The Nix-packaged cua-driver binary
         inputs.cua.packages.${pkgs.stdenv.hostPlatform.system}.cua-driver
-
         uv        
         chromium  
         xdg-utils
@@ -456,8 +454,8 @@ programs.ssh = {
         xdotool
         xclip
         maim
-        
-
+        ffmpeg
+        gnumake
       ];
 
 
