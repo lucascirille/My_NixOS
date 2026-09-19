@@ -473,14 +473,17 @@ systemd.user.services.omniroute = {
     };
 
     Service = {
-      ExecStart = "${pkgs.nodejs_22}/bin/npx -y @diegosouzapw/omniroute start";
+      # ── NEW: Point directly to the downloaded flake input ──
+      WorkingDirectory = "${inputs.omniroute-skill}";
+      
+      # ── NEW: Use npm to start the local repository instead of npx ──
+      ExecStart = "${pkgs.nodejs_22}/bin/npm run start";
+      
       Restart = "on-failure";
-      RestartSec = "5s"; # Prevents the rapid crash-loop lockout
+      RestartSec = "5s";
       Environment = [
         "HOME=%h"
-        # Give npx access to standard NixOS utilities and Node
         "PATH=/run/current-system/sw/bin:${pkgs.nodejs_22}/bin"
-        # Force the cache into the user's home directory
         "npm_config_cache=%h/.npm"
       ];
     };
