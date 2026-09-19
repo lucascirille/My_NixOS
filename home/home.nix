@@ -459,7 +459,7 @@ services.hermes-agent = {
     ];
   };
 
-  systemd.user.services.omniroute = {
+systemd.user.services.omniroute = {
     Unit = {
       Description = "OmniRoute Rootless Podman Container";
       BindsTo = [ "hermes-agent.service" ];
@@ -467,13 +467,14 @@ services.hermes-agent = {
       Before = [ "hermes-agent.service" ];
     };
 
-Service = {
+    Service = {
       ExecStartPre = [
         "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
+        # Optional: Write a declarative config file directly into the data volume on startup if needed
+        # "${pkgs.coreutils}/bin/cat << 'EOF' > %h/.local/share/omniroute/data/config.json\n...\nEOF"
         "-${pkgs.podman}/bin/podman rm -f omniroute"
       ];
       
-      # Added --env-file to pass secrets into the container
       ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U --env-file ${osConfig.sops.secrets."hermes-env".path} ghcr.io/diegosouzapw/omniroute:latest";
       
       ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
