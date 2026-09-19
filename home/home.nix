@@ -403,8 +403,8 @@ services.hermes-agent = {
     
     settings = {
       model = {
-        default = "auto";
-        # provider = "omniroute"; 
+        default = "gemini-2.5-flash";
+        provider = "gemini";
         base_url = "http://localhost:20128/v1";
         extra_body = {
           reasoning = { effort = "none"; };
