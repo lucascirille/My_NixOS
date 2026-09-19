@@ -379,7 +379,7 @@ programs.ssh = {
   };
 
 
-  services.hermes-agent = {
+services.hermes-agent = {
     enable = true;
     gateway.enable = true;
     backend.mode = "serve"; 
@@ -392,7 +392,6 @@ programs.ssh = {
       2. No filler words. Use the absolute minimum number of tokens required.
       3. If asked for code or a command, output ONLY the code/command.
     '';
-
 
     mcpServers = {
       "filesystem" = {
@@ -423,42 +422,36 @@ programs.ssh = {
         backend = "local";
         headless = false;
       };
-
       toolsets = [ "all" ];
-
       computer_use = {
         native_wayland = false;
         permission_mode = "standard";
       };
       
-    skills = {
-      bundled.enable = true;
-      optional = [ "creative/archify" ];
-
-      external_dirs = [
+      # Moved inside `settings`
+      skills = {
+        bundled.enable = true;
+        optional = [ "creative/archify" ];
+        external_dirs = [
           "${inputs.omniroute-skill}"
           "${inputs.mattpocock-skills}"
           "${inputs.openmontage-skill}"
         ];
+      };
     };
 
-
-    };
-
-      extraPackages = with pkgs; [
-        inputs.cua.packages.${pkgs.stdenv.hostPlatform.system}.cua-driver
-        uv        
-        chromium  
-        xdg-utils
-        nodejs_22
-        xdotool
-        xclip
-        maim
-        ffmpeg
-        gnumake
-      ];
-
-
+    extraPackages = with pkgs; [
+      inputs.cua.packages.${pkgs.stdenv.hostPlatform.system}.cua-driver
+      uv        
+      chromium  
+      xdg-utils
+      nodejs_22
+      xdotool
+      xclip
+      maim
+      ffmpeg
+      gnumake
+    ];
 
     environmentFiles = [
       osConfig.sops.secrets."hermes-env".path
@@ -468,23 +461,18 @@ programs.ssh = {
   systemd.user.services.omniroute = {
     Unit = {
       Description = "OmniRoute Rootless Podman Container";
-      # Tie it back to the Hermes agent lifecycle
       BindsTo = [ "hermes-agent.service" ];
-      After = [ "hermes-agent.service" ];
+      PartOf = [ "hermes-agent.service" ];
+      Before = [ "hermes-agent.service" ];
     };
 
     Service = {
-      # 1. Create the data directory safely
-      # 2. Force remove any zombie container with the same name before starting
       ExecStartPre = [
         "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
         "-${pkgs.podman}/bin/podman rm -f omniroute"
       ];
       
-      # Run the container (using --rm to auto-delete the container when stopped)
       ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U ghcr.io/diegosouzapw/omniroute:latest";
-      
-      # Ensure clean shutdown
       ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
       
       Restart = "on-failure";
