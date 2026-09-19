@@ -473,10 +473,21 @@ systemd.user.services.omniroute = {
     };
 
     Service = {
-      # ── NEW: Point directly to the downloaded flake input ──
-      WorkingDirectory = "${inputs.omniroute-skill}";
+      # Use a writable directory in your home folder
+      WorkingDirectory = "%h/.local/share/omniroute";
       
-      # ── NEW: Use npm to start the local repository instead of npx ──
+      ExecStartPre = [
+        # 1. Ensure the directory exists
+        "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute"
+        # 2. Ensure we can overwrite files from previous runs
+        "${pkgs.coreutils}/bin/chmod -R u+w %h/.local/share/omniroute"
+        # 3. Copy source code, stripping Nix's read-only permissions
+        "${pkgs.coreutils}/bin/cp -rT --no-preserve=mode,ownership ${inputs.omniroute-skill} %h/.local/share/omniroute"
+        # 4. Install Node dependencies
+        "${pkgs.nodejs_22}/bin/npm install"
+      ];
+      
+      # Start the local gateway
       ExecStart = "${pkgs.nodejs_22}/bin/npm run start";
       
       Restart = "on-failure";
