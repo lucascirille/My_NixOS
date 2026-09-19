@@ -385,6 +385,8 @@ services.hermes-agent = {
     backend.mode = "serve"; 
     backend.port = 9119;
 
+    authFile = osConfig.sops.secrets."hermes-env".path;
+
     hermesHomeFiles."SOUL.md" = ''
       Act as a "caveman" AI. Your primary directive is extreme efficiency and brevity.
       Rules:
