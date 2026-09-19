@@ -393,6 +393,7 @@ programs.ssh = {
       3. If asked for code or a command, output ONLY the code/command.
     '';
 
+
     mcpServers = {
       "filesystem" = {
         command = "${pkgs.nodejs}/bin/npx";
@@ -430,6 +431,12 @@ programs.ssh = {
         native_wayland = false;
         permission_mode = "standard";
       };
+      
+    skills = {
+      bundled.enable = true;
+      optional = [ "creative/archify" ];
+    };
+
 
     };
 
