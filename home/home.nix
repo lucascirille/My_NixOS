@@ -435,6 +435,10 @@ programs.ssh = {
     skills = {
       bundled.enable = true;
       optional = [ "creative/archify" ];
+
+      external_dirs = [
+          "${inputs.mattpocock-skills}"
+        ];
     };
 
 
