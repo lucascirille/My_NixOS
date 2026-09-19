@@ -404,18 +404,16 @@ programs.ssh = {
     settings = {
       model = {
         default = "auto";
-        provider = "openai"; 
+        provider = "omniroute"; 
         base_url = "http://localhost:20128/v1";
         extra_body = {
           reasoning = { effort = "none"; };
         };
-        api_key = "sk-dummy-frontend-bypass";
       };
       fallback_model = {
         model = "gemini-2.5-flash";
         provider = "gemini";
         base_url = "https://generativelanguage.googleapis.com/v1beta";
-        api_key = "dummy-frontend-bypass";
       };
       kanban = {
         dispatch_in_gateway = true;
