@@ -465,47 +465,6 @@ programs.ssh = {
     ];
   };
 
-systemd.user.services.omniroute = {
-    Unit = {
-      Description = "OmniRoute Local Proxy Gateway";
-      BindsTo = [ "hermes-agent.service" ];
-      After = [ "hermes-agent.service" ];
-    };
-
-    Service = {
-
-ExecStart = "${pkgs.writeShellScript "start-omniroute" ''
-        mkdir -p $HOME/.local/share/omniroute
-        chmod -R u+w $HOME/.local/share/omniroute || true
-        cp -rT --no-preserve=mode,ownership ${inputs.omniroute-skill} $HOME/.local/share/omniroute
-        cd $HOME/.local/share/omniroute
-        
-        export npm_config_cache=$HOME/.npm
-        
-        # ── NEW: Inject Python, GCC, and Make so node-gyp can compile SQLite ──
-        export PATH=/run/current-system/sw/bin:${pkgs.nodejs_22}/bin:${pkgs.python3}/bin:${pkgs.gcc}/bin:${pkgs.gnumake}/bin:$PATH
-        
-        npm install
-        
-        # ── NEW: Force the compilation of the missing native dependency ──
-        npm install better-sqlite3 --no-save --foreground-scripts
-        
-        if [ ! -d ".build/next" ]; then
-          echo "Building OmniRoute for the first time..."
-          npm run build
-        fi
-        
-        exec npm run start
-      ''}";
-      
-      Restart = "on-failure";
-      RestartSec = "5s";
-    };
-
-    Install = {
-      WantedBy = [ "hermes-agent.service" ];
-    };
-  };
 
     # Configure the Ollama service
   services.ollama = {

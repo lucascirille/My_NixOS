@@ -381,8 +381,42 @@ services.pipewire = {
     };
   };
 
-  virtualisation.docker = {
-    enable = true;
+  virtualisation  = {
+
+    podman = {
+      enable = true;
+# Prune unused images and containers periodically (Identical syntax to Docker)
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+    };
+
+    # Emulates Docker's rootless socket and sets the necessary aliases/variables
+    dockerCompat = true;
+    dockerSocket.enable = true;
+
+    # Highly recommended for Podman: allows rootless containers to resolve 
+    # each other's names via DNS (something Docker does by default)
+    defaultNetwork.settings.dns_enabled = true;
+      };
+
+      oci-containers.containers.omniroute = {
+      image = "ghcr.io/diegosouzapw/omniroute:latest"; # O la versión específica
+      ports = [ "20128:20128" ];
+      
+      # Persistencia de la base de datos y configuraciones
+      volumes = [
+        "/home/neo/.local/share/omniroute/data:/app/data"
+      ];
+
+      # (Opcional) Si querés definir contraseñas iniciales por entorno:
+      environment = {
+        # INITIAL_PASSWORD = "CHANGEME"; 
+      };
+    };
+
+    docker = {
+    enable = false;
     # Prune unused images and containers periodically
     autoPrune = {
       enable = true;
@@ -393,6 +427,8 @@ services.pipewire = {
       enable = true;
       setSocketVariable = true;
     };
+  };
+
   };
 
   services.dbus.enable = true;
