@@ -466,13 +466,15 @@ services.hermes-agent = {
       Before = [ "hermes-agent.service" ];
     };
 
-    Service = {
+Service = {
       ExecStartPre = [
         "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
         "-${pkgs.podman}/bin/podman rm -f omniroute"
       ];
       
-      ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U ghcr.io/diegosouzapw/omniroute:latest";
+      # Added --env-file to pass secrets into the container
+      ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U --env-file ${osConfig.sops.secrets."hermes-env".path} ghcr.io/diegosouzapw/omniroute:latest";
+      
       ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
       
       Restart = "on-failure";
