@@ -403,12 +403,11 @@ programs.ssh = {
     
     settings = {
       model = {
-        default = "openrouter/free";
-        provider = "openrouter"; 
+        default = "auto";
+        provider = "openai"; 
+        base_url = "http://localhost:20128/v1";
         extra_body = {
-          reasoning = {
-            effort = "none";
-          };
+          reasoning = { effort = "none"; };
         };
       };
       fallback_model = {
@@ -437,6 +436,7 @@ programs.ssh = {
       optional = [ "creative/archify" ];
 
       external_dirs = [
+          "${inputs.omniroute-skill}"
           "${inputs.mattpocock-skills}"
           "${inputs.openmontage-skill}"
         ];
@@ -463,6 +463,31 @@ programs.ssh = {
     environmentFiles = [
       osConfig.sops.secrets."hermes-env".path
     ];
+  };
+
+  systemd.user.services.omniroute = {
+    Unit = {
+      Description = "OmniRoute Local Proxy Gateway";
+      # If hermes-agent stops or crashes, stop OmniRoute too
+      BindsTo = [ "hermes-agent.service" ];
+      After = [ "hermes-agent.service" ];
+    };
+
+    Service = {
+      # Execute the proxy using your configured nodejs
+      ExecStart = "${pkgs.nodejs_22}/bin/npx -y @diegosouzapw/omniroute start";
+      Restart = "on-failure";
+      # Ensure npx knows where your home directory is to store its cache
+      Environment = [
+        "HOME=%h"
+        "PATH=${pkgs.nodejs_22}/bin"
+      ];
+    };
+
+    Install = {
+      # Automatically start this when hermes-agent starts
+      WantedBy = [ "hermes-agent.service" ];
+    };
   };
 
     # Configure the Ollama service
