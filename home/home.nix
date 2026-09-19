@@ -385,7 +385,10 @@ services.hermes-agent = {
     backend.mode = "serve"; 
     backend.port = 9119;
 
-    authFile = osConfig.sops.secrets."hermes-env".path;
+environment = {
+      OMNIROUTE_API_KEY = "local-bypass";
+      OPENAI_API_KEY = "local-bypass";
+    };
 
     hermesHomeFiles."SOUL.md" = ''
       Act as a "caveman" AI. Your primary directive is extreme efficiency and brevity.
