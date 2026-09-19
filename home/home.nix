@@ -467,27 +467,27 @@ programs.ssh = {
     ];
   };
 
-  systemd.user.services.omniroute = {
+systemd.user.services.omniroute = {
     Unit = {
       Description = "OmniRoute Local Proxy Gateway";
-      # If hermes-agent stops or crashes, stop OmniRoute too
       BindsTo = [ "hermes-agent.service" ];
       After = [ "hermes-agent.service" ];
     };
 
     Service = {
-      # Execute the proxy using your configured nodejs
       ExecStart = "${pkgs.nodejs_22}/bin/npx -y @diegosouzapw/omniroute start";
       Restart = "on-failure";
-      # Ensure npx knows where your home directory is to store its cache
+      RestartSec = "5s"; # Prevents the rapid crash-loop lockout
       Environment = [
         "HOME=%h"
-        "PATH=${pkgs.nodejs_22}/bin"
+        # Give npx access to standard NixOS utilities and Node
+        "PATH=/run/current-system/sw/bin:${pkgs.nodejs_22}/bin"
+        # Force the cache into the user's home directory
+        "npm_config_cache=%h/.npm"
       ];
     };
 
     Install = {
-      # Automatically start this when hermes-agent starts
       WantedBy = [ "hermes-agent.service" ];
     };
   };
