@@ -465,6 +465,37 @@ programs.ssh = {
     ];
   };
 
+  systemd.user.services.omniroute = {
+    Unit = {
+      Description = "OmniRoute Rootless Podman Container";
+      # Tie it back to the Hermes agent lifecycle
+      BindsTo = [ "hermes-agent.service" ];
+      After = [ "hermes-agent.service" ];
+    };
+
+    Service = {
+      # 1. Create the data directory safely
+      # 2. Force remove any zombie container with the same name before starting
+      ExecStartPre = [
+        "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
+        "-${pkgs.podman}/bin/podman rm -f omniroute"
+      ];
+      
+      # Run the container (using --rm to auto-delete the container when stopped)
+      ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data ghcr.io/diegosouzapw/omniroute:latest";
+      
+      # Ensure clean shutdown
+      ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
+      
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+
+    Install = {
+      WantedBy = [ "hermes-agent.service" ];
+    };
+  };
+
 
     # Configure the Ollama service
   services.ollama = {

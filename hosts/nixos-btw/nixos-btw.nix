@@ -400,20 +400,6 @@ services.pipewire = {
     defaultNetwork.settings.dns_enabled = true;
       };
 
-      oci-containers.containers.omniroute = {
-      image = "ghcr.io/diegosouzapw/omniroute:latest"; # O la versión específica
-      ports = [ "20128:20128" ];
-      
-      # Persistencia de la base de datos y configuraciones
-      volumes = [
-        "/home/neo/.local/share/omniroute/data:/app/data"
-      ];
-
-      # (Opcional) Si querés definir contraseñas iniciales por entorno:
-      environment = {
-        # INITIAL_PASSWORD = "CHANGEME"; 
-      };
-    };
 
     docker = {
     enable = false;
