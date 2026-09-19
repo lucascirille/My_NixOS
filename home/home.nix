@@ -187,6 +187,8 @@ in
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
+    OMNIROUTE_API_KEY = "dummy"; 
+    OPENAI_API_KEY = "dummy";
   };
 
 
