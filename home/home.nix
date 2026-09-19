@@ -473,20 +473,26 @@ systemd.user.services.omniroute = {
     };
 
     Service = {
-      # DELETE WorkingDirectory, ExecStartPre, and Environment completely.
-      # ONLY use this ExecStart block:
-      ExecStart = "${pkgs.writeShellScript "start-omniroute" ''
-        mkdir -p $HOME/.local/share/omniroute
-        chmod -R u+w $HOME/.local/share/omniroute || true
-        cp -rT --no-preserve=mode,ownership ${inputs.omniroute-skill} $HOME/.local/share/omniroute
-        cd $HOME/.local/share/omniroute
-        
-        export npm_config_cache=$HOME/.npm
-        export PATH=/run/current-system/sw/bin:${pkgs.nodejs_22}/bin:$PATH
-        
-        npm install
-        exec npm run start
-      ''}";
+
+    ExecStart = "${pkgs.writeShellScript "start-omniroute" ''
+    mkdir -p $HOME/.local/share/omniroute
+    chmod -R u+w $HOME/.local/share/omniroute || true
+    cp -rT --no-preserve=mode,ownership ${inputs.omniroute-skill} $HOME/.local/share/omniroute
+    cd $HOME/.local/share/omniroute
+    
+    export npm_config_cache=$HOME/.npm
+    export PATH=/run/current-system/sw/bin:${pkgs.nodejs_22}/bin:$PATH
+    
+    npm install
+    
+    # ── NEW: Compile the Next.js app if it hasn't been built yet ──
+    if [ ! -d ".build/next" ]; then
+      echo "Building OmniRoute for the first time..."
+      npm run build
+    fi
+    
+    exec npm run start
+  ''}";
       
       Restart = "on-failure";
       RestartSec = "5s";
