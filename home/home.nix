@@ -404,7 +404,7 @@ services.hermes-agent = {
     settings = {
       model = {
         default = "auto";
-        provider = "omniroute"; 
+        # provider = "omniroute"; 
         base_url = "http://localhost:20128/v1";
         extra_body = {
           reasoning = { effort = "none"; };
