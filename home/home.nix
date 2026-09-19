@@ -482,20 +482,20 @@ systemd.user.services.omniroute = {
       Before = [ "hermes-agent.service" ];
     };
 
-    Service = {
-ExecStartPre = [
-  "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
-  "${pkgs.coreutils}/bin/cp -f ${omnirouteConfig} %h/.local/share/omniroute/data/config.json"
-  "-${pkgs.podman}/bin/podman rm -f omniroute"
-];
-      
-      ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U --env-file ${osConfig.sops.secrets."hermes-env".path} ghcr.io/diegosouzapw/omniroute:latest";
-      
-      ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
-      
-      Restart = "on-failure";
-      RestartSec = "5s";
-    };
+Service = {
+  ExecStartPre = [
+    "${pkgs.coreutils}/bin/mkdir -p %h/.local/share/omniroute/data"
+    "-${pkgs.podman}/bin/podman rm -f omniroute"
+  ];
+  
+  # Note the new -v ${omnirouteConfig}:/app/data/config.json:ro passed here
+ExecStart = "${pkgs.podman}/bin/podman run --name omniroute --rm -p 20128:20128 -v %h/.local/share/omniroute/data:/app/data:U -v ${omnirouteConfig}:/app/data/config.json:ro --env-file ${osConfig.sops.secrets."hermes-env".path} ghcr.io/diegosouzapw/omniroute:latest";
+  
+  ExecStop = "${pkgs.podman}/bin/podman stop omniroute";
+  
+  Restart = "on-failure";
+  RestartSec = "5s";
+};
 
     Install = {
       WantedBy = [ "hermes-agent.service" ];
