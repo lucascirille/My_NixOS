@@ -403,18 +403,18 @@ services.hermes-agent = {
     
     settings = {
       model = {
-        default = "gemini-2.5-flash";
-        provider = "gemini";
-        base_url = "http://localhost:20128/v1";
+        default = "openrouter/free";
+        provider = "openrouter";
+        base_url = "https://openrouter.ai/api/v1";
         extra_body = {
           reasoning = { effort = "none"; };
         };
       };
-      # fallback_model = {
-      #   model = "gemini-2.5-flash";
-      #   provider = "gemini";
-      #   base_url = "https://generativelanguage.googleapis.com/v1beta";
-      # };
+      fallback_model = {
+        model = "gemini-2.5-flash";
+        provider = "gemini";
+        base_url = "https://generativelanguage.googleapis.com/v1beta";
+      };
       kanban = {
         dispatch_in_gateway = true;
         dispatch_interval_seconds = 10;
