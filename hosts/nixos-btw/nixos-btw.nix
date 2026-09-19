@@ -228,6 +228,7 @@ displayManager.sessionCommands = ''
       "com.github.tchx84.Flatseal"
       "net.davidotek.pupgui2"
       "com.usebottles.bottles"
+      "org.vinegarhq.Sober"
     ];
 
     # Limpieza automática de apps que quites de la lista
