@@ -41,6 +41,10 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    openmontage-skill = {
+      url = "github:calesthio/OpenMontage";
+      flake = false;
+    };
   };
 
   outputs =

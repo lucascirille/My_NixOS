@@ -438,6 +438,7 @@ programs.ssh = {
 
       external_dirs = [
           "${inputs.mattpocock-skills}"
+          "${inputs.openmontage-skill}"
         ];
     };
 
