@@ -330,7 +330,7 @@ def create_bar(primary=True):
             )
         )
 
-    wlan_dev = get_wlan_interface()
+wlan_dev = get_wlan_interface()
     if wlan_dev:
         bar_widgets.append(
             widget.Wlan(
@@ -338,7 +338,7 @@ def create_bar(primary=True):
                 format='󰤨  {essid} {percent:2.0%}',
                 disconnected_message='󰤭  Offline',
                 update_interval=5.0,
-                mouse_callbacks={'Button1': lazy.group["scratchpad"].dropdown_toggle("nmtui")},
+                mouse_callbacks={'Button1': lazy.spawn("nm-connection-editor")},
                 foreground=colors["bg"],
                 **get_decoration(colors["accent"])
             )
@@ -510,15 +510,7 @@ groups.append(
             width=0.7, height=0.7, x=0.15, y=0.15, opacity=0.95,
             on_focus_lost_hide=False
         ),
-        # 3. Network Manager (For Wlan Widget)
-        DropDown(
-            "nmtui",
-            "ghostty --title=scratchnmtui --gtk-single-instance=false -e nmtui",
-            match=Match(title="scratchnmtui"),
-            width=0.4, height=0.5, x=0.3, y=0.25, opacity=0.95,
-            on_focus_lost_hide=False
-        ),
-        # 4. Google Calendar (Clicking the bar widget)
+        # 3. Google Calendar (Clicking the bar widget)
         DropDown(
             "calendar",
             # Runs gcalcli weekly view, then drops you into a bash shell so you can add/edit events
