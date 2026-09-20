@@ -5,28 +5,30 @@ keys:
   # --- Machine Host Keys ---
   # Live USB
   - &nixos_btw    "age1xpzytgl37lrwtn4a67cja7jccjtwtu3gfzusdtp23hu54hdlrqaqlexk88"
-
-  # - &desktop    "age1..." # Uncomment when added
+  
+  - &laptop       "age1n4ufupjsxq2tw22nlknl4xyynlfey76nqqs8vuukxe7ygj49sshqzkc9yz"
 
 creation_rules:
-  # 1. Common secrets (Readable by all your machines + master)
+  # 1. Common secrets
   - path_regex: secrets/common\.yaml$
     key_groups:
       - age:
           - *master
           - *nixos_btw
-          # - *desktop # Uncomment when added
+          - *laptop
 
-  # 2. Host-specific secrets for 'nixos-btw'
+  # 2. Host secrets (Shared by both hosts until you split them)
   - path_regex: secrets/hosts/nixos-btw\.yaml$
     key_groups:
       - age:
           - *master
           - *nixos_btw
+          - *laptop
 
-  # 3. Host-specific secrets for 'desktop' (Prepared for future)
-  # - path_regex: secrets/hosts/desktop\.yaml$
-  #   key_groups:
-  #     - age:
-  #         - *master
-  #         - *desktop
+  # 3. GCal OAuth token
+  - path_regex: secrets/hosts/gcalcli_oauth\.enc$
+    key_groups:
+      - age:
+          - *master
+          - *nixos_btw
+          - *laptop
