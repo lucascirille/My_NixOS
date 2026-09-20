@@ -473,6 +473,12 @@ services.linux-wallpaperengine = {
   wallpapers = [
     {
       monitor = if osConfig.networking.hostName == "laptop" then "eDP-1" else "HDMI-1"; 
+
+      extraOptions = [ 
+        "--screen-root" 
+        (if osConfig.networking.hostName == "laptop" then "eDP-1" else "HDMI-1") 
+      ];
+      
       wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
       
       # Using the native module options you found!
