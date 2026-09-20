@@ -95,29 +95,34 @@ let
 
 
 changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
-    # Prevent globbing error if no images exist
+    # Prevent globbing errors if no files match our search patterns
     shopt -s nullglob
 
-    # FIXED: Use a Bash function to handle quoted spaces correctly
+    # Helper function to send progress notifications to your desktop
     send_notification() {
         ${pkgs.libnotify}/bin/notify-send -a "Theme Switcher" -h string:x-canonical-private-synchronous:theme-progress "$@"
     }
     
     WORKSHOP_DIR="$HOME/.local/share/Steam/steamapps/workshop/content/431960"
 
-    # 1. Open GUI (Grid mode). 
-    # REMEMBER: Arrows to navigate -> 'm' to mark -> 'q' to quit and apply
+    # ---------------------------------------------------------
+    # STEP 1: Wallpaper Selection (GUI)
+    # Opens nsxiv in grid mode to display all Workshop thumbnails.
+    # User navigates with arrows, marks with 'm', and quits with 'q'.
+    # ---------------------------------------------------------
     PREVIEWS=$(${pkgs.nsxiv}/bin/nsxiv -t -o "$WORKSHOP_DIR"/*/*.{jpg,png,gif})
 
-    # Exit silently if nothing was marked or selected
+    # Exit silently if the user closed the window without marking anything
     if [ -z "$PREVIEWS" ]; then
         exit 0
     fi
 
-    # 2. Get only the first marked image
+    # ---------------------------------------------------------
+    # STEP 2: Path Extraction
+    # Isolates the first marked image, finds its parent folder, 
+    # and extracts the 10-digit Steam Workshop ID.
+    # ---------------------------------------------------------
     PREVIEW_SELECTED=$(echo "$PREVIEWS" | head -n 1)
-
-    # 3. Extract IDs
     WALLPAPER_DIR=$(dirname "$PREVIEW_SELECTED")
     WALLPAPER_ID=$(basename "$WALLPAPER_DIR")
 
@@ -125,53 +130,67 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     TEXT_PATH="$HOME/.dotfiles/home/assets/wallpaper-id.txt"
 
     echo "Generating new color palette for Stylix..."
-    
-    # 🌟 PROGRESS: 20%
     send_notification -i "$PREVIEW_SELECTED" "Theme Update" "Processing image..." -h int:value:20
 
-    # Process image with ffmpeg
-    if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
-        send_notification -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process image!"
-        exit 1
+# ---------------------------------------------------------
+    # STEP 3: Image Processing (Video Fallback Logic)
+    # Extracts a pure frame from the raw video file to generate colors.
+    # If it's a 2D/3D Scene (no video), it falls back to the thumbnail.
+    # ---------------------------------------------------------
+    VIDEOS=("$WALLPAPER_DIR"/*.{mp4,webm,avi,mkv})
+    
+    if [ ''${#VIDEOS[@]} -gt 0 ]; then
+        VIDEO_FILE="''${VIDEOS[0]}"
+        echo "Video found! Extracting pure frame at 00:00:01..."
+        
+        # Extracts 1 frame at the 1-second mark to bypass black intro screens
+        if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -ss 00:00:01 -i "$VIDEO_FILE" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
+            send_notification -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process video file!"
+            exit 1
+        fi
+    else
+        echo "No video found. Falling back to original thumbnail..."
+        
+        # Uses the static Workshop preview image
+        if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
+            send_notification -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process thumbnail image!"
+            exit 1
+        fi
     fi
     
-    # Save the new ID
+    # Save the Workshop ID so the Nix module knows which wallpaper to load
     echo -n "$WALLPAPER_ID" > "$TEXT_PATH"
 
+    # ---------------------------------------------------------
+    # STEP 4: System Rebuild
+    # Triggers your 'nos' alias to recompile the NixOS configuration
+    # and apply the new Stylix colors across the system.
+    # ---------------------------------------------------------
     echo "Running system rebuild (nos)..."
-    
-    # 🌟 PROGRESS: 50%
     send_notification -i "$IMAGE_PATH" "Theme Update" "Running system rebuild..." -h int:value:50
     
-    # Run the nos script
     if ! ${nos-script}/bin/nos; then
         echo "Rebuild failed, aborting theme application."
         send_notification -u critical -i "$IMAGE_PATH" "Theme Error" "Rebuild failed. Aborting."
         exit 1
     fi
 
+    # ---------------------------------------------------------
+    # STEP 5: Service Restart & Cleanup
+    # Restarts the wallpaper engine to apply the new background,
+    # aggressively killing ghost processes to prevent audio bugs.
+    # ---------------------------------------------------------
     echo "Applying background update..."
-    
-    # 🌟 PROGRESS: 80%
     send_notification -i "$IMAGE_PATH" "Theme Update" "Restarting wallpaper engine..." -h int:value:80
     
-    # ---------------------------------------------------------
-    # NEW AUDIO FIX: Aggressively kill ghost processes
-    # ---------------------------------------------------------
     systemctl --user stop linux-wallpaperengine.service
-    
-    # Force kill any lingering instances to prevent audio overlap
     killall -9 linux-wallpaperengine 2>/dev/null || true
     killall -9 mpv 2>/dev/null || true
     
-    # Clear the lockout and start fresh
     systemctl --user reset-failed linux-wallpaperengine.service
     systemctl --user start linux-wallpaperengine.service
-    # ---------------------------------------------------------
 
     echo "Theme applied successfully!"
-    
-    # 🌟 PROGRESS: 100%
     send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
 in
