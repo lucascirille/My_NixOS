@@ -17,6 +17,9 @@
 
   };
 
+  security.tpm2.enable = true;
+
+
   virtualisation.hypervGuest.enable = false;
 
   hardware.amdgpu.overdrive.enable = true;

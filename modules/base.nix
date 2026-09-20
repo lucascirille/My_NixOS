@@ -15,7 +15,7 @@
     consoleLogLevel = 4;
   };
 
-  security.tpm2.enable = true;
+  security.tpm2.enable = lib.mkDefault false;
   time.timeZone = "America/Argentina/Buenos_Aires";
 
   # Nix Settings & GC

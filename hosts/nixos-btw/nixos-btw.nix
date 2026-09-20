@@ -14,6 +14,7 @@
   system.stateVersion = "25.11";
 
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  virtualisation.libvirtd.enable = lib.mkForce false;
 
   # VM / Baremetal Overrides
   specialisation.baremetal.configuration = {
