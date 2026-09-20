@@ -113,7 +113,7 @@
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
-    extraPackages = with pkgs; [ intel-compute-runtime pocl rocmPackages.clr.icd intel-media-driver libvdpau-va-gl];
+    extraPackages = with pkgs; [ intel-compute-runtime pocl rocmPackages.clr.icd];
   };
 
   programs.thunar = {
