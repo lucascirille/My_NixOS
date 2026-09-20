@@ -191,6 +191,7 @@ in
 
 
   home.packages = with pkgs; [
+    networkmanagerapplet
 
     cabextract
     
