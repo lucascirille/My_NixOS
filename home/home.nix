@@ -129,10 +129,8 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     # 🌟 PROGRESS: 20%
     send_notification -i "$PREVIEW_SELECTED" "Theme Update" "Processing image..." -h int:value:20
 
-    # ---------------------------------------------------------
-    # Process image with ffmpeg (MODIFIED: Center crop to remove creator borders)
-    # ---------------------------------------------------------
-    if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -vf "crop=iw*0.6:ih*0.6" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
+    # Process image with ffmpeg
+    if ! ${pkgs.ffmpeg}/bin/ffmpeg -y -i "$PREVIEW_SELECTED" -frames:v 1 "$IMAGE_PATH" -hide_banner -loglevel error; then
         send_notification -u critical -i "$PREVIEW_SELECTED" "Theme Error" "Failed to process image!"
         exit 1
     fi
