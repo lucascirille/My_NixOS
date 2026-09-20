@@ -14,7 +14,10 @@
   system.stateVersion = "25.11";
 
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+# --- TEMPORARY FIX: Gag libvirtd to break the crash loop ---
   virtualisation.libvirtd.enable = lib.mkForce false;
+  systemd.services.libvirtd.enable = lib.mkForce false;
+  systemd.services.libvirtd.wantedBy = lib.mkForce [ ];
 
   # VM / Baremetal Overrides
   specialisation.baremetal.configuration = {
