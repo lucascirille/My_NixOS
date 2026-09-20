@@ -470,7 +470,6 @@ services.hermes-agent = {
 
 services.linux-wallpaperengine = {
   enable = true;
-  clamping = "clamp"; # Options: "clamp", "border", "repeat"
   wallpapers = [
     {
       monitor = if osConfig.networking.hostName == "laptop" then "eDP-1" else "HDMI-1"; 
