@@ -129,6 +129,8 @@
     ];
   };
 
+  programs.nm-applet.enable = true;
+
   programs.i3lock = { enable = true; package = pkgs.i3lock-color; };
   
   systemd.user.services.polkit-gnome-authentication-agent-1 = {

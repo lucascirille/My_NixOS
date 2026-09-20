@@ -330,7 +330,7 @@ def create_bar(primary=True):
             )
         )
 
-wlan_dev = get_wlan_interface()
+    wlan_dev = get_wlan_interface()
     if wlan_dev:
         bar_widgets.append(
             widget.Wlan(

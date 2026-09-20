@@ -500,7 +500,6 @@ services.linux-wallpaperengine = {
   ];
 };
 
-services.network-manager-applet.enable = true;
 
   services.flameshot.enable = true;
   services.playerctld.enable = true;
