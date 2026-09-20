@@ -16,5 +16,4 @@
   security.tpm2.enable = true;
 
 
-  sops.age.keyFile = "/var/lib/sops-nix/key.txt"; 
 }

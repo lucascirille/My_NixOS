@@ -33,6 +33,7 @@
   # Common SOPS Setup
   sops = {
     defaultSopsFile = ../secrets/hosts/nixos-btw.yaml;
+    age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     secrets = {
       "neo_password".neededForUsers = true;
       "hermes-env".owner = config.users.users.neo.name; 
