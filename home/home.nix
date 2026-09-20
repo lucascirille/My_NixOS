@@ -500,7 +500,7 @@ services.linux-wallpaperengine = {
       # Using the native module options you found!
       audio = {
         processing = false; # Disables audio reactive features (--no-audio-processing)
-        automute = false;   # Prevents pipewire sync dropping (--noautomute), if you want to keep audio reactive features make it sure that have the wireplumber.extraConfig:
+        automute = true;   # Prevents pipewire sync dropping (--noautomute), if you want to keep audio reactive features make it sure that have the wireplumber.extraConfig:
     #     wireplumber.extraConfig = {
     #   "10-disable-suspend" = {
     #     "monitor.alsa.rules" = [
