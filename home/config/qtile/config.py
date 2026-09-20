@@ -75,9 +75,15 @@ extension_defaults = widget_defaults.copy()
 def update_wallpaper_state():
     # Check if the current workspace has any windows
     if len(qtile.current_group.windows) > 0:
+        # Freeze the process. CPU/GPU drop to 0%, audio stops, and PipeWire safely sleeps.
         os.system("pkill -STOP -f linux-wallpaperengine")
     else:
-        os.system("pkill -CONT -f linux-wallpaperengine")
+        # 1. Force PipeWire to wake up the audio hardware instantly
+        os.system("pactl suspend-sink @DEFAULT_SINK@ 0")
+        
+        # 2. Tell Qtile to wait 0.1s (without freezing your desktop) to let the 
+        # hardware initialize, then send the resume signal to the engine.
+        qtile.call_later(0.1, lambda: os.system("pkill -CONT -f linux-wallpaperengine"))
 
 # Trigger instantly when switching workspaces or opening new windows
 @hook.subscribe.setgroup
@@ -89,7 +95,6 @@ def _(*args, **kwargs):
 @hook.subscribe.client_killed
 def _(client):
     # Wait 0.1 seconds so Qtile has time to fully delete the window from memory
-    # before we count how many are left.
     qtile.call_later(0.1, update_wallpaper_state)
 
 

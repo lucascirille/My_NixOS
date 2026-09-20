@@ -518,7 +518,7 @@ services.linux-wallpaperengine = {
     #     ];
     #   };
     # };
-      silent = true;      # This completely mutes the wallpaper!
+      silent = false;      # This completely mutes the wallpaper!
       };
     }
   ];
