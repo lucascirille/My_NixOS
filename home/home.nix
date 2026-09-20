@@ -470,15 +470,13 @@ services.hermes-agent = {
 
 services.linux-wallpaperengine = {
   enable = true;
+  clamping = "clamp"; # Options: "clamp", "border", "repeat"
   wallpapers = [
     {
       monitor = if osConfig.networking.hostName == "laptop" then "eDP-1" else "HDMI-1"; 
 
-      extraOptions = [ 
-        "--screen-root" 
-        (if osConfig.networking.hostName == "laptop" then "eDP-1" else "HDMI-1") 
-      ];
-      
+      scaling = "fill";   # Options: "stretch", "fit", "fill", or "default"
+
       wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
       
       # Using the native module options you found!
