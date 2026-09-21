@@ -325,18 +325,7 @@ in
     };
   };
 
-  programs.vesktop = {
-    enable = true;
-
-
-    package = pkgs.vesktop.overrideAttrs (old: {
-      nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
-      postFixup = (old.postFixup or "") + ''
-        wrapProgram $out/bin/vesktop \
-          --add-flags "--no-sandbox"
-      '';
-    });
-  };
+  programs.vesktop.enable = true;
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
