@@ -325,12 +325,14 @@ in
     };
   };
 
-programs.discord = {
-  enable = true;
-  package = pkgs.discord.override {
-    withVencord = true;
-  };
-};
+# programs.discord = {
+#   enable = true;
+#   package = pkgs.discord.override {
+#     withVencord = true;
+#   };
+# };
+
+  programs.vesktop.enable = true;
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
