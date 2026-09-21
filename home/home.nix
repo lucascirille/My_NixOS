@@ -210,8 +210,6 @@ in
 
 
   home.packages = with pkgs; [
-    networkmanager_dmenu
-
     networkmanagerapplet
 
     cabextract

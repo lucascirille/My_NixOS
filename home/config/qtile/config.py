@@ -346,8 +346,8 @@ def create_bar(primary=True):
                 disconnected_message='󰤭  Offline',
                 update_interval=5.0,
 mouse_callbacks={
-    'Button1': lazy.spawn("networkmanager_dmenu"), # Escáner y conexión (GUI rápida)
-    'Button3': lazy.spawn("nm-connection-editor"), # Forzar bandas, VPNs, IPs fijas (GUI avanzada)
+    'Button1': lazy.spawn("nm-connection-editor"), # Clic izquierdo: Editor GUI
+    'Button3': lazy.group["scratchpad"].dropdown_toggle("nmtui") # Clic derecho: Escáner TUI
 },
                 foreground=colors["bg"],
                 **get_decoration(colors["accent"])
@@ -529,6 +529,14 @@ groups.append(
             width=0.6, height=0.6, x=0.2, y=0.2, opacity=0.95,
             on_focus_lost_hide=False
         ),
+        # 4. Network Manager TUI (Clicking the bar widget)
+        DropDown(
+    "nmtui",
+    "ghostty --title=scratchnmtui --gtk-single-instance=false -e nmtui",
+    match=Match(title="scratchnmtui"),
+    width=0.4, height=0.5, x=0.3, y=0.25, opacity=0.95,
+    on_focus_lost_hide=False
+),
     ])
 )
 
