@@ -526,6 +526,20 @@ services.linux-wallpaperengine = {
   ];
 };
 
+systemd.user.services.linux-wallpaperengine = {
+  Unit = {
+    # Force Systemd to wait for PipeWire and WirePlumber to be fully active
+    After = [ "graphical-session.target" "pipewire.service" "wireplumber.service" ];
+    Wants = [ "pipewire.service" "wireplumber.service" ];
+  };
+  Service = {
+    # Optional: If your specific Intel audio hardware still takes a physical 
+    # second to wake up after WirePlumber starts, you can enforce a strict 
+    # pre-launch delay natively in Systemd instead of Qtile.
+    # ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+  };
+};
+
 
   services.flameshot.enable = true;
   services.playerctld.enable = true;
