@@ -113,6 +113,7 @@
   # --- Networking & Firewall ---
   # Ensure the firewall drops invalid packets
   networking.firewall = {
+    allowedUDPPortRanges = [ { from = 50000; to = 65535; } ];
     enable = true;
     allowPing = false;
     extraCommands = ''
