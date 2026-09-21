@@ -114,7 +114,6 @@
   # Ensure the firewall drops invalid packets
   networking.firewall = {
     enable = true;
-    allowedUDPPorts = [ 5353 ];
     allowPing = false;
     extraCommands = ''
       iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
