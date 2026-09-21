@@ -536,7 +536,7 @@ systemd.user.services.linux-wallpaperengine = {
     # Optional: If your specific Intel audio hardware still takes a physical 
     # second to wake up after WirePlumber starts, you can enforce a strict 
     # pre-launch delay natively in Systemd instead of Qtile.
-    # ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+    ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
   };
 };
 
