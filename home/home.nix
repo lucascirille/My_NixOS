@@ -506,7 +506,7 @@ services.linux-wallpaperengine = {
 
       wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
 
-      extraOptions = [ "--volume=30" ];
+      extraOptions = [ "--volume=100" ];
       
       # Using the native module options you found!
       audio = {
