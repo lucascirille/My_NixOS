@@ -271,7 +271,6 @@ in
     p7zip
     gnutar
 
-    vesktop
     spotify
 
     foliate # Dedicated e-book reader
@@ -325,6 +324,8 @@ in
       temperature = true;
     };
   };
+
+  programs.vesktop.enable = true;
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
