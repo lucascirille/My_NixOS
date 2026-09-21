@@ -72,6 +72,13 @@ extension_defaults = widget_defaults.copy()
 # =========================================================================
 # 2. HARDWARE & UTILITY FUNCTIONS
 # =========================================================================
+# Trigger exactly once when Qtile first loads on boot
+@hook.subscribe.startup_once
+def autostart_wallpaper():
+    # Wait 2 seconds for PipeWire to fully wake up the sound card, 
+    # then forcefully restart the wallpaper service to grab a clean audio clock.
+    qtile.call_later(2.0, lambda: os.system("systemctl --user restart linux-wallpaperengine.service"))
+
 def update_wallpaper_state():
     # Check if the current workspace has any windows
     if len(qtile.current_group.windows) > 0:
