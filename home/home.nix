@@ -325,14 +325,15 @@ in
     };
   };
 
-# programs.discord = {
-#   enable = true;
-#   package = pkgs.discord.override {
-#     withVencord = true;
-#   };
-# };
-
-  programs.vesktop.enable = true;
+  programs.discord = {
+    enable = true;
+    package = pkgs.discord.override {
+      withVencord = true;
+    };
+  };
+  
+  # bug: Connecting DTLS to Discord on Linux is broken, so we disable it for now
+  # programs.vesktop.enable = true;
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
@@ -505,7 +506,7 @@ services.linux-wallpaperengine = {
 
       wallpaperId = builtins.readFile ./assets/wallpaper-id.txt; 
 
-      extraOptions = [ "--volume=100" ];
+      extraOptions = [ "--volume=30" ];
       
       # Using the native module options you found!
       audio = {
