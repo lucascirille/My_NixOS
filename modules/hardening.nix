@@ -115,10 +115,10 @@
   networking.firewall = {
     enable = true;
     allowPing = false;
-    # extraCommands = ''
-    #   iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
-    #   ip6tables -A INPUT -m conntrack --ctstate INVALID -j DROP
-    # '';
+    extraCommands = ''
+      iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
+      ip6tables -A INPUT -m conntrack --ctstate INVALID -j DROP
+    '';
   };
 
   # --- Audit Framework ---
