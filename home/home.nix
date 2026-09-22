@@ -979,9 +979,9 @@ programs.zsh = {
     ];
   };
 
-  # Create a custom Firejail profile for Brave with Stylix & KeePassXC exceptions
+# 1. Create the local Firejail profile
   home.file.".config/firejail/brave.local".text = ''
-    # Allow Brave to see Stylix theme and font files in home/nix-store
+    # Allow Brave to see Stylix theme and font files
     whitelist ${config.home.homeDirectory}/.config/gtk-3.0
     whitelist ${config.home.homeDirectory}/.config/fontconfig
     
@@ -990,12 +990,12 @@ programs.zsh = {
     noblacklist ${pkgs.keepassxc}
   '';
 
-  # Override the desktop shortcut to wrap the Home Manager execution in Firejail
+  # 2. Override the desktop entry using the absolute path to the HM-managed binary
   xdg.desktopEntries.brave-browser = {
     name = "Brave (Sandboxed)";
     genericName = "Web Browser";
-    # We call the system SUID firejail wrapper and point it to the HM-wrapped brave binary
-    exec = "/run/wrappers/bin/firejail --profile=brave ${config.home.homeDirectory}/.nix-profile/bin/brave %U";
+    # Use absolute paths for both Firejail and the profile file to prevent lookup failures
+    exec = "/run/wrappers/bin/firejail --profile=${config.home.homeDirectory}/.config/firejail/brave.local ${config.programs.chromium.package}/bin/brave %U";
     icon = "brave-browser";
     terminal = false;
     categories = [ "Network" "WebBrowser" ];
