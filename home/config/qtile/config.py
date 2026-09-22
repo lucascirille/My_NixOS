@@ -226,6 +226,38 @@ def has_battery():
         return any(dev.startswith("BAT") for dev in os.listdir(sys_power))
     return False
 
+def has_bluetooth():
+    sys_bt = "/sys/class/bluetooth"
+    if os.path.exists(sys_bt):
+        return any(dev.startswith("hci") for dev in os.listdir(sys_bt))
+    return False
+
+def get_bluetooth_status():
+    try:
+        # 1. Check if Bluetooth is powered on
+        power_status = subprocess.check_output(["bluetoothctl", "show"], text=True, stderr=subprocess.DEVNULL)
+        if "Powered: no" in power_status:
+            return "󰂲  Off"
+        
+        # 2. Check for connected devices
+        connected_devices = subprocess.check_output(["bluetoothctl", "devices", "Connected"], text=True, stderr=subprocess.DEVNULL)
+        if connected_devices.strip():
+            # Extract the device name from the first connected device
+            first_device = connected_devices.splitlines()[0]
+            # Format is usually "Device [MAC] [Name]"
+            device_name = " ".join(first_device.split(" ")[2:])
+            
+            # Truncate the name if it's too long for the bar
+            if len(device_name) > 15:
+                device_name = device_name[:12] + "..."
+                
+            return f"󰂱  {device_name}"
+        
+        # 3. Powered on, but nothing connected
+        return "󰂯  On"
+    except subprocess.CalledProcessError:
+        return "󰂲  Err"
+
 def get_backlight_name():
     sys_backlight = "/sys/class/backlight"
     if os.path.exists(sys_backlight):
@@ -367,6 +399,19 @@ mouse_callbacks={
                 update_interval=15,
                 foreground=colors["fg"],
                 **get_decoration(colors["surface"])
+            )
+        )
+    if has_bluetooth():
+        bar_widgets.append(
+            widget.GenPollText(
+                func=get_bluetooth_status,
+                update_interval=2.0,
+                mouse_callbacks={
+                    'Button1': lazy.spawn("blueman-manager"),         # Left click: Open GUI
+                    'Button3': lazy.spawn("rfkill toggle bluetooth")  # Right click: Toggle Power
+                },
+                foreground=colors["bg"],
+                **get_decoration(colors["magenta"])
             )
         )
 
