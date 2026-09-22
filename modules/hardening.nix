@@ -153,6 +153,28 @@
     };
   };
 
+  programs.firejail = {
+  enable = true;
+  wrappedBinaries = {
+    brave = {
+      executable = "${pkgs.brave}/bin/brave";
+      profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+      extraArgs = [
+        # 1. Allow Brave to read the KeePassXC manifest you created
+        "--noblacklist=/etc/chromium"
+        "--read-only=/etc/chromium"
+        
+        # 2. Allow Brave to execute the KeePassXC proxy binary
+        "--noblacklist=${pkgs.keepassxc}"
+        "--read-only=${pkgs.keepassxc}"
+        
+        # 3. Allow Brave to communicate with the KeePassXC background socket
+        "--noblacklist=/run/user/*/org.keepassxc.KeePassXC.BrowserServer"
+      ];
+    };
+  };
+};
+
   # --- Privacy (Network Transit) ---
 
   # Privacidad de Red (MAC Spoofing Inteligente)
