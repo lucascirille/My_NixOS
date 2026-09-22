@@ -589,9 +589,6 @@ systemd.user.services.linux-wallpaperengine = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
     };
-    "org/blueman/general" = {
-    plugin-list = [ "!StatusIcon" "!AppIndicator" ];
-  };
   };
 
   programs.btop.enable = true;
