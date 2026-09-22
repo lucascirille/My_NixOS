@@ -549,6 +549,7 @@ systemd.user.services.linux-wallpaperengine = {
   };
 };
 
+services.blueman-applet.enable = true;
 
   services.flameshot.enable = true;
   services.playerctld.enable = true;
