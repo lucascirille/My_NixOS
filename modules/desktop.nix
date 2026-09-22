@@ -35,7 +35,6 @@
     displayManager.sessionCommands = ''
       ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY XAUTHORITY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
       ${pkgs.systemd}/bin/systemctl --user start graphical-session.target
-      ${pkgs.xorg.xhost}/bin/xhost +SI:localuser:$USER
     '';
   };
 
