@@ -14,6 +14,7 @@
   fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono ];
 
   services.gnome.at-spi2-core.enable = true;
+  services.blueman.enable = true;
   services.dbus.enable = true;
   
   programs.dconf.enable = true;
