@@ -153,8 +153,23 @@
     };
   };
 
-  programs.firejail = {
+programs.firejail = {
     enable = true;
+    wrappedBinaries = {
+      brave = {
+        # Points directly to the Home Manager-wrapped Brave package containing your flags/extensions
+        executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
+        
+        # Firejail profile (Brave can use its own profile or fall back to chromium's profile)
+        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+        
+        # Optional: extra arguments for Firejail if needed (e.g., U2F keys, notifications)
+        extraArgs = [
+          "--ignore=private-dev"
+          "--dbus-user.talk=org.freedesktop.Notifications"
+        ];
+      };
+    };
   };
 
   # --- Privacy (Network Transit) ---

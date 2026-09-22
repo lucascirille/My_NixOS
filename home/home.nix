@@ -979,30 +979,6 @@ programs.zsh = {
     ];
   };
 
-  # Firejail automatically includes this file when you launch Brave.
-  home.file.".config/firejail/brave.local".text = ''
-    # Allow Stylix themes and fonts
-    whitelist ${config.home.homeDirectory}/.config/gtk-3.0
-    whitelist ${config.home.homeDirectory}/.config/fontconfig
-    whitelist ${config.home.homeDirectory}/.local/share/fonts
-    
-    # Allow KeePassXC IPC socket and binary
-    noblacklist /run/user/${toString config.home.uid}/org.keepassxc.KeePassXC.BrowserServer
-    noblacklist ${pkgs.keepassxc}
-  '';
-
-  # Create the Sandboxed Desktop Shortcut
-  # By calling "firejail brave", Firejail picks up the Home Manager wrapper
-  # (preserving your flags) and automatically loads the default profile.
-xdg.desktopEntries.brave-browser = {
-  name = "Brave (Sandboxed)";
-  genericName = "Web Browser";
-  exec = "/run/wrappers/bin/firejail brave %U";
-  icon = "brave-browser";
-  terminal = false;
-  categories = [ "Network" "WebBrowser" ];
-  mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
-};
 
 
   services.dunst = {
