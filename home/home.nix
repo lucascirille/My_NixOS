@@ -876,6 +876,7 @@ programs.zsh = {
         nop = "nh clean all --keep 5";
         nv = "nvim";
         better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) SOPS_EDITOR=${pkgs.neovim}/bin/nvim ${pkgs.sops}/bin/sops";
+        brave = "firejail ${config.programs.chromium.finalPackage}/bin/brave";
       };
       enableCompletion = true;
       autosuggestion.enable = true;
@@ -977,6 +978,18 @@ programs.zsh = {
         destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
       })
     ];
+  };
+
+  xdg.desktopEntries."brave-browser" = {
+    name = "Brave Browser";
+    genericName = "Web Browser";
+    # This executes Firejail and points it directly to your Home Manager Brave setup
+    exec = "firejail ${config.programs.chromium.finalPackage}/bin/brave %U";
+    icon = "brave-browser";
+    terminal = false;
+    type = "Application";
+    categories = [ "Network" "WebBrowser" ];
+    mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
 
 
