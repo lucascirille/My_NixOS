@@ -63,9 +63,29 @@ let
       ${pkgs.libnotify}/bin/notify-send "NixOS Build" "✅ Build successful! System updated." -u normal -t 10000
 
       if ! git diff-index --quiet HEAD --; then
-        echo "📦 Committing and pushing working configuration to Git..."
+        echo "📦 Committing working configuration to Git..."
         git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-        git push
+        
+        echo "🚀 Pushing to remote..."
+        n=0
+        push_success=false
+        until [ "$n" -ge 3 ]
+        do
+          if git push; then
+            push_success=true
+            break
+          fi
+          n=$((n+1))
+          if [ "$n" -lt 3 ]; then
+            echo "⚠️ Push failed. Retrying in 5 seconds... ($n/3)"
+            sleep 5
+          fi
+        done
+
+        if [ "$push_success" = false ]; then
+          echo "⚠️ Git push failed after 3 attempts, but your system is successfully built and committed locally."
+          ${pkgs.libnotify}/bin/notify-send "NixOS Build" "⚠️ Build successful, but git push failed!" -u normal -t 15000
+        fi
       else
         echo "🧹 Working tree clean. Nothing to commit."
       fi
