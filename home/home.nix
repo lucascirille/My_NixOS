@@ -233,9 +233,9 @@ in
   home.packages = with pkgs; [
 
     # replace the default brave command with a high-priority wrapper that points to the system-installed Brave
-    # (pkgs.lib.hiPrio (pkgs.writeShellScriptBin "brave" ''
-    #   exec ${braveWrapper} "$@"
-    # ''))
+    (pkgs.lib.hiPrio (pkgs.writeShellScriptBin "brave" ''
+      exec ${braveWrapper} "$@"
+    ''))
 
 
     networkmanagerapplet
