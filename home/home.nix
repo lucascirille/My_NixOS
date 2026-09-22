@@ -258,7 +258,7 @@ in
 
     # --- Ciberseguridad (Host Seguro) ---
     burpsuite # Proxy e interceptor web
-    bloodhound # Analizador de grafos para Active Directory
+    bloodhound-ce # Analizador de grafos para Active Directory
     hashcat # Rompedor de hashes acelerado por GPU
     # ------------------------------------
 
@@ -767,7 +767,7 @@ programs.obsidian = {
   programs.vscode = {
     enable = true;
     package = pkgs.vscode.override {
-      commandLineArgs = "--password-store=basic";
+      commandLineArgs = "--password-store=gnome-libsecret";
     };
 
     profiles.default.extensions = with pkgs.vscode-extensions; [
@@ -936,7 +936,7 @@ programs.zsh = {
     commandLineArgs = [
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=x11"
-      "--password-store=basic"
+      "--password-store=gnome-libsecret"
       "--no-default-browser-check"
       "--disable-breakpad" # Disables crash reporting to servers
       "--disable-sync" # Disables Google/Brave sync (keep data local)
