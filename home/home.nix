@@ -994,15 +994,15 @@ programs.zsh = {
   # Create the Sandboxed Desktop Shortcut
   # By calling "firejail brave", Firejail picks up the Home Manager wrapper
   # (preserving your flags) and automatically loads the default profile.
-  xdg.desktopEntries.brave-browser = {
-    name = "Brave (Sandboxed)";
-    genericName = "Web Browser";
-    exec = "/run/wrappers/bin/firejail brave %U";
-    icon = "brave-browser";
-    terminal = false;
-    categories = [ "Network" "WebBrowser" ];
-    mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
-  };
+xdg.desktopEntries.brave-browser = {
+  name = "Brave (Sandboxed)";
+  genericName = "Web Browser";
+  exec = "/run/wrappers/bin/firejail brave %U";
+  icon = "brave-browser";
+  terminal = false;
+  categories = [ "Network" "WebBrowser" ];
+  mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
+};
 
 
   services.dunst = {
