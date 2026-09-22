@@ -15,9 +15,7 @@
 
   services.gnome.at-spi2-core.enable = true;
   services.blueman.enable = true;
-  systemd.user.services.blueman-applet.enable = lib.mkForce false;
   services.dbus.enable = true;
-  
   programs.dconf.enable = true;
   programs.xfconf.enable = true;
   services.gvfs.enable = true;
