@@ -10,6 +10,7 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  braveWrapper = "/run/current-system/sw/bin/brave";
   # Askpass
   nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
     ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
@@ -230,6 +231,13 @@ in
 
 
   home.packages = with pkgs; [
+
+    # replace the default brave command with a high-priority wrapper that points to the system-installed Brave
+    (pkgs.lib.hiPrio (pkgs.writeShellScriptBin "brave" ''
+      exec ${braveWrapper} "$@"
+    ''))
+
+
     networkmanagerapplet
 
     cabextract
@@ -876,7 +884,6 @@ programs.zsh = {
         nop = "nh clean all --keep 5";
         nv = "nvim";
         better-sops = "sudo SOPS_AGE_KEY=$(sudo ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key) SOPS_EDITOR=${pkgs.neovim}/bin/nvim ${pkgs.sops}/bin/sops";
-        brave = "firejail ${config.programs.chromium.finalPackage}/bin/brave";
       };
       enableCompletion = true;
       autosuggestion.enable = true;
@@ -949,9 +956,7 @@ programs.zsh = {
   };
 
 
-  # Harden Brave Browser execution
-  # This adds sandboxing flags to your Brave shortcut
-  programs.chromium = {
+programs.chromium = {
     enable = true;
     package = pkgs.brave;
     commandLineArgs = [
@@ -959,8 +964,8 @@ programs.zsh = {
       "--ozone-platform=x11"
       "--password-store=gnome-libsecret"
       "--no-default-browser-check"
-      "--disable-breakpad" # Disables crash reporting to servers
-      "--disable-sync" # Disables Google/Brave sync (keep data local)
+      "--disable-breakpad" 
+      "--disable-sync" 
       "--no-pings"
     ];
     nativeMessagingHosts = [
@@ -980,11 +985,11 @@ programs.zsh = {
     ];
   };
 
+
   xdg.desktopEntries."brave-browser" = {
     name = "Brave Browser";
     genericName = "Web Browser";
-    # This executes Firejail and points it directly to your Home Manager Brave setup
-    exec = "firejail ${config.programs.chromium.finalPackage}/bin/brave %U";
+    exec = "${braveWrapper} %U";
     icon = "brave-browser";
     terminal = false;
     type = "Application";
