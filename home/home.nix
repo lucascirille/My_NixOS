@@ -767,7 +767,7 @@ programs.obsidian = {
   programs.vscode = {
     enable = true;
     package = pkgs.vscode.override {
-      commandLineArgs = "--password-store=gnome-libsecret";
+      commandLineArgs = "--password-store=basic";
     };
 
     profiles.default.extensions = with pkgs.vscode-extensions; [
@@ -936,7 +936,7 @@ programs.zsh = {
     commandLineArgs = [
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=x11"
-      "--password-store=gnome-libsecret"
+      "--password-store=basic"
       "--no-default-browser-check"
       "--disable-breakpad" # Disables crash reporting to servers
       "--disable-sync" # Disables Google/Brave sync (keep data local)
