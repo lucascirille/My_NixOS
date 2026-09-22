@@ -167,6 +167,7 @@ programs.firejail = {
         extraArgs = [
           "--ignore=private-dev"
           "--dbus-user.talk=org.freedesktop.Notifications"
+          "--ignore=nodbus"
         ];
       };
     };
