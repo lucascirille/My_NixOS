@@ -213,6 +213,25 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Theme applied successfully!"
     send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
+  baseBrave = pkgs.brave;
+  
+  # Helper function to apply the Firejail wrapper to a brave derivation
+  applyFirejailWrap = pkg: pkg.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
+    postFixup = (old.postFixup or "") + ''
+      wrapProgram $out/bin/brave \
+        --prefix PATH : ${pkgs.firejail}/bin \
+        --add-flags "--profile=${pkgs.firejail}/etc/firejail/brave.profile" \
+        --add-flags "--dbus-user.talk=org.freedesktop.secrets" \
+        --add-flags "--dbus-user.talk=org.keepassxc.KeePassXC.BrowserServer"
+    '';
+  });
+
+  # Apply the wrap AND manually restore the `override` attribute.
+  # This satisfies Home Manager's internal check when commandLineArgs are present.
+  firejailBrave = (applyFirejailWrap baseBrave) // {
+    override = newArgs: applyFirejailWrap (baseBrave.override newArgs);
+  };
 in
 {
   imports = [
@@ -952,7 +971,7 @@ programs.zsh = {
   # This adds sandboxing flags to your Brave shortcut
   programs.chromium = {
     enable = true;
-    package = pkgs.brave;
+    package = firejailBrave;
     commandLineArgs = [
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=x11"

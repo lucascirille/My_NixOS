@@ -153,7 +153,22 @@
     };
   };
 
-  programs.firejail.enable = true;
+  programs.firejail = {
+    enable = true;
+    
+    # Optional but recommended: Also wrap the system-wide 'brave' command 
+    # so it is sandboxed even if launched outside of Home Manager's desktop files.
+    wrappedBinaries = {
+      brave = {
+        executable = "${pkgs.brave}/bin/brave";
+        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+        extraArgs = [
+          "--dbus-user.talk=org.freedesktop.secrets"
+          "--dbus-user.talk=org.keepassxc.KeePassXC.BrowserServer"
+        ];
+      };
+    };
+  };
 
   # --- Privacy (Network Transit) ---
 
