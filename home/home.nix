@@ -213,25 +213,6 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     echo "Theme applied successfully!"
     send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
 '';
-  baseBrave = pkgs.brave;
-  
-  # Helper function to apply the Firejail wrapper to a brave derivation
-  applyFirejailWrap = pkg: pkg.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
-    postFixup = (old.postFixup or "") + ''
-      wrapProgram $out/bin/brave \
-        --prefix PATH : ${pkgs.firejail}/bin \
-        --add-flags "--profile=${pkgs.firejail}/etc/firejail/brave.profile" \
-        --add-flags "--dbus-user.talk=org.freedesktop.secrets" \
-        --add-flags "--dbus-user.talk=org.keepassxc.KeePassXC.BrowserServer"
-    '';
-  });
-
-  # Apply the wrap AND manually restore the `override` attribute.
-  # This satisfies Home Manager's internal check when commandLineArgs are present.
-  firejailBrave = (applyFirejailWrap baseBrave) // {
-    override = newArgs: applyFirejailWrap (baseBrave.override newArgs);
-  };
 in
 {
   imports = [
@@ -971,7 +952,7 @@ programs.zsh = {
   # This adds sandboxing flags to your Brave shortcut
   programs.chromium = {
     enable = true;
-    package = firejailBrave;
+    package = pkgs.brave;
     commandLineArgs = [
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=x11"
@@ -998,28 +979,31 @@ programs.zsh = {
     ];
   };
 
-# 1. Create the local Firejail profile
+  # Firejail automatically includes this file when you launch Brave.
   home.file.".config/firejail/brave.local".text = ''
-    # Allow Brave to see Stylix theme and font files
+    # Allow Stylix themes and fonts
     whitelist ${config.home.homeDirectory}/.config/gtk-3.0
     whitelist ${config.home.homeDirectory}/.config/fontconfig
+    whitelist ${config.home.homeDirectory}/.local/share/fonts
     
-    # Allow communication with KeePassXC socket/proxy
+    # Allow KeePassXC IPC socket and binary
     noblacklist /run/user/${toString config.home.uid}/org.keepassxc.KeePassXC.BrowserServer
     noblacklist ${pkgs.keepassxc}
   '';
 
-  # 2. Override the desktop entry using the absolute path to the HM-managed binary
+  # Create the Sandboxed Desktop Shortcut
+  # By calling "firejail brave", Firejail picks up the Home Manager wrapper
+  # (preserving your flags) and automatically loads the default profile.
   xdg.desktopEntries.brave-browser = {
     name = "Brave (Sandboxed)";
     genericName = "Web Browser";
-    # Use absolute paths for both Firejail and the profile file to prevent lookup failures
-    exec = "/run/wrappers/bin/firejail --profile=${config.home.homeDirectory}/.config/firejail/brave.local ${config.programs.chromium.package}/bin/brave %U";
+    exec = "/run/wrappers/bin/firejail brave %U";
     icon = "brave-browser";
     terminal = false;
     categories = [ "Network" "WebBrowser" ];
     mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
+
 
   services.dunst = {
     enable = true;
