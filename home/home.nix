@@ -979,6 +979,29 @@ programs.zsh = {
     ];
   };
 
+  # Create a custom Firejail profile for Brave with Stylix & KeePassXC exceptions
+  home.file.".config/firejail/brave.local".text = ''
+    # Allow Brave to see Stylix theme and font files in home/nix-store
+    whitelist ${config.home.homeDirectory}/.config/gtk-3.0
+    whitelist ${config.home.homeDirectory}/.config/fontconfig
+    
+    # Allow communication with KeePassXC socket/proxy
+    noblacklist /run/user/${toString config.home.uid}/org.keepassxc.KeePassXC.BrowserServer
+    noblacklist ${pkgs.keepassxc}
+  '';
+
+  # Override the desktop shortcut to wrap the Home Manager execution in Firejail
+  xdg.desktopEntries.brave-browser = {
+    name = "Brave (Sandboxed)";
+    genericName = "Web Browser";
+    # We call the system SUID firejail wrapper and point it to the HM-wrapped brave binary
+    exec = "/run/wrappers/bin/firejail --profile=brave ${config.home.homeDirectory}/.nix-profile/bin/brave %U";
+    icon = "brave-browser";
+    terminal = false;
+    categories = [ "Network" "WebBrowser" ];
+    mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
+  };
+
   services.dunst = {
     enable = true;
     settings = {
