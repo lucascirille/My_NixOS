@@ -7,6 +7,7 @@
     ../../modules/desktop.nix
     ../../modules/gaming.nix
     ../../modules/virt-lab.nix
+    ../../modules/hardening.nix
     ../../modules/containers.nix
   ];
 
