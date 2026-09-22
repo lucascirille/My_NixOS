@@ -153,6 +153,8 @@
     };
   };
 
+  programs.firejail.enable = true;
+
   # --- Privacy (Network Transit) ---
 
   # Privacidad de Red (MAC Spoofing Inteligente)
