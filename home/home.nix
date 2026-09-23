@@ -353,7 +353,14 @@ in
     };
   };
 
-programs.vesktop.enable = true;
+programs.vesktop = {
+  enable = true;
+  settings = {
+    discord = {
+      webRTCIPHandlingPolicy = "default_public_interface_only";
+    };
+  };
+};
 
   # programs.discord = {
   #   enable = true;
