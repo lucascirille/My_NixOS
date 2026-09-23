@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  username,
   ...
 }:
 
@@ -158,7 +159,7 @@ programs.firejail = {
     wrappedBinaries = {
       brave = {
         # Points directly to the Home Manager-wrapped Brave package containing your flags/extensions
-        executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
+        executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
         
         # Firejail profile (Brave can use its own profile or fall back to chromium's profile)
         profile = "${pkgs.firejail}/etc/firejail/brave.profile";
