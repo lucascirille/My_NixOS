@@ -169,6 +169,7 @@ programs.firejail = {
           "--ignore=private-dev"
           "--dbus-user.talk=org.freedesktop.Notifications"
           "--ignore=nodbus"
+          "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         ];
       };
     };
