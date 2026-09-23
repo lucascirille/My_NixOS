@@ -135,10 +135,10 @@
       # --- 4B. Suricata: Declarative Rules Update ---
       # A preStart hook that automatically downloads and extracts the latest 
       # Emerging Threats (ET) open ruleset before the Suricata service starts.
-      systemd.services.suricata = {
+        systemd.services.suricata = {
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
-        path = with pkgs; [ curl gnutar gzip ];
+        path = with pkgs; [ curl gnutar gzip cacert ]; 
 
         serviceConfig = {
           ReadWritePaths = [ "/var/lib/suricata-rules" "/var/log/suricata" ];
@@ -160,9 +160,10 @@
         after = [ "network.target" ];
 
         serviceConfig = {
-          StateDirectory = "zeek"; # Let systemd securely manage /var/lib/zeek 
+          StateDirectory = "zeek"; 
           WorkingDirectory = "/var/lib/zeek";
-          ExecStart = "${pkgs.zeek}/bin/zeek -i eth0 local";
+          # Added -C to ignore virtual NIC checksums
+          ExecStart = "${pkgs.zeek}/bin/zeek -C -i eth0 local"; 
           Restart = "always";
         };
       };
