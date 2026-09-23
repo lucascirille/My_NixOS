@@ -116,9 +116,15 @@
       services.suricata = {
         enable = true;
         settings = {
+          vars.address-groups = {
+          HOME_NET = "[10.0.10.0/24]";
+          EXTERNAL_NET = "!$HOME_NET";
+          };
+
           default-rule-path = "/var/lib/suricata-rules/rules";
           rule-files = [ "*.rules" ];
           classification-file = "/var/lib/suricata-rules/rules/classification.config";
+          # Tells Emerging Threats rules which IPs belong to you
 
           # Configures log outputs: 'fast.log' for quick alerts and 'eve.json' 
           # for structured, parseable telemetry (DNS, HTTP, TLS, Alerts).
