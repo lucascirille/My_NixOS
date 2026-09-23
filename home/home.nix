@@ -353,14 +353,7 @@ in
     };
   };
 
-programs.vesktop = {
-  enable = true;
-  settings = {
-    discord = {
-      webRTCIPHandlingPolicy = "disable_non_proxied_udp";
-    };
-  };
-};
+programs.vesktop.enable = true;
 
   # programs.discord = {
   #   enable = true;
