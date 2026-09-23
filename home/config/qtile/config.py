@@ -346,8 +346,8 @@ def create_bar(primary=True):
                 disconnected_message='󰤭  Offline',
                 update_interval=5.0,
 mouse_callbacks={
-    'Button1': lazy.spawn("nm-connection-editor"), # Clic izquierdo: Editor GUI
-    'Button3': lazy.group["scratchpad"].dropdown_toggle("nmtui") # Clic derecho: Escáner TUI
+    'Button1': lazy.group["scratchpad"].dropdown_toggle("nmtui"), # Clic derecho: Escáner TUI
+    'Button3': lazy.spawn("nm-connection-editor"), # Clic izquierdo: Editor GUI
 },
                 foreground=colors["bg"],
                 **get_decoration(colors["accent"])
