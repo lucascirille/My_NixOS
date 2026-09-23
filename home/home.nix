@@ -21,6 +21,39 @@ let
   nos-script = pkgs.writeShellScriptBin "nos" ''
     export SUDO_ASKPASS="${nixos-askpass}/bin/nixos-askpass"
 
+    # --- HELPER FUNCTIONS ---
+
+    # Centralized notification function
+    notify() {
+      local message="$1"
+      local urgency="$2"
+      local timeout="$3"
+      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "$message" -u "$urgency" -t "$timeout"
+    }
+
+    # Reusable retry logic for any command
+    retry_command() {
+      local max_attempts=5
+      local delay=5
+      local attempt=1
+      local command_desc="$1"
+      shift # Shifts arguments so "$@" becomes the actual command to run
+
+      while [ $attempt -le $max_attempts ]; do
+        if "$@"; then
+          return 0
+        fi
+        if [ $attempt -lt $max_attempts ]; then
+          echo "⚠️ $command_desc failed. Retrying in $delay seconds... ($attempt/$max_attempts)"
+          sleep $delay
+        fi
+        attempt=$((attempt+1))
+      done
+      return 1
+    }
+
+    # --- MAIN SCRIPT ---
+
     # Capture the first argument. If empty, auto-detect the current hostname!
     TARGET_CONFIG=$1
     if [ -z "$TARGET_CONFIG" ]; then
@@ -30,9 +63,10 @@ let
     cd ~/.dotfiles || exit 1
 
     echo "📥 Fetching and integrating remote changes..."
-    if ! git pull --rebase --autostash origin main; then
-      echo "❌ Git pull failed! Please resolve merge conflicts before building."
-      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "❌ Git pull failed!" -u critical -t 10000
+    # Using the helper function for git pull
+    if ! retry_command "Pull" git pull --rebase --autostash origin main; then
+      echo "❌ Git pull failed after 5 attempts! Please check your connection or resolve merge conflicts."
+      notify "❌ Git pull failed!" "critical" "10000"
       exit 1
     fi
 
@@ -41,7 +75,7 @@ let
     echo "🔐 Authenticating..."
     if ! sudo -A -v 2>/dev/null; then
       echo "❌ Authentication failed!"
-      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "❌ Authentication failed!" -u critical -t 10000
+      notify "❌ Authentication failed!" "critical" "10000"
       exit 1
     fi
 
@@ -49,50 +83,36 @@ let
     
     if [ -z "$NIXOS_SPECIALISATION" ]; then
       echo "🔨 Building NixOS configuration: $TARGET_CONFIG..."
-      if nh os switch /home/neo/.dotfiles#"$TARGET_CONFIG" -- --refresh; then
+      if nh os switch ~/.dotfiles#"$TARGET_CONFIG" -- --refresh; then
         build_success=true
       fi
     else
       echo "🔨 Building NixOS Specialisation: $NIXOS_SPECIALISATION for $TARGET_CONFIG..."
-      if nh os switch /home/neo/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh; then
+      if nh os switch ~/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh; then
         build_success=true
       fi
     fi
 
     if [ "$build_success" = true ]; then
       echo "✅ Build successful!"
-      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "✅ Build successful! System updated." -u normal -t 10000
+      notify "✅ Build successful! System updated." "normal" "10000"
 
       if ! git diff-index --quiet HEAD --; then
         echo "📦 Committing working configuration to Git..."
         git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
         
         echo "🚀 Pushing to remote..."
-        n=0
-        push_success=false
-        until [ "$n" -ge 3 ]
-        do
-          if git push; then
-            push_success=true
-            break
-          fi
-          n=$((n+1))
-          if [ "$n" -lt 3 ]; then
-            echo "⚠️ Push failed. Retrying in 5 seconds... ($n/3)"
-            sleep 5
-          fi
-        done
-
-        if [ "$push_success" = false ]; then
-          echo "⚠️ Git push failed after 3 attempts, but your system is successfully built and committed locally."
-          ${pkgs.libnotify}/bin/notify-send "NixOS Build" "⚠️ Build successful, but git push failed!" -u normal -t 15000
+        # Using the helper function for git push
+        if ! retry_command "Push" git push; then
+          echo "⚠️ Git push failed after 5 attempts, but your system is successfully built and committed locally."
+          notify "⚠️ Build successful, but git push failed!" "normal" "15000"
         fi
       else
         echo "🧹 Working tree clean. Nothing to commit."
       fi
     else
       echo "❌ Rebuild failed! Aborting Git commit and push."
-      ${pkgs.libnotify}/bin/notify-send "NixOS Build" "❌ Build failed! Check terminal for errors." -u critical -t 15000
+      notify "❌ Build failed! Check terminal for errors." "critical" "15000"
       exit 1
     fi
   '';
