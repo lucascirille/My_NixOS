@@ -158,8 +158,8 @@ programs.firejail = {
   enable = true;
   wrappedBinaries = {
     brave = {
-      executable = "${config.home-manager.users.${username}.programs.brave.finalPackage}/bin/brave";
-      
+      # executable = "${config.home-manager.users.${username}.programs.brave.finalPackage}/bin/brave";
+     executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";     
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
         "--ignore=private-dev"
