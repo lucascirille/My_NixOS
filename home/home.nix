@@ -956,9 +956,8 @@ programs.zsh = {
   };
 
 
-programs.chromium = {
+programs.brave = {
     enable = true;
-    package = pkgs.brave;
     commandLineArgs = [
       "--enable-features=UseOzonePlatform"
       "--ozone-platform=x11"

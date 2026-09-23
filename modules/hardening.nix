@@ -155,25 +155,21 @@
   };
 
 programs.firejail = {
-    enable = true;
-    wrappedBinaries = {
-      brave = {
-        # Points directly to the Home Manager-wrapped Brave package containing your flags/extensions
-        executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
-        
-        # Firejail profile (Brave can use its own profile or fall back to chromium's profile)
-        profile = "${pkgs.firejail}/etc/firejail/brave.profile";
-        
-        # Optional: extra arguments for Firejail if needed (e.g., U2F keys, notifications)
-        extraArgs = [
-          "--ignore=private-dev"
-          "--dbus-user.talk=org.freedesktop.Notifications"
-          "--ignore=nodbus"
-          "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
-        ];
-      };
+  enable = true;
+  wrappedBinaries = {
+    brave = {
+      executable = "${config.home-manager.users.${username}.programs.brave.finalPackage}/bin/brave";
+      
+      profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+      extraArgs = [
+        "--ignore=private-dev"
+        "--dbus-user.talk=org.freedesktop.Notifications"
+        "--ignore=nodbus"
+        "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+      ];
     };
   };
+};
 
   # --- Privacy (Network Transit) ---
 
