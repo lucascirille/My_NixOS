@@ -158,15 +158,20 @@ programs.firejail = {
   enable = true;
   wrappedBinaries = {
     brave = {
-      executable = "${config.home-manager.users.neo.programs.brave.finalPackage}/bin/brave";
+      # This MUST point to programs.chromium to match the block above
+      executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
         "--ignore=private-dev"
         "--ignore=private-etc" 
         "--ignore=nodbus"
         "--dbus-user.talk=org.freedesktop.Notifications"
-        "--ignore=private-bin" # Allows the proxy script to run
-        "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy" # Prevents Firejail from blacklisting the binary
+        
+        # CRUCIAL: Allows the keepassxc-proxy binary to run inside the sandbox
+        "--ignore=private-bin" 
+        "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
+        
+        # CRUCIAL: Allows access to the KeePassXC socket
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
       ];
