@@ -130,7 +130,8 @@
           # Configures Suricata to listen on 'eth0' (the container's veth link to br-lab)
           # using af-packet for high-performance packet capture.
           af-packet = [
-            { interface = "eth0"; cluster-id = 99; cluster-type = "cluster_flow"; defrag = "yes"; }
+            { interface = "eth0"; cluster-id = 99; cluster-type = "cluster_flow"; defrag = "yes"; checksum-checks = "no"; # <--- Tells Suricata to ignore virtual NIC checksums
+            }
           ];
         };
       };
