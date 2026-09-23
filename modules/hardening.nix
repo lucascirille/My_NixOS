@@ -171,9 +171,13 @@ programs.firejail = {
         "--ignore=private-bin" 
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # CRUCIAL: Allows access to the KeePassXC socket
-        "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
-        "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+# 1. The standard socket
+      "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
+      "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+
+# 2. THE MISSING LINK: Whitelist the entire isolated app directory!
+      "--noblacklist=/run/user/1000/app/org.keepassxc.KeePassXC"
+      "--whitelist=/run/user/1000/app/org.keepassxc.KeePassXC"
       ];
     };
   };
