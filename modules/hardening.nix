@@ -158,14 +158,14 @@ programs.firejail = {
   enable = true;
   wrappedBinaries = {
     brave = {
-      executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
+      # Crucial: This must map to programs.brave, not programs.chromium
+      executable = "${config.home-manager.users.neo.programs.brave.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
         "--ignore=private-dev"
-        "--ignore=private-etc" # PREVENTS FIREJAIL FROM BREAKING NIXOS /etc SYMLINKS
+        "--ignore=private-etc" 
         "--dbus-user.talk=org.freedesktop.Notifications"
         "--ignore=nodbus"
-        # YOU MUST NOBLACKLIST AND WHITELIST SIMULTANEOUSLY
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
       ];

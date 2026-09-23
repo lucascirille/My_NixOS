@@ -956,53 +956,35 @@ programs.zsh = {
   };
 
 
-programs.chromium = {
-    enable = true;
-    package = pkgs.brave;
-    commandLineArgs = [
-      "--enable-features=UseOzonePlatform"
-      "--ozone-platform=x11"
-      "--password-store=gnome-libsecret"
-      "--no-default-browser-check"
-      "--disable-breakpad" 
-      "--disable-sync" 
-      "--no-pings"
-    ];
-    nativeMessagingHosts = [
-      pkgs.keepassxc
-    ];
-    # nativeMessagingHosts = [
-    #   (pkgs.writeTextFile {
-    #     name = "keepassxc-brave-manifest";
-    #     text = builtins.toJSON {
-    #       name = "org.keepassxc.keepassxc_browser";
-    #       description = "KeePassXC integration with native messaging support";
-    #       path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-    #       type = "stdio";
-    #       allowed_origins = [
-    #         "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-    #       ];
-    #     };
-    #     destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
-    #   })
-    # ];
-# Manually build the Brave directory because pkgs.keepassxc only has Chromium/Firefox
-# nativeMessagingHosts = [
-#     (pkgs.writeTextFile {
-#       name = "keepassxc-brave-manifest";
-#       text = builtins.toJSON {
-#         name = "org.keepassxc.keepassxc_browser";
-#         description = "KeePassXC integration with native messaging support";
-#         path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-#         type = "stdio";
-#         allowed_origins = [
-#           "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-#         ];
-#       };
-#       destination = "/etc/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
-#     })
-#   ];
-  };
+programs.brave = {
+  enable = true;
+  commandLineArgs = [
+    "--enable-features=UseOzonePlatform"
+    "--ozone-platform=x11"
+    "--password-store=gnome-libsecret"
+    "--no-default-browser-check"
+    "--disable-breakpad" 
+    "--disable-sync" 
+    "--no-pings"
+  ];
+  
+  nativeMessagingHosts = [
+    (pkgs.writeTextFile {
+      name = "keepassxc-brave-manifest";
+      text = builtins.toJSON {
+        name = "org.keepassxc.keepassxc_browser";
+        description = "KeePassXC integration with native messaging support";
+        path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
+        type = "stdio";
+        allowed_origins = [
+          "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
+        ];
+      };
+      # Crucial: Home Manager's brave module specifically looks for /etc/brave/...
+      destination = "/etc/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
+    })
+  ];
+};
 
 
 
