@@ -959,6 +959,8 @@ programs.zsh = {
 programs.chromium = {
   enable = true;
   package = pkgs.brave;
+  
+  # Optimized launch flags for Linux desktop performance and privacy
   commandLineArgs = [
     "--enable-features=UseOzonePlatform"
     "--ozone-platform=x11"
@@ -969,11 +971,11 @@ programs.chromium = {
     "--no-pings"
   ];
   
-  # This successfully creates the file in ~/.config/chromium/
-  # (Which NixOS Brave is patched to read!)
+  # Generates the proxy manifest and correctly routes it so Brave can read it
   nativeMessagingHosts = [
     (pkgs.writeTextFile {
       name = "keepassxc-brave-manifest";
+      destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
       text = builtins.toJSON {
         name = "org.keepassxc.keepassxc_browser";
         description = "KeePassXC integration with native messaging support";
@@ -983,7 +985,6 @@ programs.chromium = {
           "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
         ];
       };
-      destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
     })
   ];
 };

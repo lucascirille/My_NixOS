@@ -161,20 +161,21 @@ programs.firejail = {
       executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
-        "--ignore=private-dev"
-        "--ignore=private-etc" 
+        # 1. NixOS System Necessities 
+        "--ignore=private-etc" # Required for NixOS fonts, DNS, and SSL certs
+        
+        # 2. Strict D-Bus Firewall
         "--ignore=nodbus"
-        "--dbus-user.talk=org.freedesktop.Notifications"
-        "--ignore=private-bin" 
+        "--dbus-user.talk=org.freedesktop.Notifications" # Only allows desktop notifications
+        
+        # 3. Targeted KeePassXC Executable Bypass (No private-bin exposure)
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # 1. Whitelist the symlink shortcut
+        # 4. Targeted Socket Whitelist (Restricted to KeePassXC only, keeping other apps hidden)
+        "--noblacklist=/run/user/1000/app/org.keepassxc.KeePassXC"
+        "--whitelist=/run/user/1000/app/org.keepassxc.KeePassXC"
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
-        
-        # 2. Whitelist the broad "app" directory so the shortcut target is visible!
-        "--noblacklist=/run/user/1000/app"
-        "--whitelist=/run/user/1000/app"
       ];
     };
   };
