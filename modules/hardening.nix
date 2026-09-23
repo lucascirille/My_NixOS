@@ -172,7 +172,6 @@ programs.firejail = {
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC" 
         "--private-bin=keepassxc-proxy" 
-        "--include=whitelist-runuser-common.inc"
       ];
     };
   };
