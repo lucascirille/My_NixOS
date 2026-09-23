@@ -956,8 +956,9 @@ programs.zsh = {
   };
 
 
-programs.brave = {
+programs.chromium = {
   enable = true;
+  package = pkgs.brave;
   commandLineArgs = [
     "--enable-features=UseOzonePlatform"
     "--ozone-platform=x11"
@@ -968,6 +969,7 @@ programs.brave = {
     "--no-pings"
   ];
   
+  # We MUST use the chromium module so this doesn't get deleted
   nativeMessagingHosts = [
     (pkgs.writeTextFile {
       name = "keepassxc-brave-manifest";
@@ -980,8 +982,8 @@ programs.brave = {
           "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
         ];
       };
-      # Crucial: Home Manager's brave module specifically looks for /etc/brave/...
-      destination = "/etc/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
+      # This MUST say /etc/chromium/... so the builder catches it
+      destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
     })
   ];
 };
