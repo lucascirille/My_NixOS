@@ -108,6 +108,9 @@
       networking.defaultGateway = "10.0.10.1";
       networking.nameservers = [ "8.8.8.8" "1.1.1.1" ];
 
+      # Tell the container NOT to inherit the host's local DNS loopback
+      networking.useHostResolvConf = false;
+
       # --- 4A. Suricata: IDS/IPS Engine ---
       # Intrusion Detection System configuration. It analyzes traffic in real-time.
       services.suricata = {
