@@ -158,7 +158,6 @@ programs.firejail = {
   enable = true;
   wrappedBinaries = {
     brave = {
-      # This MUST point to programs.chromium to match the block above
       executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
@@ -166,18 +165,16 @@ programs.firejail = {
         "--ignore=private-etc" 
         "--ignore=nodbus"
         "--dbus-user.talk=org.freedesktop.Notifications"
-        
-        # CRUCIAL: Allows the keepassxc-proxy binary to run inside the sandbox
         "--ignore=private-bin" 
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-# 1. The standard socket
-      "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
-      "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
-
-# 2. THE MISSING LINK: Whitelist the entire isolated app directory!
-      "--noblacklist=/run/user/1000/app/org.keepassxc.KeePassXC"
-      "--whitelist=/run/user/1000/app/org.keepassxc.KeePassXC"
+        # 1. Whitelist the symlink shortcut
+        "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
+        "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+        
+        # 2. Whitelist the broad "app" directory so the shortcut target is visible!
+        "--noblacklist=/run/user/1000/app"
+        "--whitelist=/run/user/1000/app"
       ];
     };
   };
