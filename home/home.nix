@@ -354,7 +354,6 @@ in
   };
 
 programs.vesktop.enable = true;
-stylix.targets.vesktop.enable = false;
 
   # programs.discord = {
   #   enable = true;
