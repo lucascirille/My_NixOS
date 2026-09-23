@@ -108,7 +108,7 @@
   };
 
   # ==============================================================================
-  # 5. CORRECCIÓN: Levantar el bridge justo antes de arrancar el contenedor
+  # 5. Levantar el bridge justo antes de arrancar el contenedor
   # ==============================================================================
   systemd.services."container@lab-sensor".preStart = ''
     ip link set br-lab up
