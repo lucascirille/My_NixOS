@@ -135,10 +135,11 @@
       # --- 4B. Suricata: Declarative Rules Update ---
       # A preStart hook that automatically downloads and extracts the latest 
       # Emerging Threats (ET) open ruleset before the Suricata service starts.
-        systemd.services.suricata = {
+# --- 4B. Suricata: Declarative Rules Update ---
+      systemd.services.suricata = {
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
-        path = with pkgs; [ curl gnutar gzip cacert ]; 
+        path = with pkgs; [ curl gnutar gzip cacert ];
 
         serviceConfig = {
           ReadWritePaths = [ "/var/lib/suricata-rules" "/var/log/suricata" ];
@@ -147,7 +148,10 @@
         preStart = pkgs.lib.mkBefore ''
           mkdir -p /var/lib/suricata-rules
           mkdir -p /var/log/suricata
-          curl -sL https://rules.emergingthreats.net/open/suricata-7.0/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata-rules/
+          
+          # -f tells curl to fail immediately on HTTP errors (like 404)
+          # Updated URL to the correct suricata-7.0.3 directory
+          curl -sSfL https://rules.emergingthreats.net/open/suricata-7.0.3/emerging.rules.tar.gz | tar -xzf - -C /var/lib/suricata-rules/
         '';
       };
 
