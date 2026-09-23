@@ -24,10 +24,9 @@
     package = pkgs.wireshark; 
   };
 
-  # Creates a security wrapper for 'ubridge'. Ubridge is used to bridge virtual 
-  # network nodes (often used in GNS3 or lab topologies). The wrapper grants it 
-  # administrative network capabilities (cap_net_admin, cap_net_raw=ep) so it 
-  # can manipulate network interfaces while running safely under its own group.
+  # Creates a security wrapper for 'ubridge' (used to bridge virtual network nodes). 
+  # The wrapper grants it administrative network capabilities (cap_net_admin, 
+  # cap_net_raw=ep) so it can manipulate interfaces safely under its own group.
   security.wrappers.ubridge = {
     source = "${pkgs.ubridge}/bin/ubridge";
     capabilities = "cap_net_admin,cap_net_raw=ep";
@@ -38,7 +37,7 @@
   users.groups.ubridge = { };
 
   # ===========================================================================
-  # 3. LAB NETWORK BRIDGE (br-lab)
+  # 3. LAB NETWORK BRIDGE (br-lab) & LIFECYCLE MANAGEMENT
   # ===========================================================================
   # Defines a virtual network bridge named 'br-lab' with no physical interfaces 
   # attached initially. It acts as an isolated virtual switch for the lab.
@@ -51,31 +50,48 @@
   ];
   
   # Enables Network Address Translation (NAT) so that traffic originating from 
-  # 'br-lab' (the internal interface) can route out to the internet through 
-  # the host machine's primary connection.
+  # 'br-lab' (the internal interface) can route out to the internet.
   networking.nat = { 
     enable = true; 
     internalInterfaces = [ "br-lab" ]; 
   };
 
-  # ===========================================================================
-  # 4. WEBRTC / VESKTOP CONFLICT RESOLUTION
-  # ===========================================================================
-  # WebRTC (used by Vesktop/Discord) attempts to bind to all active interfaces.
-  # Because br-lab has a static IP, the network manager forces it UP by default, 
-  # trapping outgoing media packets. This systemd service waits for the network 
-  # stack to finish initializing, then immediately forces the bridge DOWN.
-  systemd.services.down-br-lab = {
-    description = "Force br-lab interface down to prevent WebRTC routing conflicts";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-    serviceConfig.Type = "oneshot";
-    # Uses the absolute path to iproute2 to guarantee execution during boot
-    script = "${pkgs.iproute2}/bin/ip link set br-lab down || true";
+  # --- 3A. Prevent NetworkManager Interference ---
+  # Tells NetworkManager to completely ignore the br-lab interface so it doesn't
+  # automatically force it UP when it detects the static IP address.
+  networking.networkmanager.unmanaged = [ "br-lab" ];
+
+  # --- 3B. Force Bridge DOWN on Creation ---
+  # Injects a command to bring the bridge down the exact millisecond NixOS 
+  # finishes assigning the 10.0.10.1 IP address during early boot.
+  systemd.services."network-addresses-br-lab".postStart = ''
+    ${pkgs.iproute2}/bin/ip link set br-lab down || true
+  '';
+
+  # --- 3C. Tie Bridge State to Container Power Cycle ---
+  # A standalone lifecycle service. It waits for the container to start, brings
+  # the bridge UP, and when the container stops, it brings the bridge DOWN.
+  systemd.services.br-lab-lifecycle = {
+    description = "Manage br-lab interface state alongside lab-sensor container";
+    
+    # Tie this service directly to the container's power state
+    bindsTo = [ "container@lab-sensor.service" ];
+    partOf = [ "container@lab-sensor.service" ];
+    wantedBy = [ "container@lab-sensor.service" ];
+    
+    # Ensure the bridge is UP before the container attempts to start
+    before = [ "container@lab-sensor.service" ];
+    
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true; # Required so it knows when to trigger the Stop command
+      ExecStart = "${pkgs.iproute2}/bin/ip link set br-lab up";
+      ExecStop = "${pkgs.iproute2}/bin/ip link set br-lab down";
+    };
   };
 
   # ===========================================================================
-  # 5. SECURITY LAB CONTAINER (lab-sensor)
+  # 4. SECURITY LAB CONTAINER (lab-sensor)
   # ===========================================================================
   # Defines a declarative systemd-nspawn container acting as a network sensor.
   # It connects to the host via the 'br-lab' bridge and is assigned 10.0.10.2.
@@ -92,7 +108,7 @@
       networking.defaultGateway = "10.0.10.1";
       networking.nameservers = [ "8.8.8.8" "1.1.1.1" ];
 
-      # --- 5A. Suricata: IDS/IPS Engine ---
+      # --- 4A. Suricata: IDS/IPS Engine ---
       # Intrusion Detection System configuration. It analyzes traffic in real-time.
       services.suricata = {
         enable = true;
@@ -116,7 +132,7 @@
         };
       };
 
-      # --- 5B. Suricata: Declarative Rules Update ---
+      # --- 4B. Suricata: Declarative Rules Update ---
       # A preStart hook that automatically downloads and extracts the latest 
       # Emerging Threats (ET) open ruleset before the Suricata service starts.
       systemd.services.suricata = {
@@ -135,7 +151,7 @@
         '';
       };
 
-      # --- 5C. Zeek: Network Security Monitor ---
+      # --- 4C. Zeek: Network Security Monitor ---
       # Defines a custom systemd service for Zeek. Unlike Suricata (which alerts), 
       # Zeek logs protocol metadata and connections for forensic analysis.
       systemd.services.zeek = {
@@ -151,7 +167,7 @@
         };
       };
 
-      # --- 5D. Packages and System Configuration ---
+      # --- 4D. Packages and System Configuration ---
       # Installs localized diagnostic tools strictly inside the container namespace.
       environment.systemPackages = with pkgs; [
         zeek
