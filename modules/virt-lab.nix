@@ -19,6 +19,9 @@
   networking.interfaces.br-lab.ipv4.addresses = [ { address = "10.0.10.1"; prefixLength = 24; } ];
   networking.nat = { enable = true; internalInterfaces = [ "br-lab" ]; };
 
+  # Automatically force the lab bridge down on boot to prevent WebRTC conflicts
+  networking.localCommands = "ip link set br-lab down || true";
+
   containers.lab-sensor = {
     autoStart = false;
     privateNetwork = true;
