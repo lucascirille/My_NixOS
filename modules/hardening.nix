@@ -158,22 +158,39 @@ programs.firejail = {
   enable = true;
   wrappedBinaries = {
     brave = {
+      # Points directly to the Home Manager Chromium/Brave package we built above
       executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
-        # 1. NixOS System & Hardware Necessities 
+        # --- 1. SYSTEM & HARDWARE ACCESS ---
+        # Required for NixOS to resolve fonts, Stylix themes, DNS, and SSL certificates
         "--ignore=private-etc" 
-        "--ignore=private-dev" # Required for Brave's GPU and memory-mapping
+        # Required so Brave's internal renderer doesn't crash (needs GPU /dev/dri and RAM mapping)
+        "--ignore=private-dev" 
+        
+        # --- 2. D-BUS FIREWALL ---
+        # Re-enables D-Bus (which firejail blocks by default for browsers)
         "--ignore=nodbus"
+        # Strict firewall: Only allows Brave to use D-Bus to send desktop notifications.
+        # Blocks the browser from snooping on other system services.
         "--dbus-user.talk=org.freedesktop.Notifications"
         
-        # 2. Execution Bypasses
-        "--ignore=private-bin" # Guarantees proxy execution in the Nix store
+        # --- 3. PROXY EXECUTION BYPASS ---
+        # Disables the strict execution block, allowing Brave to run background scripts
+        "--ignore=private-bin" 
+        # Prevents Firejail's global profile from blacklisting password managers
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # 3. Restored Socket Permissions 
+        # --- 4. SOCKET WHITELIST (THE SYMLINK TRAP) ---
+        # KeePassXC creates two sockets: a shortcut, and the real socket hidden inside 'app/'.
+        # Firejail requires BOTH a --noblacklist (to erase default security blocks) 
+        # AND a --whitelist (to mount the path) to work correctly.
+        
+        # A. Whitelist the broad 'app' directory so Firejail can physically see the real socket
         "--noblacklist=/run/user/1000/app"
         "--whitelist=/run/user/1000/app"
+        
+        # B. Whitelist the shortcut symlink that the browser actually looks for
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
       ];

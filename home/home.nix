@@ -958,9 +958,12 @@ programs.zsh = {
 
 programs.chromium = {
   enable = true;
+  
+  # WHY CHROMIUM? Home Manager's `programs.brave` module is incomplete and silently deletes
+  # the nativeMessagingHosts block during the build. By using the robust Chromium module 
+  # but setting the package to Brave, we trick HM into properly generating the file.
   package = pkgs.brave;
   
-  # Optimized launch flags for Linux desktop performance and privacy
   commandLineArgs = [
     "--enable-features=UseOzonePlatform"
     "--ozone-platform=x11"
@@ -971,7 +974,10 @@ programs.chromium = {
     "--no-pings"
   ];
   
-  # Generates the proxy manifest and correctly routes it so Brave can read it
+  # This generates the JSON file required for the browser to talk to KeePassXC.
+  # Because we used `programs.chromium`, it gets placed in ~/.config/chromium/.
+  # NixOS maintains a custom patch for Brave that tells it to look in this Chromium
+  # folder as a fallback, which bridges the gap perfectly.
   nativeMessagingHosts = [
     (pkgs.writeTextFile {
       name = "keepassxc-brave-manifest";
@@ -979,6 +985,8 @@ programs.chromium = {
       text = builtins.toJSON {
         name = "org.keepassxc.keepassxc_browser";
         description = "KeePassXC integration with native messaging support";
+        
+        # Maps dynamically to your system's exact KeePassXC Nix store path
         path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
         type = "stdio";
         allowed_origins = [
