@@ -161,19 +161,19 @@ programs.firejail = {
       executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
-        # 1. NixOS System Necessities 
-        "--ignore=private-etc" # Required for NixOS fonts, DNS, and SSL certs
-        
-        # 2. Strict D-Bus Firewall
+        # 1. NixOS System & Hardware Necessities 
+        "--ignore=private-etc" 
+        "--ignore=private-dev" # Required for Brave's GPU and memory-mapping
         "--ignore=nodbus"
-        "--dbus-user.talk=org.freedesktop.Notifications" # Only allows desktop notifications
+        "--dbus-user.talk=org.freedesktop.Notifications"
         
-        # 3. Targeted KeePassXC Executable Bypass (No private-bin exposure)
+        # 2. Execution Bypasses
+        "--ignore=private-bin" # Guarantees proxy execution in the Nix store
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # 4. Targeted Socket Whitelist (Restricted to KeePassXC only, keeping other apps hidden)
-        "--noblacklist=/run/user/1000/app/org.keepassxc.KeePassXC"
-        "--whitelist=/run/user/1000/app/org.keepassxc.KeePassXC"
+        # 3. Restored Socket Permissions 
+        "--noblacklist=/run/user/1000/app"
+        "--whitelist=/run/user/1000/app"
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
       ];
