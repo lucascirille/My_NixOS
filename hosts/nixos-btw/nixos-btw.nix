@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, ... }:
+{ lib, ... }:
 
 {
   imports = [
@@ -14,7 +14,7 @@
   system.stateVersion = "25.11";
 
 # --- TEMPORARY FIX: Gag libvirtd to break the crash loop ---
-  # virtualisation.libvirtd.enable = lib.mkForce false;
+  virtualisation.libvirtd.enable = lib.mkForce false;
 
   # VM / Baremetal Overrides
   specialisation.baremetal.configuration = {
