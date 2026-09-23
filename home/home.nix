@@ -968,18 +968,21 @@ programs.brave = {
     "--no-pings"
   ];
   
-  # This correctly places the file into ~/.config/BraveSoftware/Brave-Browser/...
   nativeMessagingHosts = [
-    (pkgs.writeTextDir "share/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json" (builtins.toJSON {
-      name = "org.keepassxc.keepassxc_browser";
-      description = "KeePassXC integration with native messaging support";
-      path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-      type = "stdio";
-      allowed_origins = [
-        "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-      ];
-    }))
+    pkgs.keepassxc
   ];
+  
+  # nativeMessagingHosts = [
+  #   (pkgs.writeTextDir "share/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json" (builtins.toJSON {
+  #     name = "org.keepassxc.keepassxc_browser";
+  #     description = "KeePassXC integration with native messaging support";
+  #     path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
+  #     type = "stdio";
+  #     allowed_origins = [
+  #       "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
+  #     ];
+  #   }))
+  # ];
 };
 
 

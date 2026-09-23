@@ -165,8 +165,8 @@ programs.firejail = {
         "--ignore=private-etc" 
         "--ignore=nodbus"
         "--dbus-user.talk=org.freedesktop.Notifications"
-        # CRUCIAL: Disables the execution block so keepassxc-proxy can run inside Firejail
-        "--ignore=private-bin" 
+        "--ignore=private-bin" # Allows the proxy script to run
+        "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy" # Prevents Firejail from blacklisting the binary
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
       ];
