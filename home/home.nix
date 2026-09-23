@@ -956,9 +956,8 @@ programs.zsh = {
   };
 
 
-programs.chromium = {
+programs.brave = {
   enable = true;
-  package = pkgs.brave;
   commandLineArgs = [
     "--enable-features=UseOzonePlatform"
     "--ozone-platform=x11"
@@ -969,22 +968,17 @@ programs.chromium = {
     "--no-pings"
   ];
   
-  # We MUST use the chromium module so this doesn't get deleted
+  # This correctly places the file into ~/.config/BraveSoftware/Brave-Browser/...
   nativeMessagingHosts = [
-    (pkgs.writeTextFile {
-      name = "keepassxc-brave-manifest";
-      text = builtins.toJSON {
-        name = "org.keepassxc.keepassxc_browser";
-        description = "KeePassXC integration with native messaging support";
-        path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
-        type = "stdio";
-        allowed_origins = [
-          "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
-        ];
-      };
-      # This MUST say /etc/chromium/... so the builder catches it
-      destination = "/etc/chromium/native-messaging-hosts/org.keepassxc.keepassxc_browser.json";
-    })
+    (pkgs.writeTextDir "share/brave/native-messaging-hosts/org.keepassxc.keepassxc_browser.json" (builtins.toJSON {
+      name = "org.keepassxc.keepassxc_browser";
+      description = "KeePassXC integration with native messaging support";
+      path = "${pkgs.keepassxc}/bin/keepassxc-proxy";
+      type = "stdio";
+      allowed_origins = [
+        "chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"
+      ];
+    }))
   ];
 };
 

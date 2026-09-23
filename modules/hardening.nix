@@ -158,20 +158,17 @@ programs.firejail = {
   enable = true;
   wrappedBinaries = {
     brave = {
-      # Map back to programs.chromium to match the block above
-      executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
+      executable = "${config.home-manager.users.neo.programs.brave.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
         "--ignore=private-dev"
         "--ignore=private-etc" 
         "--ignore=nodbus"
         "--dbus-user.talk=org.freedesktop.Notifications"
-        # CRUCIAL FIX: Allows the proxy script to execute inside the sandbox
+        # CRUCIAL: Disables the execution block so keepassxc-proxy can run inside Firejail
         "--ignore=private-bin" 
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
-        "--whitelist=/run/user/1000/org.keepassxc.KeePassXC" 
-        "--private-bin=keepassxc-proxy" 
       ];
     };
   };
