@@ -145,14 +145,14 @@
   # };
 
   # System-level Chromium/Brave policies
-  programs.chromium = {
-    enable = true;
-    extraOpts = {
-      "PasswordManagerEnabled" = false;
-      "AutofillAddressEnabled" = false;
-      "AutofillCreditCardEnabled" = false;
-    };
-  };
+  # programs.chromium = {
+  #   enable = true;
+  #   extraOpts = {
+  #     "PasswordManagerEnabled" = false;
+  #     "AutofillAddressEnabled" = false;
+  #     "AutofillCreditCardEnabled" = false;
+  #   };
+  # };
 
 programs.firejail = {
   enable = true;

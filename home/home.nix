@@ -10,41 +10,36 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-# The Ultimate Pure Nix Auto-Wrapper
-  wrapFirejail = pkg: pkgs.symlinkJoin {
-    name = "${pkg.name}-firejailed";
-    paths = [ pkg ];
-    postBuild = ''
-      # 1. AUTO-PATCH CLI BINARIES
-      if [ -d $out/bin ]; then
-        for f in $out/bin/*; do
-          binName=$(basename "$f")
-          rm -f "$f"
-          
-          # Explicitly invoke firejail on the raw Nix store binary
-          echo "#!/bin/sh" > "$f"
-          echo "exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
-          chmod +x "$f"
-        done
-      fi
+wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.symlinkJoin {
+  name = "${pkg.name}-firejailed";
+  paths = [ pkg ];
+  postBuild = ''
+    # 1. AUTO-PATCH CLI BINARIES
+    if [ -d $out/bin ]; then
+      for f in $out/bin/*; do
+        binName=$(basename "$f")
+        rm -f "$f"
+        
+        echo "#!/bin/sh" > "$f"
+        echo "exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
+        chmod +x "$f"
+      done
+    fi
 
-      # 2. AUTO-PATCH GUI .DESKTOP FILES
-      if [ -d $out/share/applications ]; then
-        for desktop in $out/share/applications/*.desktop; do
-          temp=$(mktemp)
-          cp "$desktop" "$temp"
-          rm -f "$desktop"
-          mv "$temp" "$desktop"
-          chmod +w "$desktop"
+    # 2. AUTO-PATCH GUI .DESKTOP FILES
+    if [ -d $out/share/applications ]; then
+      for desktop in $out/share/applications/*.desktop; do
+        temp=$(mktemp)
+        cp "$desktop" "$temp"
+        rm -f "$desktop"
+        mv "$temp" "$desktop"
+        chmod +w "$desktop"
 
-          # THE FIX: Strip the absolute Nix store path from the Exec line!
-          # Example: "Exec=/nix/store/.../bin/obsidian %U" becomes "Exec=obsidian %U"
-          # This forces Rofi to use $PATH, mathematically guaranteeing it hits our wrapper.
-          sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
-        done
-      fi
-    '';
-  };
+        sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
+      done
+    fi
+  '';
+});
 
   # Askpass
   nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
@@ -299,7 +294,7 @@ in
     (map wrapFirejail [
       libreoffice
       nsxiv
-      # (Put foliate/feh here if you don't use their modules)
+      config.programs.chromium.finalPackage
     ]) 
     ++ 
     # Normal / System Apps
@@ -1040,8 +1035,9 @@ programs.chromium = {
   # WHY CHROMIUM? Home Manager's `programs.brave` module is incomplete and silently deletes
   # the nativeMessagingHosts block during the build. By using the robust Chromium module 
   # but setting the package to Brave, we trick HM into properly generating the file.
+
   package = pkgs.brave;
-  
+
   commandLineArgs = [
     "--enable-features=UseOzonePlatform"
     "--ozone-platform=x11"
