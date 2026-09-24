@@ -14,14 +14,21 @@ wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.symlinkJoin {
   name = "${pkg.name}-firejailed";
   paths = [ pkg ];
   postBuild = ''
-    # 1. AUTO-PATCH CLI BINARIES
+    # 1. AUTO-PATCH CLI BINARIES (The Smart Bridge)
     if [ -d $out/bin ]; then
       for f in $out/bin/*; do
         binName=$(basename "$f")
         rm -f "$f"
         
         echo "#!/bin/sh" > "$f"
-        echo "exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
+        # If NixOS created a smart wrapper for this binary, use it!
+        echo "if [ -x \"/run/current-system/sw/bin/$binName\" ]; then" >> "$f"
+        echo "  exec /run/current-system/sw/bin/$binName \"\$@\"" >> "$f"
+        # Otherwise, fall back to a standard default sandbox
+        echo "else" >> "$f"
+        echo "  exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
+        echo "fi" >> "$f"
+        
         chmod +x "$f"
       done
     fi
@@ -35,6 +42,7 @@ wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.symlinkJoin {
         mv "$temp" "$desktop"
         chmod +w "$desktop"
 
+        # Stripping the absolute path guarantees Rofi hits our Smart Bridge above
         sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
       done
     fi
