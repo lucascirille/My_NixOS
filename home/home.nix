@@ -21,7 +21,7 @@ let
           binName=$(basename "$f")
           rm -f "$f"
           
-          # THE FIX: We explicitly call firejail on the original Nix store binary!
+          # Explicitly invoke firejail on the raw Nix store binary
           echo "#!/bin/sh" > "$f"
           echo "exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
           chmod +x "$f"
@@ -37,9 +37,10 @@ let
           mv "$temp" "$desktop"
           chmod +w "$desktop"
 
-          # Point the desktop file to our newly created Firejail wrappers
-          # Replaces /nix/store/.../bin with $out/bin
-          sed -i -E "s|/nix/store/[a-z0-9]{32}-[^/]+/bin|$out/bin|g" "$desktop"
+          # THE FIX: Strip the absolute Nix store path from the Exec line!
+          # Example: "Exec=/nix/store/.../bin/obsidian %U" becomes "Exec=obsidian %U"
+          # This forces Rofi to use $PATH, mathematically guaranteeing it hits our wrapper.
+          sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
         done
       fi
     '';
