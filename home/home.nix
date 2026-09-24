@@ -10,17 +10,22 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-# Native Linux CLI Wrapper Generator
-  # Points directly to the system-level Firejail wrappers!
-  firejailCli = name: {
-    name = ".local/bin/${name}";
-    value = {
-      text = ''
-        #!/bin/sh
-        exec /run/current-system/sw/bin/${name} "$@"
-      '';
-      executable = true;
-    };
+# 1. Pure Nix CLI Wrapper (Surgical Override)
+  # Clones the package and replaces only the main binary with our script
+  wrapFirejail = pkg: binName: pkgs.symlinkJoin {
+    name = "${pkg.name}-firejailed";
+    paths = [ pkg ];
+    postBuild = ''
+      # Remove the original symlink for the specific binary
+      rm -f $out/bin/${binName}
+      
+      # Write our custom Firejail script in its place
+      cat > $out/bin/${binName} << 'EOF'
+      #!/bin/sh
+      exec /run/current-system/sw/bin/${binName} "$@"
+      EOF
+      chmod +x $out/bin/${binName}
+    '';
   };
 
   # XDG Desktop Patcher
@@ -29,16 +34,17 @@ let
     chmod +w $out
     sed -i -E "s|^Exec=([^ ]+)|Exec=/run/current-system/sw/bin/${binName}|g" $out
   '';
+
+    mkDesktop = pkg: desktopName: binName: {
+    name = "applications/${desktopName}";
+    value = { source = patchDesktop pkg desktopName binName; };
+  };
+
   # Askpass
   nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
     ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
     ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str ' mainbox {children: [inputbar];}'
   '';
-  
-  mkDesktop = pkg: desktopName: binName: {
-    name = "applications/${desktopName}";
-    value = { source = patchDesktop pkg desktopName binName; };
-  };
 
 # Build & Commit (nos)
   nos-script = pkgs.writeShellScriptBin "nos" ''
@@ -273,16 +279,18 @@ in
   };
 
   # --- 1. CLI WRAPPERS (Terminal) ---
-  home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
-
-  home.file = builtins.listToAttrs (map (name: firejailCli name) [
-    "brave" "obsidian" "vesktop" "spotify" "mpv" "nsxiv" 
-    "feh" "zathura" "foliate" "heroic" "libreoffice"
-  ]);
+  # home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
+  #
+  # home.file = builtins.listToAttrs (map (name: firejailCli name) [
+  #   "brave" "obsidian" "vesktop" "spotify" "mpv" "nsxiv" 
+  #   "feh" "zathura" "foliate" "heroic" "libreoffice"
+  # ]);
 
 
 
   home.packages = with pkgs; [
+    
+    (wrapFirejail libreoffice "libreoffice")
 
 
     networkmanagerapplet
@@ -302,7 +310,7 @@ in
     qalculate-gtk
 
 
-    libreoffice
+    # libreoffice
 
     rofi
     rofimoji
