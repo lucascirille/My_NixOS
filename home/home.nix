@@ -10,21 +10,28 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-# 1. Pure Nix CLI Wrapper (Surgical Override)
-  # Clones the package and replaces only the main binary with our script
-  wrapFirejail = pkg: binName: pkgs.symlinkJoin {
+# 1. Pure Nix Auto-Wrapper
+  # It iterates through EVERY binary in the package and creates a Firejail patch
+  wrapFirejail = pkg: pkgs.symlinkJoin {
     name = "${pkg.name}-firejailed";
     paths = [ pkg ];
     postBuild = ''
-      # Remove the original symlink for the specific binary
-      rm -f $out/bin/${binName}
-      
-      # Write our custom Firejail script in its place
-      cat > $out/bin/${binName} << 'EOF'
-      #!/bin/sh
-      exec /run/current-system/sw/bin/${binName} "$@"
-      EOF
-      chmod +x $out/bin/${binName}
+      # Check if the package actually has a bin/ folder
+      if [ -d $out/bin ]; then
+        # Loop through every binary file inside it
+        for f in $out/bin/*; do
+          binName=$(basename "$f")
+          
+          # Delete the original symlink
+          rm -f "$f"
+          
+          # Write the Firejail wrapper automatically
+          echo "#!/bin/sh" > "$f"
+          echo 'exec /run/current-system/sw/bin/'"$binName"' "$@"' >> "$f"
+          
+          chmod +x "$f"
+        done
+      fi
     '';
   };
 
@@ -290,7 +297,6 @@ in
 
   home.packages = with pkgs; [
     
-    (wrapFirejail libreoffice "libreoffice")
 
 
     networkmanagerapplet
@@ -310,7 +316,7 @@ in
     qalculate-gtk
 
 
-    # libreoffice
+    libreoffice
 
     rofi
     rofimoji
@@ -761,6 +767,8 @@ xdg.dataFile = builtins.listToAttrs [
 
 programs.obsidian = {
   enable = true;
+
+  package = wrapFirejail pkgs.obsidian;
 
   vaults.notes = {
     target = "Documents/second_brain";
