@@ -159,7 +159,7 @@ programs.firejail = {
   wrappedBinaries = {
     brave = {
       # Points directly to the Home Manager Chromium/Brave package we built above
-      executable = "${config.home-manager.users.neo.programs.chromium.finalPackage}/bin/brave";
+      executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
         # --- 1. SYSTEM & HARDWARE ACCESS ---
