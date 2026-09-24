@@ -10,17 +10,35 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-  # XDG Desktop Patcher (Bypasses home.packages completely!)
+# Native Linux CLI Wrapper Generator
+  # Points directly to the system-level Firejail wrappers!
+  firejailCli = name: {
+    name = ".local/bin/${name}";
+    value = {
+      text = ''
+        #!/bin/sh
+        exec /run/current-system/sw/bin/${name} "$@"
+      '';
+      executable = true;
+    };
+  };
+
+  # XDG Desktop Patcher
   patchDesktop = pkg: desktopName: binName: pkgs.runCommand "${desktopName}-patched" {} ''
     cp ${pkg}/share/applications/${desktopName} $out
     chmod +w $out
-    sed -i -E 's|^Exec=([^ ]+)|Exec=/run/current-system/sw/bin/${binName}|g' $out
+    sed -i -E "s|^Exec=([^ ]+)|Exec=/run/current-system/sw/bin/${binName}|g" $out
   '';
   # Askpass
   nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
     ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
     ${pkgs.rofi}/bin/rofi -dmenu -password -p "🔐 Sudo Password" -theme-str ' mainbox {children: [inputbar];}'
   '';
+  
+  mkDesktop = pkg: desktopName: binName: {
+    name = "applications/${desktopName}";
+    value = { source = patchDesktop pkg desktopName binName; };
+  };
 
 # Build & Commit (nos)
   nos-script = pkgs.writeShellScriptBin "nos" ''
@@ -254,36 +272,17 @@ in
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
   };
 
-  # --- 1. Prioritize local binaries in your PATH ---
-  home.sessionPath = [
-    "${config.home.homeDirectory}/.local/bin"
-  ];
+  # --- 1. CLI WRAPPERS (Terminal) ---
+  home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
 
-  # --- 2. Generate CLI wrappers directly into ~/.local/bin ---
-  # This completely bypasses Nix store collisions!
-  home.file = builtins.listToAttrs (map (name: {
-    name = ".local/bin/${name}";
-    value = {
-      text = ''
-        #!/bin/sh
-        exec /run/current-system/sw/bin/${name} "$@"
-      '';
-      executable = true;
-    };
-  }) [
+  home.file = builtins.listToAttrs (map (name: firejailCli name) [
     "brave" "obsidian" "vesktop" "spotify" "mpv" "nsxiv" 
-    "feh" "zathura" "foliate" "libreoffice" "heroic"
+    "feh" "zathura" "foliate" "heroic" "libreoffice"
   ]);
 
 
+
   home.packages = with pkgs; [
-
-    # replace the default brave command with a high-priority wrapper that points to the system-installed Brave
-    # (pkgs.lib.hiPrio (pkgs.writeShellScriptBin "brave" ''
-    #   exec ${braveWrapper} "$@"
-    # ''))
-
-
 
 
     networkmanagerapplet
@@ -737,18 +736,18 @@ services.blueman-applet.enable = true;
   };
 
 # --- 3. Route GUI wrappers directly to ~/.local/share/applications ---
-  xdg.dataFile = {
-    "applications/brave-browser.desktop".source = patchDesktop pkgs.brave "brave-browser.desktop" "brave";
-    "applications/obsidian.desktop".source = patchDesktop pkgs.obsidian "obsidian.desktop" "obsidian";
-    "applications/vesktop.desktop".source = patchDesktop pkgs.vesktop "vesktop.desktop" "vesktop";
-    "applications/spotify.desktop".source = patchDesktop pkgs.spotify "spotify.desktop" "spotify";
-    "applications/mpv.desktop".source = patchDesktop pkgs.mpv "mpv.desktop" "mpv";
-    "applications/nsxiv.desktop".source = patchDesktop pkgs.nsxiv "nsxiv.desktop" "nsxiv";
-    "applications/feh.desktop".source = patchDesktop pkgs.feh "feh.desktop" "feh";
-    "applications/org.pwmt.zathura.desktop".source = patchDesktop pkgs.zathura "org.pwmt.zathura.desktop" "zathura";
-    "applications/com.github.johnfactotum.Foliate.desktop".source = patchDesktop pkgs.foliate "com.github.johnfactotum.Foliate.desktop" "foliate";
-    "applications/com.heroicgameslauncher.hgl.desktop".source = patchDesktop pkgs.heroic "com.heroicgameslauncher.hgl.desktop" "heroic";
-  };
+xdg.dataFile = builtins.listToAttrs [
+  (mkDesktop pkgs.brave "brave-browser.desktop" "brave")
+  (mkDesktop pkgs.obsidian "obsidian.desktop" "obsidian")
+  (mkDesktop pkgs.vesktop "vesktop.desktop" "vesktop")
+  (mkDesktop pkgs.spotify "spotify.desktop" "spotify")
+  (mkDesktop pkgs.mpv "mpv.desktop" "mpv")
+  (mkDesktop pkgs.nsxiv "nsxiv.desktop" "nsxiv")
+  (mkDesktop pkgs.feh "feh.desktop" "feh")
+  (mkDesktop pkgs.zathura "org.pwmt.zathura.desktop" "zathura")
+  (mkDesktop pkgs.foliate "com.github.johnfactotum.Foliate.desktop" "foliate")
+  (mkDesktop pkgs.heroic "com.heroicgameslauncher.hgl.desktop" "heroic")
+];
 
 
 
