@@ -195,6 +195,73 @@ programs.firejail = {
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
       ];
     };
+    # --- MESSAGING ---
+    vesktop = {
+      executable = "${pkgs.vesktop}/bin/vesktop";
+      profile = "${pkgs.firejail}/etc/firejail/vesktop.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+
+    # --- MEDIA PLAYERS & STREAMING ---
+    mpv = {
+      executable = "${pkgs.mpv}/bin/mpv";
+      profile = "${pkgs.firejail}/etc/firejail/mpv.profile";
+      extraArgs = [ "--ignore=private-etc" "--ignore=private-dev" ];
+    };
+    spotify = {
+      executable = "${pkgs.spotify}/bin/spotify";
+      profile = "${pkgs.firejail}/etc/firejail/spotify.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+
+    # --- DOCUMENTS & E-BOOKS ---
+    zathura = {
+      executable = "${pkgs.zathura}/bin/zathura";
+      profile = "${pkgs.firejail}/etc/firejail/zathura.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+    foliate = {
+      executable = "${pkgs.foliate}/bin/foliate";
+      profile = "${pkgs.firejail}/etc/firejail/foliate.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+    libreoffice = {
+      executable = "${pkgs.libreoffice}/bin/libreoffice";
+      profile = "${pkgs.firejail}/etc/firejail/libreoffice.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+
+# --- GAMING ---
+    steam = {
+      executable = "${pkgs.steam}/bin/steam";
+      profile = "${pkgs.firejail}/etc/firejail/steam.profile";
+      # private-dev MUST be ignored for Steam so it can access your GPU (Vulkan) and game controllers
+      extraArgs = [ "--ignore=private-etc" "--ignore=private-dev" ];
+    };
+    heroic = {
+      executable = "${pkgs.heroic}/bin/heroic";
+      profile = "${pkgs.firejail}/etc/firejail/heroic.profile";
+      extraArgs = [ "--ignore=private-etc" "--ignore=private-dev" ];
+    };
+
+    # --- NOTES & ELECTRON APPS ---
+    obsidian = {
+      executable = "${pkgs.obsidian}/bin/obsidian";
+      profile = "${pkgs.firejail}/etc/firejail/obsidian.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+
+    # --- IMAGE VIEWERS ---
+    nsxiv = {
+      executable = "${pkgs.nsxiv}/bin/nsxiv";
+      profile = "${pkgs.firejail}/etc/firejail/nsxiv.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
+    feh = {
+      executable = "${pkgs.feh}/bin/feh";
+      profile = "${pkgs.firejail}/etc/firejail/feh.profile";
+      extraArgs = [ "--ignore=private-etc" ];
+    };
   };
 };
 
