@@ -11,7 +11,6 @@ let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 # The Ultimate Pure Nix Auto-Wrapper
-  # Automatically patches BOTH CLI binaries and GUI .desktop files!
   wrapFirejail = pkg: pkgs.symlinkJoin {
     name = "${pkg.name}-firejailed";
     paths = [ pkg ];
@@ -22,9 +21,9 @@ let
           binName=$(basename "$f")
           rm -f "$f"
           
-          # Write the Firejail wrapper automatically
+          # THE FIX: We explicitly call firejail on the original Nix store binary!
           echo "#!/bin/sh" > "$f"
-          echo 'exec /run/current-system/sw/bin/'"$binName"' "$@"' >> "$f"
+          echo "exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
           chmod +x "$f"
         done
       fi
@@ -32,16 +31,15 @@ let
       # 2. AUTO-PATCH GUI .DESKTOP FILES
       if [ -d $out/share/applications ]; then
         for desktop in $out/share/applications/*.desktop; do
-          # Break the symlink to make the file writable
           temp=$(mktemp)
           cp "$desktop" "$temp"
           rm -f "$desktop"
           mv "$temp" "$desktop"
           chmod +w "$desktop"
 
-          # Automatically replace hardcoded Nix store paths with the system Firejail path.
-          # Example: Exec=/nix/store/a1b2c3d4...-app/bin/app -> Exec=/run/current-system/sw/bin/app
-          sed -i -E "s|/nix/store/[a-z0-9]{32}-[^/]+/bin|/run/current-system/sw/bin|g" "$desktop"
+          # Point the desktop file to our newly created Firejail wrappers
+          # Replaces /nix/store/.../bin with $out/bin
+          sed -i -E "s|/nix/store/[a-z0-9]{32}-[^/]+/bin|$out/bin|g" "$desktop"
         done
       fi
     '';
