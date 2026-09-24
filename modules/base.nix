@@ -1,4 +1,10 @@
 { config, lib, pkgs, ... }: {
+  # Hardening & Security
+  imports = [
+    ./restic.nix
+    ./hardening.nix
+  ];
+
   # Bootloader & Quiet Boot
   boot = {
     loader = {
