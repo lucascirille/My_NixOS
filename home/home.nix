@@ -10,6 +10,7 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  braveWrapper = "/run/current-system/sw/bin/brave";
   # Askpass
   nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
     ${pkgs.libnotify}/bin/notify-send "NixOS Build" "🔐 Password required to start NixOS Build." -u normal -t 5000
@@ -248,10 +249,14 @@ in
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
   };
 
-  home.sessionPath = [ "/run/wrappers/bin" ];
-
 
   home.packages = with pkgs; [
+
+    # replace the default brave command with a high-priority wrapper that points to the system-installed Brave
+    (pkgs.lib.hiPrio (pkgs.writeShellScriptBin "brave" ''
+      exec ${braveWrapper} "$@"
+    ''))
+
 
     networkmanagerapplet
 
@@ -1007,16 +1012,16 @@ programs.chromium = {
 
 
 
-  # xdg.desktopEntries."brave-browser" = {
-  #   name = "Brave Browser";
-  #   genericName = "Web Browser";
-  #   exec = "${braveWrapper} %U";
-  #   icon = "brave-browser";
-  #   terminal = false;
-  #   type = "Application";
-  #   categories = [ "Network" "WebBrowser" ];
-  #   mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
-  # };
+  xdg.desktopEntries."brave-browser" = {
+    name = "Brave Browser";
+    genericName = "Web Browser";
+    exec = "${braveWrapper} %U";
+    icon = "brave-browser";
+    terminal = false;
+    type = "Application";
+    categories = [ "Network" "WebBrowser" ];
+    mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
+  };
 
 
 
