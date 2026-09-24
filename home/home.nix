@@ -324,7 +324,7 @@ in
     qalculate-gtk
 
 
-    libreoffice
+    # libreoffice
 
     rofi
     rofimoji
