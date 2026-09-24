@@ -10,41 +10,41 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-# 1. Pure Nix Auto-Wrapper
-  # It iterates through EVERY binary in the package and creates a Firejail patch
+# The Ultimate Pure Nix Auto-Wrapper
+  # Automatically patches BOTH CLI binaries and GUI .desktop files!
   wrapFirejail = pkg: pkgs.symlinkJoin {
     name = "${pkg.name}-firejailed";
     paths = [ pkg ];
     postBuild = ''
-      # Check if the package actually has a bin/ folder
+      # 1. AUTO-PATCH CLI BINARIES
       if [ -d $out/bin ]; then
-        # Loop through every binary file inside it
         for f in $out/bin/*; do
           binName=$(basename "$f")
-          
-          # Delete the original symlink
           rm -f "$f"
           
           # Write the Firejail wrapper automatically
           echo "#!/bin/sh" > "$f"
           echo 'exec /run/current-system/sw/bin/'"$binName"' "$@"' >> "$f"
-          
           chmod +x "$f"
         done
       fi
+
+      # 2. AUTO-PATCH GUI .DESKTOP FILES
+      if [ -d $out/share/applications ]; then
+        for desktop in $out/share/applications/*.desktop; do
+          # Break the symlink to make the file writable
+          temp=$(mktemp)
+          cp "$desktop" "$temp"
+          rm -f "$desktop"
+          mv "$temp" "$desktop"
+          chmod +w "$desktop"
+
+          # Automatically replace hardcoded Nix store paths with the system Firejail path.
+          # Example: Exec=/nix/store/a1b2c3d4...-app/bin/app -> Exec=/run/current-system/sw/bin/app
+          sed -i -E "s|/nix/store/[a-z0-9]{32}-[^/]+/bin|/run/current-system/sw/bin|g" "$desktop"
+        done
+      fi
     '';
-  };
-
-  # XDG Desktop Patcher
-  patchDesktop = pkg: desktopName: binName: pkgs.runCommand "${desktopName}-patched" {} ''
-    cp ${pkg}/share/applications/${desktopName} $out
-    chmod +w $out
-    sed -i -E "s|^Exec=([^ ]+)|Exec=/run/current-system/sw/bin/${binName}|g" $out
-  '';
-
-    mkDesktop = pkg: desktopName: binName: {
-    name = "applications/${desktopName}";
-    value = { source = patchDesktop pkg desktopName binName; };
   };
 
   # Askpass
@@ -295,7 +295,16 @@ in
 
 
 
-  home.packages = with pkgs; [
+  home.packages = with pkgs;
+  # Firejailed Apps (No HM modules)
+    (map wrapFirejail [
+      libreoffice
+      nsxiv
+      # (Put foliate/feh here if you don't use their modules)
+    ]) 
+    ++ 
+    # Normal / System Apps
+  [
     
 
 
@@ -366,7 +375,7 @@ in
 
     linux-wallpaperengine
 
-    nsxiv # Fast, lightweight image viewer with gallery mode
+    # nsxiv # Fast, lightweight image viewer with gallery mode
 
     # Screenshot tools
     maim
@@ -750,18 +759,18 @@ services.blueman-applet.enable = true;
   };
 
 # --- 3. Route GUI wrappers directly to ~/.local/share/applications ---
-xdg.dataFile = builtins.listToAttrs [
-  (mkDesktop pkgs.brave "brave-browser.desktop" "brave")
-  (mkDesktop pkgs.obsidian "obsidian.desktop" "obsidian")
-  (mkDesktop pkgs.vesktop "vesktop.desktop" "vesktop")
-  (mkDesktop pkgs.spotify "spotify.desktop" "spotify")
-  (mkDesktop pkgs.mpv "mpv.desktop" "mpv")
-  (mkDesktop pkgs.nsxiv "nsxiv.desktop" "nsxiv")
-  (mkDesktop pkgs.feh "feh.desktop" "feh")
-  (mkDesktop pkgs.zathura "org.pwmt.zathura.desktop" "zathura")
-  (mkDesktop pkgs.foliate "com.github.johnfactotum.Foliate.desktop" "foliate")
-  (mkDesktop pkgs.heroic "com.heroicgameslauncher.hgl.desktop" "heroic")
-];
+# xdg.dataFile = builtins.listToAttrs [
+#   (mkDesktop pkgs.brave "brave-browser.desktop" "brave")
+#   (mkDesktop pkgs.obsidian "obsidian.desktop" "obsidian")
+#   (mkDesktop pkgs.vesktop "vesktop.desktop" "vesktop")
+#   (mkDesktop pkgs.spotify "spotify.desktop" "spotify")
+#   (mkDesktop pkgs.mpv "mpv.desktop" "mpv")
+#   (mkDesktop pkgs.nsxiv "nsxiv.desktop" "nsxiv")
+#   (mkDesktop pkgs.feh "feh.desktop" "feh")
+#   (mkDesktop pkgs.zathura "org.pwmt.zathura.desktop" "zathura")
+#   (mkDesktop pkgs.foliate "com.github.johnfactotum.Foliate.desktop" "foliate")
+#   (mkDesktop pkgs.heroic "com.heroicgameslauncher.hgl.desktop" "heroic")
+# ];
 
 
 
