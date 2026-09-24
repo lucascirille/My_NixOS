@@ -3,11 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/base.nix
-    ../../modules/desktop.nix
-    ../../modules/gaming.nix
-    ../../modules/virt-lab.nix
-    ../../modules/containers.nix
+    ../../modules/default.nix
   ];
 
   networking.hostName = "laptop";
