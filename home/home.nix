@@ -659,6 +659,10 @@ services.linux-wallpaperengine = {
   ];
 };
 
+
+
+
+
 systemd.user.services.linux-wallpaperengine = {
   Unit = {
     # Force Systemd to wait for PipeWire and WirePlumber to be fully active
@@ -670,6 +674,9 @@ systemd.user.services.linux-wallpaperengine = {
     # second to wake up after WirePlumber starts, you can enforce a strict 
     # pre-launch delay natively in Systemd instead of Qtile.
     ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+
+    # Matar el proceso instantáneamente para evitar el coredump al apagar o reiniciar
+    KillSignal = "SIGKILL";
   };
 };
 
