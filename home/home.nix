@@ -10,6 +10,7 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+# --- Firejail Auto-Wrapper ---
 wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.runCommand "${pkg.name}-firejailed" {
   nativeBuildInputs = [ pkgs.lndir ];
 } ''
