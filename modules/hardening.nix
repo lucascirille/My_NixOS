@@ -234,10 +234,6 @@ programs.firejail = {
       # private-dev MUST be ignored for Steam so it can access your GPU (Vulkan) and game controllers
       extraArgs = [ "--ignore=private-etc" "--ignore=private-dev" ];
     };
-    heroic = {
-      executable = "${pkgs.heroic}/bin/heroic";
-      extraArgs = [ "--ignore=private-etc" "--ignore=private-dev" ];
-    };
 
     # --- NOTES & ELECTRON APPS ---
     obsidian = {
