@@ -674,6 +674,9 @@ systemd.user.services.linux-wallpaperengine = {
     # second to wake up after WirePlumber starts, you can enforce a strict 
     # pre-launch delay natively in Systemd instead of Qtile.
     ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+
+    # PREVIENE LA CREACIÓN DE ARCHIVOS CORE BASURA DURANTE EL APAGADO/REINICIO
+    LimitCORE = 0;
   };
 };
 
