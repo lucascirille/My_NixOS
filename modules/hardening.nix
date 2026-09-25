@@ -174,11 +174,14 @@ extraArgs = [
         "--ignore=private-bin" 
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # --- 4. SOCKET WHITELIST (FIXED) ---
-        # Using exact absolute paths prevents Bash expansion errors 
-        # when running the Firejail wrapper script.
-        "--whitelist=/run/user/1000/app"
+        # --- 4. THE KEEPASSXC SOCKET BRIDGE ---
+        # Step A: Remove the built-in security blacklists for the sockets
+        "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
+        "--noblacklist=/run/user/1000/kpxc_server"
+        
+        # Step B: Whitelist them to bypass the strict /run/ directory isolation
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
+        "--whitelist=/run/user/1000/kpxc_server"
       ];
     };
     # --- MESSAGING ---
