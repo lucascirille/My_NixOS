@@ -161,7 +161,7 @@ programs.firejail = {
       # Points directly to the Home Manager Chromium/Brave package we built above
       executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
-      extraArgs = [
+extraArgs = [
         # --- 1. SYSTEM & HARDWARE ACCESS ---
         "--ignore=private-etc" 
         "--ignore=private-dev" 
@@ -174,11 +174,14 @@ programs.firejail = {
         "--ignore=private-bin" 
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # --- 4. SOCKET WHITELIST (FIXED) ---
-        # Using exact absolute paths prevents Bash expansion errors 
-        # when running the Firejail wrapper script.
+        # --- 4. DIRECTORY & SOCKET WHITELISTS ---
+        # Allow Brave to see the Home Manager Native Messaging JSON manifest
+        "--whitelist=/home/${username}/.config/chromium"
+        
+        # Allow Brave to talk to the KeePassXC background sockets
         "--whitelist=/run/user/1000/app"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
+        "--whitelist=/run/user/1000/kpxc_server"
       ];
     };
     # --- MESSAGING ---
