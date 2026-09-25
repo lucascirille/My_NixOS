@@ -236,7 +236,6 @@ programs.firejail = {
     };
     heroic = {
       executable = "${pkgs.heroic}/bin/heroic";
-      profile = "${pkgs.firejail}/etc/firejail/heroic.profile";
       extraArgs = [ "--ignore=private-etc" "--ignore=private-dev" ];
     };
 
