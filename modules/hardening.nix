@@ -163,32 +163,22 @@ programs.firejail = {
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
         # --- 1. SYSTEM & HARDWARE ACCESS ---
-        # Required for NixOS to resolve fonts, Stylix themes, DNS, and SSL certificates
         "--ignore=private-etc" 
-        # Required so Brave's internal renderer doesn't crash (needs GPU /dev/dri and RAM mapping)
         "--ignore=private-dev" 
         
         # --- 2. D-BUS FIREWALL ---
-        # Re-enables D-Bus (which firejail blocks by default for browsers)
         "--ignore=nodbus"
-        # Strict firewall: Only allows Brave to use D-Bus to send desktop notifications.
-        # Blocks the browser from snooping on other system services.
         "--dbus-user.talk=org.freedesktop.Notifications"
         
         # --- 3. PROXY EXECUTION BYPASS ---
-        # Disables the strict execution block, allowing Brave to run background scripts
         "--ignore=private-bin" 
-        # Prevents Firejail's global profile from blacklisting password managers
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # --- 4. SOCKET WHITELIST (THE SYMLINK TRAP) ---
-        # KeePassXC creates two sockets: a shortcut, and the real socket hidden inside 'app/'.
-        # Firejail requires --noblacklist to erase default security blocks 
-        
-        "--noblacklist=/run/user/1000/app"
-        "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
-
-
+        # --- 4. SOCKET WHITELIST (FIXED) ---
+        # Using exact absolute paths prevents Bash expansion errors 
+        # when running the Firejail wrapper script.
+        "--whitelist=/run/user/1000/app"
+        "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
       ];
     };
     # --- MESSAGING ---
