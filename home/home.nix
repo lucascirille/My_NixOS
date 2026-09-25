@@ -287,13 +287,6 @@ in
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
   };
 
-  # --- 1. CLI WRAPPERS (Terminal) ---
-  # home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
-  #
-  # home.file = builtins.listToAttrs (map (name: firejailCli name) [
-  #   "brave" "obsidian" "vesktop" "spotify" "mpv" "nsxiv" 
-  #   "feh" "zathura" "foliate" "heroic" "libreoffice"
-  # ]);
 
 
 
@@ -301,8 +294,16 @@ in
   # Firejailed Apps (No HM modules)
     (map wrapFirejail [
       libreoffice
-      nsxiv
+      nsxiv # Fast, lightweight image viewer with gallery mode
+      spotify
+      foliate # Ebook reader
+      # heroic # Epic Launcher for Linux
       config.programs.chromium.finalPackage
+      config.programs.obsidian.package
+      config.programs.vesktop.package
+      config.programs.mpv.package
+      config.programs.feh.package
+      config.programs.zathura.package
     ]) 
     ++ 
     # Normal / System Apps
@@ -327,14 +328,12 @@ in
     qalculate-gtk
 
 
-    # libreoffice
 
     rofi
     rofimoji
 
     sqlite
 
-    heroic # Epic Launcher for Linux
 
     qdiskinfo
     fio
@@ -371,13 +370,10 @@ in
     p7zip
     gnutar
 
-    spotify
 
-    foliate # Dedicated e-book reader
 
     linux-wallpaperengine
 
-    # nsxiv # Fast, lightweight image viewer with gallery mode
 
     # Screenshot tools
     maim
@@ -760,26 +756,13 @@ services.blueman-applet.enable = true;
     };
   };
 
-# --- 3. Route GUI wrappers directly to ~/.local/share/applications ---
-# xdg.dataFile = builtins.listToAttrs [
-#   (mkDesktop pkgs.brave "brave-browser.desktop" "brave")
-#   (mkDesktop pkgs.obsidian "obsidian.desktop" "obsidian")
-#   (mkDesktop pkgs.vesktop "vesktop.desktop" "vesktop")
-#   (mkDesktop pkgs.spotify "spotify.desktop" "spotify")
-#   (mkDesktop pkgs.mpv "mpv.desktop" "mpv")
-#   (mkDesktop pkgs.nsxiv "nsxiv.desktop" "nsxiv")
-#   (mkDesktop pkgs.feh "feh.desktop" "feh")
-#   (mkDesktop pkgs.zathura "org.pwmt.zathura.desktop" "zathura")
-#   (mkDesktop pkgs.foliate "com.github.johnfactotum.Foliate.desktop" "foliate")
-#   (mkDesktop pkgs.heroic "com.heroicgameslauncher.hgl.desktop" "heroic")
-# ];
 
 
 
 programs.obsidian = {
   enable = true;
 
-  package = wrapFirejail pkgs.obsidian;
+  package = pkgs.obsidian;
 
   vaults.notes = {
     target = "Documents/second_brain";
