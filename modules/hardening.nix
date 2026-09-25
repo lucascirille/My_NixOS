@@ -162,24 +162,19 @@ programs.firejail = {
       executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
 extraArgs = [
-        # --- 1. SYSTEM & HARDWARE ACCESS ---
         "--ignore=private-etc" 
         "--ignore=private-dev" 
-        
-        # --- 2. D-BUS FIREWALL ---
         "--ignore=nodbus"
         "--dbus-user.talk=org.freedesktop.Notifications"
-        
-        # --- 3. PROXY EXECUTION BYPASS ---
         "--ignore=private-bin" 
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
         
-        # --- 4. THE KEEPASSXC SOCKET BRIDGE ---
-        # Step A: Remove the built-in security blacklists for the sockets
+        # 1. Allow Brave to see the Home Manager manifest
+        "--whitelist=/home/${username}/.config/chromium"
+        
+        # 2. Allow Brave to see the KeePassXC sockets
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--noblacklist=/run/user/1000/kpxc_server"
-        
-        # Step B: Whitelist them to bypass the strict /run/ directory isolation
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/kpxc_server"
       ];
