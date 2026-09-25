@@ -183,18 +183,11 @@ programs.firejail = {
         
         # --- 4. SOCKET WHITELIST (THE SYMLINK TRAP) ---
         # KeePassXC creates two sockets: a shortcut, and the real socket hidden inside 'app/'.
-        # Firejail requires BOTH a --noblacklist (to erase default security blocks) 
+        # Firejail requires --noblacklist to erase default security blocks 
         
         "--noblacklist=/run/user/1000/app"
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
 
-        #         # A. Whitelist the broad 'app' directory so Firejail can physically see the real socket
-        # "--noblacklist=/run/user/1000/app"
-        # "--whitelist=/run/user/1000/app"
-        #
-        # # B. Whitelist the shortcut symlink that the browser actually looks for
-        # "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
-        # "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
 
       ];
     };

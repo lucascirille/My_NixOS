@@ -10,44 +10,60 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.symlinkJoin {
-  name = "${pkg.name}-firejailed";
-  paths = [ pkg ];
-  postBuild = ''
-    # 1. AUTO-PATCH CLI BINARIES (The Smart Bridge)
-    if [ -d $out/bin ]; then
-      for f in $out/bin/*; do
-        binName=$(basename "$f")
-        rm -f "$f"
-        
-        echo "#!/bin/sh" > "$f"
-        # If NixOS created a smart wrapper for this binary, use it!
-        echo "if [ -x \"/run/current-system/sw/bin/$binName\" ]; then" >> "$f"
-        echo "  exec /run/current-system/sw/bin/$binName \"\$@\"" >> "$f"
-        # Otherwise, fall back to a standard default sandbox
-        echo "else" >> "$f"
-        echo "  exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
-        echo "fi" >> "$f"
-        
-        chmod +x "$f"
-      done
-    fi
+wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.runCommand "${pkg.name}-firejailed" {
+  nativeBuildInputs = [ pkgs.lndir ];
+} ''
+  # 1. FORCE REAL DIRECTORIES
+  # By creating these directories first, we prevent lndir from symlinking 
+  # the entire folder directly to the read-only Nix store.
+  mkdir -p $out/bin $out/share/applications
 
-    # 2. AUTO-PATCH GUI .DESKTOP FILES
-    if [ -d $out/share/applications ]; then
-      for desktop in $out/share/applications/*.desktop; do
-        temp=$(mktemp)
-        cp "$desktop" "$temp"
-        rm -f "$desktop"
-        mv "$temp" "$desktop"
-        chmod +w "$desktop"
+  # 2. CLONE THE PACKAGE TREE
+  lndir -silent ${pkg} $out
 
-        # Stripping the absolute path guarantees Rofi hits our Smart Bridge above
-        sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
-      done
-    fi
-  '';
-});
+  # 3. AUTO-PATCH CLI BINARIES (The Smart Bridge)
+  if [ -d $out/bin ]; then
+    for f in $out/bin/*; do
+      # Skip if it's empty (defensive check)
+      [ -e "$f" ] || continue
+      
+      binName=$(basename "$f")
+      
+      # Now that $out/bin is a real folder, this will delete the symlink flawlessly
+      rm -f "$f"
+      
+      echo "#!/bin/sh" > "$f"
+      echo "if [ -x \"/run/current-system/sw/bin/$binName\" ]; then" >> "$f"
+      echo "  exec /run/current-system/sw/bin/$binName \"\$@\"" >> "$f"
+      echo "else" >> "$f"
+      echo "  exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
+      echo "fi" >> "$f"
+      
+      chmod +x "$f"
+    done
+  fi
+
+  # 4. AUTO-PATCH GUI .DESKTOP FILES
+  if [ -d $out/share/applications ]; then
+    for desktop in $out/share/applications/*.desktop; do
+      [ -e "$desktop" ] || continue
+
+      temp=$(mktemp)
+      # Copy the content through the symlink, then delete the symlink
+      cp "$desktop" "$temp"
+      rm -f "$desktop"
+      mv "$temp" "$desktop"
+      
+      # Modify our newly placed real file
+      chmod +w "$desktop"
+      sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
+    done
+  fi
+  
+  # Clean up the directories if the original package didn't actually use them
+  rmdir $out/share/applications 2>/dev/null || true
+  rmdir $out/bin 2>/dev/null || true
+'');
 
   # Askpass
   nixos-askpass = pkgs.writeShellScriptBin "nixos-askpass" ''
@@ -297,7 +313,7 @@ in
       nsxiv # Fast, lightweight image viewer with gallery mode
       spotify
       foliate # Ebook reader
-      # heroic # Epic Launcher for Linux
+      heroic # Epic Launcher for Linux
       config.programs.chromium.finalPackage
       config.programs.obsidian.package
       config.programs.vesktop.package
