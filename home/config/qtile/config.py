@@ -1,11 +1,12 @@
 # =========================================================================
-# 0. IMPORTS (Grouped and ordered by PEP 8 standard)
+# 0. IMPORTS 
 # =========================================================================
 # Standard Python libraries
 import os
 import json
 import shutil
 import subprocess
+from datetime import datetime
 
 # Qtile Core
 import libqtile.resources
@@ -19,7 +20,7 @@ from qtile_extras import widget
 from qtile_extras.widget.decorations import RectDecoration
 
 # =========================================================================
-# 1. GLOBAL VARIABLES & THEME (Full Wallpaper-Derived Stylix Integration)
+# 1. GLOBAL VARIABLES & THEME (Stylix Integration)
 # =========================================================================
 mod = "mod4"
 terminal = guess_terminal()
@@ -48,18 +49,16 @@ wallpaper_path = stylix.get("image", os.path.expanduser("~/.dotfiles/home/assets
 
 # Fully mapped to wallpaper-extracted Base16 colors
 colors = {
-    "bg": stylix["base00"],         # Wallpaper background tone
-    "surface": stylix["base01"],    # Wallpaper surface tone
-    "fg": stylix["base05"],         # Wallpaper foreground/text tone
-    
-    # Fully dynamic accents derived from your current wallpaper
-    "accent": stylix["base0D"],     # Primary wallpaper accent (Blue-ish)
-    "critical": stylix["base08"],   # Wallpaper error/red tone
-    "ok": stylix["base0B"],         # Wallpaper success/green tone
-    "warning": stylix["base0A"],    # Wallpaper warning/yellow tone
-    "orange": stylix["base09"],     # Wallpaper orange tone
-    "cyan": stylix["base0C"],       # Wallpaper cyan tone
-    "magenta": stylix["base0E"],    # Wallpaper magenta tone
+    "bg": stylix["base00"],         
+    "surface": stylix["base01"],    
+    "fg": stylix["base05"],         
+    "accent": stylix["base0D"],     
+    "critical": stylix["base08"],   
+    "ok": stylix["base0B"],         
+    "warning": stylix["base0A"],    
+    "orange": stylix["base09"],     
+    "cyan": stylix["base0C"],       
+    "magenta": stylix["base0E"],    
 }
 
 widget_defaults = dict(
@@ -70,44 +69,97 @@ widget_defaults = dict(
 extension_defaults = widget_defaults.copy()
 
 # =========================================================================
-# 2. HARDWARE & UTILITY FUNCTIONS
+# 2. HOOKS & DYNAMIC WORKSPACES
 # =========================================================================
-# Trigger exactly once when Qtile first loads on boot
+# --- Wallpaper State Management ---
 @hook.subscribe.startup_once
 def autostart_wallpaper():
-    # Wait 2 seconds for PipeWire to fully wake up the sound card, 
-    # then forcefully restart the wallpaper service to grab a clean audio clock.
+    """Restarts wallpaper engine on boot to grab a clean audio clock."""
     qtile.call_later(2.0, lambda: os.system("systemctl --user restart linux-wallpaperengine.service"))
 
 def update_wallpaper_state():
-    # Check if the current workspace has any windows
+    """Pauses the animated wallpaper when windows are open to save resources."""
     if len(qtile.current_group.windows) > 0:
         os.system("pkill -STOP -f linux-wallpaperengine")
     else:
-        # Send resume instantly. The engine's audio stream will wake PipeWire naturally.
         os.system("pkill -CONT -f linux-wallpaperengine")
 
-# Trigger instantly when switching workspaces or opening new windows
-@hook.subscribe.setgroup
-@hook.subscribe.client_managed
-def _(*args, **kwargs):
-    update_wallpaper_state()
+# --- Dynamic Icon Mapping System ---
+ICON_CATEGORIES = {
+    "󰈹": ["firefox", "brave", "chrome", "browser"],
+    "": ["ghostty", "alacritty", "kitty", "term", "wezterm"],
+    "󰨞": ["code", "codium", "nvim", "idea", "ide"],
+    "": ["thunar", "nautilus", "dolphin", "files"],
+    "": ["discord", "vesktop", "slack", "teams"],
+    "󰓇": ["spotify", "music", "ncmpcpp"],
+}
+DEFAULT_ICON = ""
+_app_cache: dict[str, str] = {}
 
-# Trigger with a delay when closing a window
+def get_app_display(wm_class: str) -> str:
+    """Matches a window class to a Nerd Font icon via keyword, or generates a text fallback."""
+    if wm_class in _app_cache:
+        return _app_cache[wm_class]
+
+    clean_name = wm_class.lower()
+
+    for icon, keywords in ICON_CATEGORIES.items():
+        if any(keyword in clean_name for keyword in keywords):
+            _app_cache[wm_class] = icon 
+            return icon                  
+    
+    formatted_text = wm_class.split('.')[-1].capitalize()
+    if not formatted_text:
+        formatted_text = "Window"
+        
+    fallback_result = f"{DEFAULT_ICON} {formatted_text}"
+    _app_cache[wm_class] = fallback_result
+    return fallback_result
+
+def update_labels():
+    """Iterates through all groups and updates labels based on open windows."""
+    for group in qtile.groups_map.values():
+        if group.name == "scratchpad":
+            continue
+
+        if not group.windows:
+            group.label = group.name
+            continue
+            
+        display_items = []
+        for w in group.windows:
+            try:
+                wm_class_list = w.window.get_wm_class()
+                raw_class = wm_class_list[1] if wm_class_list and len(wm_class_list) > 1 else (wm_class_list[0] if wm_class_list else "")
+            except Exception:
+                raw_class = ""
+            
+            item = get_app_display(raw_class)
+            if item not in display_items:
+                display_items.append(item)
+        
+        group.label = f"{group.name} {' '.join(display_items)}"
+            
+    for screen in qtile.screens:
+        if hasattr(screen, "top") and screen.top:
+            screen.top.draw()
+        if hasattr(screen, "bottom") and screen.bottom:
+            screen.bottom.draw()
+
+@hook.subscribe.client_new
 @hook.subscribe.client_killed
-def _(client):
-    # Wait 0.1 seconds so Qtile has time to fully delete the window from memory
-    qtile.call_later(0.1, update_wallpaper_state)
+@hook.subscribe.setgroup
+def update_group_labels(*args, **kwargs):
+    """Triggers wallpaper and label updates when window states change."""
+    update_wallpaper_state() 
+    qtile.call_later(0.1, update_labels)
 
-
+# =========================================================================
+# 3. HARDWARE & UTILITY FUNCTIONS
+# =========================================================================
 def get_next_event():
-    import subprocess
-    from datetime import datetime
-
-    # 1. Define your calendars here. 
-    # Replace the keys with the exact names from `gcalcli list`.
     my_calendars = {
-        "lucas.cirille@gmail.com": " ",  # Personal icon
+        "lucas.cirille@gmail.com": " ",
         "Amo las flores": "󰴈",
         "Tu Amor": "󱝁",
     }
@@ -116,9 +168,7 @@ def get_next_event():
         now = datetime.now()
         valid_events = []
 
-        # 2. Query each calendar individually to apply the correct icon
         for cal_name, tag in my_calendars.items():
-            # Try-except block ensures Qtile doesn't crash if one calendar is empty
             try:
                 cmd = ["gcalcli", "--calendar", cal_name, "agenda", "--tsv"]
                 output = subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL)
@@ -152,7 +202,6 @@ def get_next_event():
                     except ValueError:
                         pass
                 else:
-                    # Handle All-Day events safely so they don't break the timeline
                     try:
                         start_dt = datetime.strptime(start_date, "%Y-%m-%d")
                         end_dt = datetime.strptime(f"{start_date} 23:59", "%Y-%m-%d %H:%M")
@@ -167,7 +216,7 @@ def get_next_event():
                 valid_events.append({
                     "start_str": start_time if start_time else "All Day",
                     "end_str": end_time,
-                    "title": f"{title} {tag}",  # <--- Attach the Nerd Font icon here!
+                    "title": f"{title} {tag}", 
                     "start_dt": start_dt,
                     "end_dt": end_dt
                 })
@@ -175,10 +224,7 @@ def get_next_event():
         if not valid_events:
             return "Free schedule"
 
-        # 3. Re-sort all events chronologically (since we fetched them separately)
         valid_events.sort(key=lambda x: x["start_dt"] if x["start_dt"] else datetime.min)
-
-        # 4. Grab the next event and check for overlaps
         first_event = valid_events[0]
         display_items = []
         
@@ -188,7 +234,6 @@ def get_next_event():
             
         display_items.append(format_event(first_event))
         
-        # Prevent "All Day" events from swallowing the entire day's schedule
         if first_event["start_str"] == "All Day":
             current_max_end = first_event["start_dt"] 
         else:
@@ -198,15 +243,12 @@ def get_next_event():
             for event in valid_events[1:]:
                 if event["start_dt"] and event["start_dt"] < current_max_end:
                     display_items.append(format_event(event))
-                    
                     if event["end_dt"] and event["end_dt"] > current_max_end:
                         current_max_end = event["end_dt"]
                 else:
                     break 
                     
         display_text = " / ".join(display_items)
-        
-        # Increased limit slightly to 85 characters to make room for the new icons
         return display_text[:85] + "..." if len(display_text) > 85 else display_text
 
     except Exception as e:
@@ -272,15 +314,23 @@ def get_decoration(color, is_group=True):
     }
 
 # =========================================================================
-# 3. BAR AND WIDGETS
+# 4. BAR AND WIDGETS
 # =========================================================================
 def create_bar(primary=True):
     bar_widgets = [
         widget.GroupBox(
             highlight_method='line',
-            highlight_color=[colors["bg"], colors["accent"]],
+            this_current_screen_border=colors["accent"], 
+            borderwidth=4,                               
+            highlight_color=[colors["bg"], colors["bg"]],
+            urgent_alert_method='line',
+            urgent_border=colors["critical"],
+            urgent_text=colors["critical"],
             active=colors["ok"],
             inactive=colors["fg"],
+            disable_drag=True,
+            padding_x=10,
+            margin_y=3,
             **get_decoration(colors["bg"])
         ),
         widget.Spacer(length=8),
@@ -295,6 +345,7 @@ def create_bar(primary=True):
         widget.WindowName(
             foreground=colors["accent"],
             max_chars=40,
+            empty_group_string="Desktop",
             **get_decoration(colors["bg"])
         ),
         widget.Spacer(),
@@ -345,10 +396,10 @@ def create_bar(primary=True):
                 format='󰤨  {essid} {percent:2.0%}',
                 disconnected_message='󰤭  Offline',
                 update_interval=5.0,
-mouse_callbacks={
-    'Button1': lazy.group["scratchpad"].dropdown_toggle("nmtui"), # Clic derecho: Escáner TUI
-    'Button3': lazy.spawn("nm-connection-editor"), # Clic izquierdo: Editor GUI
-},
+                mouse_callbacks={
+                    'Button1': lazy.group["scratchpad"].dropdown_toggle("nmtui"),
+                    'Button3': lazy.spawn("nm-connection-editor"),
+                },
                 foreground=colors["bg"],
                 **get_decoration(colors["accent"])
             )
@@ -378,16 +429,15 @@ mouse_callbacks={
             foreground=colors["bg"],
             **get_decoration(colors["ok"])
         ),
-        # Insert this right ABOVE widget.Clock
         widget.GenPollText(
             update_interval=300, 
             func=get_next_event,
             fmt='󰃭  {}',
             foreground=colors["bg"],
             mouse_callbacks={
-                'Button1': lazy.group["scratchpad"].dropdown_toggle("calendar"), # Clic izquierdo: Abre Ghostty con gcalcli
-                'Button2': lazy.spawn("brave https://calendar.google.com"),      # Clic central: Abre Google Calendar en Brave
-                'Button3': lazy.spawn("brave https://calendar.google.com"),      # Clic central: Abre Google Calendar en Brave
+                'Button1': lazy.group["scratchpad"].dropdown_toggle("calendar"), 
+                'Button2': lazy.spawn("brave https://calendar.google.com"),      
+                'Button3': lazy.spawn("brave https://calendar.google.com"),      
             },
             **get_decoration(colors["orange"])
         ),
@@ -413,7 +463,7 @@ mouse_callbacks={
     )
 
 # =========================================================================
-# 4. KEYBINDINGS
+# 5. KEYBINDINGS
 # =========================================================================
 keys = [
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
@@ -468,7 +518,7 @@ keys = [
     Key([], "Print", lazy.spawn(
         "bash -c 'mkdir -p ~/Pictures/Screenshots && "
         "if [ -n \"$WAYLAND_DISPLAY\" ]; then "
-        "grim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png && wl-copy < ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png; "
+        "grim ~/Pictures/Screenshots/$(date +\%Y-\%m-\%d_\%H-\%M-\%S).png && wl-copy < ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png; "
         "else maim ~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png | xclip -selection clipboard -t image/png; fi'"
     )),
     Key(["shift"], "Print", lazy.spawn(
@@ -486,15 +536,9 @@ for vt in range(1, 8):
     )
 
 # =========================================================================
-# 5. GROUPS & SCRATCHPAD
+# 6. GROUPS & SCRATCHPAD
 # =========================================================================
-group_labels = [
-    ("1", "󰈹 "), ("2", " "), ("3", "󰨞 "), 
-    ("4", " "), ("5", "󰙯 "), ("6", "󰓇 "), 
-    ("7", "󰎆 "), ("8", "󰙴 "), ("9", "󰕧 "),
-]
-
-groups = [Group(name, label=label) for name, label in group_labels]
+groups = [Group(str(i)) for i in range(1, 10)]
 
 for i in groups:
     keys.extend([
@@ -523,7 +567,6 @@ groups.append(
         # 3. Google Calendar (Clicking the bar widget)
         DropDown(
             "calendar",
-            # Runs gcalcli weekly view, then drops you into a bash shell so you can add/edit events
             "ghostty --title=scratchcal --gtk-single-instance=false -e bash -c 'gcalcli calw; exec bash'",
             match=Match(title="scratchcal"),
             width=0.6, height=0.6, x=0.2, y=0.2, opacity=0.95,
@@ -531,19 +574,19 @@ groups.append(
         ),
         # 4. Network Manager TUI (Clicking the bar widget)
         DropDown(
-    "nmtui",
-    "ghostty --title=scratchnmtui --gtk-single-instance=false -e nmtui",
-    match=Match(title="scratchnmtui"),
-    width=0.4, height=0.5, x=0.3, y=0.25, opacity=0.95,
-    on_focus_lost_hide=False
-),
+            "nmtui",
+            "ghostty --title=scratchnmtui --gtk-single-instance=false -e nmtui",
+            match=Match(title="scratchnmtui"),
+            width=0.4, height=0.5, x=0.3, y=0.25, opacity=0.95,
+            on_focus_lost_hide=False
+        ),
     ])
 )
 
 keys.append(Key([mod], "F12", lazy.group["scratchpad"].dropdown_toggle("term")))
 
 # =========================================================================
-# 6. LAYOUTS AND SCREENS
+# 7. LAYOUTS AND SCREENS
 # =========================================================================
 layouts = [
     layout.Columns(
@@ -567,7 +610,7 @@ screens = [
 ]
 
 # =========================================================================
-# 7. MOUSE AND FLOATING RULES
+# 8. MOUSE AND FLOATING RULES
 # =========================================================================
 mouse = [
     Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
