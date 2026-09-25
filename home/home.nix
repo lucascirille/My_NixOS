@@ -10,40 +10,68 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+# wrapFirejail: A Nix function that wraps an application's binaries in Firejail.
+# It intercepts the binaries and .desktop files to ensure they run sandboxed.
+# `lib.hiPrio` ensures these wrapped versions take priority in your $PATH.
 wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.symlinkJoin {
   name = "${pkg.name}-firejailed";
+  
+  # Link all files from the original package into this new derivation
   paths = [ pkg ];
+  
+  # The bash script that executes after the symlinks are created
   postBuild = ''
+    # Prevent bash loops from failing if a directory is empty or doesn't exist
     shopt -s nullglob
 
+    # ==========================================
     # 1. AUTO-PATCH CLI BINARIES (The Smart Bridge)
+    # ==========================================
     if [ -d "$out/bin" ]; then
       for f in "$out/bin/"*; do
+        # Ensure it's a file, skip if it isn't
         [ -f "$f" ] || continue
+        
+        # Extract just the binary name (e.g., "brave" from "/nix/store/.../bin/brave")
         binName=$(basename "$f")
         
+        # Remove the original Nix store symlink to make room for our script
         rm -f "$f"
         
+        # Create a new executable script in its place using a heredoc block.
+        # This script intercepts the command when run from the terminal.
         cat <<EOF > "$f"
 #!/bin/sh
+# If NixOS has already created a system-level wrapper for this app, route through it
 if [ -x "/run/current-system/sw/bin/$binName" ]; then
   exec /run/current-system/sw/bin/$binName "\$@"
+# Otherwise, sandbox the raw binary from the Nix store using firejail
 else
   exec firejail ${pkg}/bin/$binName "\$@"
 fi
 EOF
+        # Make the newly created wrapper script executable
         chmod +x "$f"
       done
     fi
 
+    # ==========================================
     # 2. AUTO-PATCH GUI .DESKTOP FILES
+    # ==========================================
+    # Ensure application launchers (like Rofi) use the newly wrapped binaries
     if [ -d "$out/share/applications" ]; then
       for desktop in "$out/share/applications/"*.desktop; do
+        # Ensure it's a file, skip if it isn't
         [ -f "$desktop" ] || continue
         
-        # CHANGED: Using '@' as the delimiter instead of '|'
+        # Nix .desktop files use absolute paths (e.g., Exec=/nix/store/.../bin/app).
+        # This regex looks for lines starting with 'Exec=' or 'TryExec=', 
+        # captures the command name at the end, and strips the absolute path.
+        # Note: We use '@' as the sed delimiter so it doesn't conflict with '/' in paths 
+        # or the '|' used for the regex (Exec|TryExec) OR operator.
         sed -E 's@^(Exec|TryExec)=/[^ ]+/bin/([^ ]+)@\1=\2@g' "$desktop" > "$desktop.tmp"
         
+        # Delete the read-only symlink and replace it with our modified, writable file
         rm -f "$desktop"
         mv "$desktop.tmp" "$desktop"
       done
