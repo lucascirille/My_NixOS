@@ -297,8 +297,8 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
     send_notification -i "$IMAGE_PATH" "Theme Update" "Restarting wallpaper engine..." -h int:value:80
     
     systemctl --user stop linux-wallpaperengine.service
-    killall -9 linux-wallpaperengine 2>/dev/null || true
-    killall -9 mpv 2>/dev/null || true
+    pkill -9 linux-wallpaperengine 2>/dev/null || true
+    pkill -9 mpv 2>/dev/null || true
     
     systemctl --user reset-failed linux-wallpaperengine.service
     systemctl --user start linux-wallpaperengine.service
