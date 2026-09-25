@@ -14,36 +14,38 @@ wrapFirejail = pkg: pkgs.lib.hiPrio (pkgs.symlinkJoin {
   name = "${pkg.name}-firejailed";
   paths = [ pkg ];
   postBuild = ''
+    shopt -s nullglob
+
     # 1. AUTO-PATCH CLI BINARIES (The Smart Bridge)
-    if [ -d $out/bin ]; then
-      for f in $out/bin/*; do
+    if [ -d "$out/bin" ]; then
+      for f in "$out/bin/"*; do
+        [ -f "$f" ] || continue
         binName=$(basename "$f")
+        
         rm -f "$f"
         
-        echo "#!/bin/sh" > "$f"
-        # If NixOS created a smart wrapper for this binary, use it!
-        echo "if [ -x \"/run/current-system/sw/bin/$binName\" ]; then" >> "$f"
-        echo "  exec /run/current-system/sw/bin/$binName \"\$@\"" >> "$f"
-        # Otherwise, fall back to a standard default sandbox
-        echo "else" >> "$f"
-        echo "  exec firejail ${pkg}/bin/$binName \"\$@\"" >> "$f"
-        echo "fi" >> "$f"
-        
+        cat <<EOF > "$f"
+#!/bin/sh
+if [ -x "/run/current-system/sw/bin/$binName" ]; then
+  exec /run/current-system/sw/bin/$binName "\$@"
+else
+  exec firejail ${pkg}/bin/$binName "\$@"
+fi
+EOF
         chmod +x "$f"
       done
     fi
 
     # 2. AUTO-PATCH GUI .DESKTOP FILES
-    if [ -d $out/share/applications ]; then
-      for desktop in $out/share/applications/*.desktop; do
-        temp=$(mktemp)
-        cp "$desktop" "$temp"
+    if [ -d "$out/share/applications" ]; then
+      for desktop in "$out/share/applications/"*.desktop; do
+        [ -f "$desktop" ] || continue
+        
+        # CHANGED: Using '@' as the delimiter instead of '|'
+        sed -E 's@^(Exec|TryExec)=/[^ ]+/bin/([^ ]+)@\1=\2@g' "$desktop" > "$desktop.tmp"
+        
         rm -f "$desktop"
-        mv "$temp" "$desktop"
-        chmod +w "$desktop"
-
-        # Stripping the absolute path guarantees Rofi hits our Smart Bridge above
-        sed -i -E 's|^Exec=/[^ ]+/bin/([^ ]+)|Exec=\1|g' "$desktop"
+        mv "$desktop.tmp" "$desktop"
       done
     fi
   '';
