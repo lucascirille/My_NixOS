@@ -297,7 +297,6 @@ in
       nsxiv # Fast, lightweight image viewer with gallery mode
       spotify
       foliate # Ebook reader
-      # heroic # Epic Launcher for Linux
       config.programs.chromium.finalPackage
       config.programs.obsidian.package
       config.programs.vesktop.package
@@ -318,6 +317,8 @@ in
     gcalcli
 
     changeThemeScript
+
+    heroic
     
     love
 
