@@ -33,7 +33,7 @@
     options = "--delete-older-than 14d";
   };
 
-  services.logind.powerKey = "ignore";
+  services.logind.settings.Login.HandlePowerKey = "ignore";
 
   # Common SOPS Setup
   sops = {
