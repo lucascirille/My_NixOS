@@ -133,6 +133,9 @@ nix-shell -p ssh-to-age --run 'ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub'
 
 ```
 
+*Nota: Deberás agregar esta clave devuelta al archivo `.sops.yaml` y re-encriptar los secretos con `sops updatekeys secrets/hosts/nixos-btw.yaml`.*
+
+
 5. **(Opcional) Habilitar/Cargar pase de contraseña de LUKS con tpm2**:
 En el caso de tener TPM2 en su placa madre, podran cargarle las credenciales con este comando:
 ```bash
@@ -140,8 +143,6 @@ sudo systemd-cryptenroll --tpm2-device=auto /dev/(nombre de la particion cifrada
 ```
 
 
-
-*Nota: Deberás agregar esta clave devuelta al archivo `.sops.yaml` y re-encriptar los secretos con `sops updatekeys secrets/hosts/nixos-btw.yaml`.*
 6. **Compilar y activar el sistema**:
 * Usando el comando estándar de NixOS:
 ```bash
