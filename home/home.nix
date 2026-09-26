@@ -965,6 +965,10 @@ programs.tmux = {
       bind k select-pane -U
       bind l select-pane -R
 
+      # Mover la ventana actual a la izquierda o derecha
+      bind -r H swap-window -t -1 \; select-window -t -1
+      bind -r L swap-window -t +1 \; select-window -t +1
+
       # Abrir nuevas ventanas y splits en el directorio actual
       bind c new-window -c "#{pane_current_path}"
       bind '"' split-window -v -c "#{pane_current_path}"

@@ -26,10 +26,7 @@ return {
       { "<leader>vc", "<cmd>VimtexCompile<CR>", desc = "VimTeX Compile" },
     },
     init = function()
--- Use the "general" method instead of the specialized "zathura" backend
-      vim.g.vimtex_view_method = "general"
       vim.g.vimtex_view_general_viewer = "zathura"
-      vim.g.vimtex_view_zathura = { xdotool = 0 }
 
       -- Tell VimTeX to automatically clean up when its compiler stops
       vim.api.nvim_create_autocmd("User", {
