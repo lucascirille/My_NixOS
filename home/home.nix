@@ -965,15 +965,13 @@ programs.tmux = {
       bind k select-pane -U
       bind l select-pane -R
 
-      # Intercambiar la posición física de los paneles en la pantalla
-      bind -r H swap-pane -U
-      bind -r K swap-pane -U
-      bind -r J swap-pane -D
-      bind -r L swap-pane -D
-
       # Swap windows left and right with Shift+H and Shift+L
-      bind -r < swap-window -t -1 \; select-window -t -1
-      bind -r > swap-window -t +1 \; select-window -t +1
+      bind -r H swap-window -t -1 \; select-window -t -1
+      bind -r L swap-window -t +1 \; select-window -t +1
+
+      # Swap panes down and up with Shift+J and Shift+K
+      bind -r J swap-pane -D
+      bind -r K swap-pane -U
 
       # Abrir nuevas ventanas y splits en el directorio actual
       bind c new-window -c "#{pane_current_path}"
