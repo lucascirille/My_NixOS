@@ -26,8 +26,10 @@ return {
       { "<leader>vc", "<cmd>VimtexCompile<CR>", desc = "VimTeX Compile" },
     },
     init = function()
-      vim.g.vimtex_view_method = "zathura"
-      vim.g.vimtex_view_zathura = { xdotool = false }
+-- Use the "general" method instead of the specialized "zathura" backend
+      vim.g.vimtex_view_method = "general"
+      vim.g.vimtex_view_general_viewer = "zathura"
+      vim.g.vimtex_view_zathura = { xdotool = 0 }
     end,
   },
 }

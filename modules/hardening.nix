@@ -221,7 +221,9 @@ programs.firejail = {
     zathura = {
       executable = "${pkgs.zathura}/bin/zathura";
       profile = "${pkgs.firejail}/etc/firejail/zathura.profile";
-      extraArgs = [ "--ignore=private-etc" "--ignore=nodbus"];
+      extraArgs = [ "--ignore=private-etc" "--ignore=nodbus" 
+      # Restrict DBus so Zathura can ONLY talk to its own interface
+        "--dbus-user.own=org.pwmt.zathura.*"];
     };
     foliate = {
       executable = "${pkgs.foliate}/bin/foliate";
