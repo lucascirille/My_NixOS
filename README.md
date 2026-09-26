@@ -217,3 +217,23 @@ Construimos el sistema con swtich y dado que la configuración utiliza flakes te
 sudo nixos-rebuild switch --flake .#nixos-btw --extra-experimental-features "nix-command flakes"
 
 ```
+
+---
+
+<br>
+
+<div align="center">
+  <h2>❄️ ¡Gracias por visitar My_NixOS! ❄️</h2>
+  
+  <p>Si esta configuración te sirvió de base, te dio alguna idea nueva o simplemente te gustó cómo está armada, ¡considerá dejarle una ⭐ al repositorio!</p>
+
+  <p>
+    <a href="https://github.com/lucascirille/My_NixOS/issues">🐛 Reportar un bug</a> •
+    <a href="https://github.com/lucascirille/My_NixOS/pulls">💡 Proponer un cambio</a> •
+    <a href="https://github.com/lucascirille">🌐 Mi perfil</a>
+  </p>
+
+  <br>
+
+  <i>Construido con 💙 y mucha paciencia. <br>"I use NixOS, btw."</i>
+</div>
