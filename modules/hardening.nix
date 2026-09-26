@@ -221,7 +221,7 @@ programs.firejail = {
     zathura = {
       executable = "${pkgs.zathura}/bin/zathura";
       profile = "${pkgs.firejail}/etc/firejail/zathura.profile";
-      extraArgs = [ "--ignore=private-etc" ];
+      extraArgs = [ "--ignore=private-etc" "--ignore=nodbus"];
     };
     foliate = {
       executable = "${pkgs.foliate}/bin/foliate";
