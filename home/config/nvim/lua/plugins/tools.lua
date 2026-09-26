@@ -30,6 +30,12 @@ return {
       vim.g.vimtex_view_method = "general"
       vim.g.vimtex_view_general_viewer = "zathura"
       vim.g.vimtex_view_zathura = { xdotool = 0 }
+
+      -- Tell VimTeX to automatically clean up when its compiler stops
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "VimtexEventQuit",
+        command = "VimtexClean"
+      })
     end,
   },
 }
