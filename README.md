@@ -9,14 +9,14 @@
 
 ## 📑 Tabla de Contenidos
 
-1. [Características Principales](#características-principales)
-2. [Arquitectura de Hosts](#arquitectura-de-hosts)
-3. [Estructura del Proyecto](#estructura-del-proyecto)
-4. [Entorno de Escritorio y Tematización](#entorno-de-escritorio-y-tematización)
-5. [Seguridad y Hardening](#seguridad-y-hardening)
-6. [Laboratorio de Ciberseguridad (Virt-Lab)](#laboratorio-de-ciberseguridad-virt-lab)
-7. [Scripts Personalizados y Utilidades](#scripts-personalizados-y-utilidades)
-8. [Gestión de Credenciales y Backups](#gestión-de-credenciales-y-backups)
+1. [Características Principales](#-características-principales)
+2. [Arquitectura de Hosts](#-arquitectura-de-hosts)
+3. [Estructura del Proyecto](#-estructura-del-proyecto)
+4. [Entorno de Escritorio y Tematización](#-entorno-de-escritorio-y-tematización)
+5. [Seguridad y Hardening](#-seguridad-y-hardening)
+6. [Laboratorio de Ciberseguridad (Virt-Lab)](#-laboratorio-de-ciberseguridad-virt-lab)
+7. [Scripts Personalizados y Utilidades](#-scripts-personalizados-y-utilidades)
+8. [Gestión de Credenciales y Backups](#-gestión-de-credenciales-y-backups)
 9. [Manual de Instalación](#-manual-de-instalación)
 
 ---
