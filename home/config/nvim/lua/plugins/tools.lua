@@ -19,5 +19,14 @@ return {
   { "tpope/vim-fugitive" },
   { "michaelrommel/nvim-silicon", opts = {} },
   { "epwalsh/obsidian.nvim", version = "*", lazy = true, ft = "markdown" },
-  { "lervag/vimtex", ft = "tex" },
+  {
+    "lervag/vimtex",
+    ft = "tex",
+    keys = {
+      { "<leader>vc", "<cmd>VimtexCompile<CR>", desc = "VimTeX Compile" },
+    },
+    init = function()
+      vim.g.vimtex_view_method = "zathura"
+    end,
+  },
 }

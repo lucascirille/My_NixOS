@@ -11,7 +11,7 @@
     cursor = { package = pkgs.bibata-cursors; name = "Bibata-Modern-Classic"; size = 24; };
   };
 
-  fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono ];
+  fonts.packages = with pkgs; [ nerd-fonts.jetbrains-mono corefonts];
 
   services.gnome.at-spi2-core.enable = true;
   services.blueman.enable = true;
