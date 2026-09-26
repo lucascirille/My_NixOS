@@ -555,7 +555,7 @@ keys = [
     Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness"),
     Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness"),
 
-    Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
+    Key([], "XF86PowerOff", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
 
     Key([mod, "shift"], "s", lazy.spawn("flameshot gui")),
     Key([], "Print", lazy.spawn(

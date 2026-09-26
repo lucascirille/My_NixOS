@@ -6,7 +6,10 @@
       efi.canTouchEfiVariables = true;
       timeout = 3600;
     };
-    kernel.sysctl = { "vm.max_map_count" = 262144; };
+    kernel = {
+    sysctl."kernel.sysrq" = 1; # Enable all Magic SysRq functions
+    sysctl = { "vm.max_map_count" = 262144; };
+    };
     lanzaboote = {
       enable = true;
       pkiBundle = "/var/lib/sbctl";
@@ -29,6 +32,8 @@
     dates = "weekly";
     options = "--delete-older-than 14d";
   };
+
+  services.logind.powerKey = "ignore";
 
   # Common SOPS Setup
   sops = {
