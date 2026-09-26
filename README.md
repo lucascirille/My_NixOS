@@ -10,10 +10,10 @@
 ## 📑 Tabla de Contenidos
 
 1. [Características Principales](#-características-principales)
-2. [Arquitectura de Hosts](#-arquitectura-de-hosts)
+2. [Arquitectura de Hosts](#arquitectura)
 3. [Estructura del Proyecto](#-estructura-del-proyecto)
 4. [Entorno de Escritorio y Tematización](#-entorno-de-escritorio-y-tematización)
-5. [Seguridad y Hardening](#-seguridad-y-hardening)
+5. [Seguridad y Hardening](#seguridad)
 6. [Laboratorio de Ciberseguridad (Virt-Lab)](#-laboratorio-de-ciberseguridad-virt-lab)
 7. [Scripts Personalizados y Utilidades](#-scripts-personalizados-y-utilidades)
 8. [Gestión de Credenciales y Backups](#-gestión-de-credenciales-y-backups)
@@ -33,7 +33,7 @@ Este repositorio centraliza la configuración del sistema operativo y el entorno
 * **Automatización y Resiliencia**: Scripts propios que orquestan reconstrucciones del sistema, pruebas efímeras de configuración, y respaldos diarios y deduplicados hacia Cloudflare R2/S3 utilizando Restic y `sops-nix`.
 
 ---
-
+<a id="arquitectura"></a>
 ## 🏗️ Arquitectura de Hosts
 
 El proyecto instancia configuraciones específicas por equipo usando dependencias comunes:
@@ -91,7 +91,7 @@ El entorno gráfico está construido sobre **X11** utilizando **Qtile** (escrito
 
 
 ---
-
+<a id="seguridad"></a>
 ## 🛡️ Seguridad y Hardening
 
 La infraestructura aplica múltiples capas defensivas tanto a nivel de núcleo como de usuario.
