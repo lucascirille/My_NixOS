@@ -90,13 +90,16 @@ def update_wallpaper_state():
             if getattr(w, "minimized", False):
                 continue
             
-            # Accurately filter out the wallpaper engine on both Wayland and X11
+            # Safely grab window properties
             try:
                 name = getattr(w, "name", "")
-                wm_class = w.window.get_wm_class() or []
-                if isinstance(wm_class, str): 
+                wm_class = w.window.get_wm_class() if hasattr(w, "window") and w.window else []
+                if not wm_class:
+                    wm_class = []
+                elif isinstance(wm_class, str): 
                     wm_class = [wm_class]
                 
+                # Skip the wallpaper engine itself
                 if "linux-wallpaperengine" in name or any("linux-wallpaperengine" in c for c in wm_class):
                     continue
             except Exception:
@@ -105,13 +108,11 @@ def update_wallpaper_state():
             active_windows += 1
 
     # 2. Check explicitly for active Scratchpads (Dropdowns)
-    scratchpad_group = qtile.groups_map.get("scratchpad")
-    if scratchpad_group and hasattr(scratchpad_group, "dropdowns"):
-        for dropdown in scratchpad_group.dropdowns.values():
-            if getattr(dropdown, "visible", False):
-                active_windows += 1
+    scratchpads = qtile.groups_map.get("scratchpad")
+    if scratchpads and hasattr(scratchpads, "dropdowns"):
+        active_windows += sum(1 for dp in scratchpads.dropdowns.values() if getattr(dp, "visible", False))
 
-    # 3. Apply state changes only if the state actually needs to change
+    # 3. Apply state changes only if necessary
     should_pause = (active_windows > 0)
     
     if should_pause and not _wallpaper_paused:
@@ -470,6 +471,7 @@ def create_bar(primary=True):
             foreground=colors["bg"],
             **get_decoration(colors["ok"])
         ),
+        # Reverted back to perfectly valid GenPollText
         widget.GenPollText(
             update_interval=300, 
             func=get_next_event,
@@ -477,8 +479,8 @@ def create_bar(primary=True):
             foreground=colors["bg"],
             mouse_callbacks={
                 'Button1': lazy.group["scratchpad"].dropdown_toggle("calendar"), 
-                'Button2': lazy.spawn("brave https://calendar.google.com"),      
-                'Button3': lazy.spawn("brave https://calendar.google.com"),      
+                'Button2': lazy.spawn("brave https://calendar.google.com"),       
+                'Button3': lazy.spawn("brave https://calendar.google.com"),       
             },
             **get_decoration(colors["orange"])
         ),
