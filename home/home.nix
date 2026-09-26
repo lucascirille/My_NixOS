@@ -383,7 +383,11 @@ in
     gnumake
     tree-sitter
     silicon
-    texliveFull
+    (texlive.withPackages (ps: with ps; [
+      scheme-medium
+      enumitem
+      fontspec
+    ]))
     nodejs_22
 
     mat2 # CLI tool to strip metadata (GPS, EXIF) from files/images before sharing
