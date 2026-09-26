@@ -72,32 +72,54 @@ extension_defaults = widget_defaults.copy()
 # 2. HOOKS & DYNAMIC WORKSPACES
 # =========================================================================
 # --- Wallpaper State Management ---
+_wallpaper_paused = False
+
 @hook.subscribe.startup_once
 def autostart_wallpaper():
     """Restarts wallpaper engine on boot to grab a clean audio clock."""
-    qtile.call_later(2.0, lambda: os.system("systemctl --user restart linux-wallpaperengine.service"))
+    qtile.call_later(2.0, lambda: subprocess.Popen(["systemctl", "--user", "restart", "linux-wallpaperengine.service"]))
 
 def update_wallpaper_state():
-    """Pauses the animated wallpaper when windows are open to save resources."""
-    if not qtile.current_group:
-        return
-
-    # Count windows, explicitly ignoring the wallpaper engine itself
+    """Pauses the animated wallpaper when windows or scratchpads are open to save resources."""
+    global _wallpaper_paused
     active_windows = 0
-    for w in qtile.current_group.windows:
-        try:
-            wm_class_list = w.window.get_wm_class()
-            # Skip if this "window" is just the wallpaper engine
-            if wm_class_list and "linux-wallpaperengine" in wm_class_list:
-                continue
-        except Exception:
-            pass
-        active_windows += 1
 
-    if active_windows > 0:
-        os.system("pkill -STOP -f linux-wallpaperengine")
-    else:
-        os.system("pkill -CONT -f linux-wallpaperengine")
+    # 1. Check normal windows in the active group
+    if qtile.current_group:
+        for w in qtile.current_group.windows:
+            if getattr(w, "minimized", False):
+                continue
+            
+            # Accurately filter out the wallpaper engine on both Wayland and X11
+            try:
+                name = getattr(w, "name", "")
+                wm_class = w.window.get_wm_class() or []
+                if isinstance(wm_class, str): 
+                    wm_class = [wm_class]
+                
+                if "linux-wallpaperengine" in name or any("linux-wallpaperengine" in c for c in wm_class):
+                    continue
+            except Exception:
+                pass
+            
+            active_windows += 1
+
+    # 2. Check explicitly for active Scratchpads (Dropdowns)
+    scratchpad_group = qtile.groups_map.get("scratchpad")
+    if scratchpad_group and hasattr(scratchpad_group, "dropdowns"):
+        for dropdown in scratchpad_group.dropdowns.values():
+            if getattr(dropdown, "visible", False):
+                active_windows += 1
+
+    # 3. Apply state changes only if the state actually needs to change
+    should_pause = (active_windows > 0)
+    
+    if should_pause and not _wallpaper_paused:
+        subprocess.Popen(["pkill", "-STOP", "-f", "linux-wallpaperengine"])
+        _wallpaper_paused = True
+    elif not should_pause and _wallpaper_paused:
+        subprocess.Popen(["pkill", "-CONT", "-f", "linux-wallpaperengine"])
+        _wallpaper_paused = False
 
 # --- Dynamic Icon Mapping System ---
 ICON_CATEGORIES = {
@@ -107,7 +129,7 @@ ICON_CATEGORIES = {
     "": ["thunar", "nautilus", "dolphin", "files"],
     "": ["discord", "vesktop", "slack", "teams"],
     "󰓇": ["spotify", "music", "ncmpcpp"],
-    "󰓓": ["steam"],
+    "󰓓": ["spotify"],
 }
 DEFAULT_ICON = ""
 _app_cache: dict[str, str] = {}
@@ -165,10 +187,12 @@ def update_labels():
 @hook.subscribe.client_new
 @hook.subscribe.client_killed
 @hook.subscribe.setgroup
+@hook.subscribe.client_focus
+@hook.subscribe.group_window_add       # Catches when F12 hides the terminal in the scratchpad group
 def update_group_labels(*args, **kwargs):
     """Triggers wallpaper and label updates when window states change."""
-    # Delay BOTH calls by 0.1s so Qtile can fully update its internal window lists first
-    qtile.call_later(0.1, update_wallpaper_state)
+    # We use a 0.1s delay so Qtile has time to actually update the 'visible' state of the scratchpads
+    qtile.call_later(0.1, update_wallpaper_state) 
     qtile.call_later(0.1, update_labels)
 
 # =========================================================================
