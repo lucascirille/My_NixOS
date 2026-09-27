@@ -199,10 +199,10 @@ EOF
 
     if [ -z "$NIXOS_SPECIALISATION" ]; then
       echo "🧪 Testing NixOS configuration: $TARGET_CONFIG..."
-      nh os test /home/${username}/.dotfiles#"$TARGET_CONFIG" -- --refresh
+      nh os test ~/.dotfiles#"$TARGET_CONFIG" -- --refresh
     else
       echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION for $TARGET_CONFIG..."
-      nh os test /home/${username}/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh
+      nh os test ~/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh
     fi
   '';
 
