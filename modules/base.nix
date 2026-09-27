@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, username, ... }: {
   # Bootloader & Quiet Boot
   boot = {
     loader = {
@@ -40,26 +40,26 @@
     defaultSopsFile = ../secrets/hosts/nixos-btw.yaml;
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     secrets = {
-      "neo_password".neededForUsers = true;
-      "hermes-env".owner = config.users.users.neo.name; 
+      "${username}_password".neededForUsers = true;
+      "hermes-env".owner = config.users.users.${username}.name; 
       "gcalcli_oauth" = {
         sopsFile = ../secrets/hosts/gcalcli_oauth.enc;
         format = "binary";
-        path = "/home/neo/.local/share/gcalcli/oauth";
+        path = "/home/${username}/.local/share/gcalcli/oauth";
         mode = "0600";
-        owner = config.users.users.neo.name;
+        owner = config.users.users.${username}.name;
       };
     };
   };
 
   # Users
   users.mutableUsers = false;
-  users.users.neo = {
+  users.users.${username} = {
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" "video" "audio" "render" "libvirtd" "wireshark" "ubridge" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
-    hashedPasswordFile = config.sops.secrets."neo_password".path;
+    hashedPasswordFile = config.sops.secrets."${username}_password".path;
     linger = true;
   };
 
