@@ -159,15 +159,24 @@ Un módulo propio (`restic.nix`) establece un trabajo cron diario:
 
 > ⚠️ **Aviso para terceros:** Esta configuración está diseñada en base a mis necesidades de hardware y flujo de trabajo (usuario `neo`). Para adoptarla, **NO EJECUTES EL BUILD DIRECTAMENTE**. Debes realizar un *fork*, renombrar variables, borrar mi árbol `sops-nix` y adaptar la capa de hardware (`hardware-configuration.nix`) para tu propia máquina.
 
+
 ### Requisitos Previos
 
-1. Una instalación de NixOS mínima funcional.
-2. Clave SSH del host generada en `/etc/ssh/ssh_host_ed25519_key` para `sops-nix`.
-3. Ir a la BIOS y ingresar con "Setup Mode" (o borrar las keys) si planeas utilizar `lanzaboote` para Secure Boot.
+1. Una instalación de NixOS mínima funcional (los Flakes se activarán temporalmente en el último paso).
+2. Ir a la BIOS **e** ingresar en "Setup Mode" (o borrar las llaves predeterminadas) si planeas utilizar `lanzaboote` para Secure Boot.
 
 ### Despliegue Paso a Paso
 
-1. **Clonar el Repositorio** (recomendado en `~/.dotfiles`):
+1. **Preparar el Entorno de Instalación**:
+Dado que una instalación mínima no incluye ciertas herramientas, iniciaremos una sesión temporal (shell) con todos los paquetes necesarios para el despliegue:
+```bash
+nix-shell -p git ssh-to-age sbctl
+
+```
+
+
+*(Nota: Los siguientes pasos deben ejecutarse dentro de esta misma terminal).*
+2. **Clonar el Repositorio** (recomendado en `~/.dotfiles`):
 ```bash
 git clone https://github.com/lucascirille/My_NixOS.git ~/.dotfiles
 cd ~/.dotfiles
@@ -175,7 +184,7 @@ cd ~/.dotfiles
 ```
 
 
-2. **Detección de Hardware Crítica**:
+3. **Detección de Hardware Crítica**:
 Vuelca la configuración de particiones (LUKS/UEFI) y hardware nativo del equipo destino para evitar fallos graves en el kernel:
 ```bash
 nixos-generate-config --show-hardware-config > hosts/nixos-btw/hardware-configuration.nix
@@ -183,40 +192,48 @@ nixos-generate-config --show-hardware-config > hosts/nixos-btw/hardware-configur
 ```
 
 
-3. **Cifrado Físico (LUKS con TPM2) [Opcional]**:
-Si tu placa cuenta con un chip TPM2 y tu raíz está encriptada, puedes automatizar el pase de contraseña en el arranque:
+4. **Cifrado Físico (LUKS con TPM2) [Opcional]**:
+Si tu placa cuenta con un chip TPM2 y tu raíz está encriptada (por ejemplo en `/dev/sda2`), puedes automatizar el pase de contraseña en el arranque:
 ```bash
 sudo systemd-cryptenroll --tpm2-device=auto /dev/(particion_luks)
 
 ```
 
 
-4. **Regeneración de Secretos (Sops)**:
-Extrae la llave pública del host destino:
+5. **Regeneración de Secretos (Sops)**:
+Extrae la llave pública del host destino usando la llave SSH de la máquina:
 ```bash
-nix-shell -p ssh-to-age --run 'ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub'
+ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub
 
 ```
 
-Agrega esta llave a `.sops.yaml` y asegúrate de definir o re-encriptar tus propios valores sensibles.
+
+*(Nota: Si el sistema mínimo no tiene el servicio OpenSSH habilitado, ese archivo no existirá. Puedes generarlo primero con: `sudo ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key`).*
 
 
-5. **Claves Secure Boot (Lanzaboote)**:
+
+
+Agrega la llave devuelta a `.sops.yaml` y asegúrate de re-encriptar o definir tus propios valores sensibles.
+6. **Claves Secure Boot (Lanzaboote)**:
 (Requiere que la BIOS esté en Setup Mode).
 ```bash
-sudo nix-shell -p sbctl
 sudo sbctl create-keys
 sudo sbctl enroll-keys -m
 
 ```
 
 
-6. **Compilación y Activación**:
-Construimos el sistema con swtich y dado que la configuración utiliza flakes tenemos que activarlo:
+7. **Compilación y Activación Inicial**:
+Usa el reconstructor de NixOS base forzando las características experimentales para aplicar la configuración por primera vez:
 ```bash
 sudo nixos-rebuild switch --flake .#nixos-btw --extra-experimental-features "nix-command flakes"
 
 ```
+
+
+*(Una vez que el sistema se reinicie con tu configuración aplicada, ya tendrás los Flakes activados permanentemente, Git instalado de forma global y podrás usar `nh os switch` o tu script `nos` para el mantenimiento diario. Ya puedes salir del entorno temporal tipeando `exit`).*
+
+¡Y listo!, ¡espero te guste! 😊
 
 ---
 
