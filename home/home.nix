@@ -199,10 +199,10 @@ EOF
 
     if [ -z "$NIXOS_SPECIALISATION" ]; then
       echo "🧪 Testing NixOS configuration: $TARGET_CONFIG..."
-      nh os test /home/neo/.dotfiles#"$TARGET_CONFIG" -- --refresh
+      nh os test /home/${username}/.dotfiles#"$TARGET_CONFIG" -- --refresh
     else
       echo "🧪 Testing NixOS Specialisation: $NIXOS_SPECIALISATION for $TARGET_CONFIG..."
-      nh os test /home/neo/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh
+      nh os test /home/${username}/.dotfiles#"$TARGET_CONFIG" -s "$NIXOS_SPECIALISATION" -- --refresh
     fi
   '';
 
@@ -554,7 +554,7 @@ services.hermes-agent = {
     mcpServers = {
       "filesystem" = {
         command = "${pkgs.nodejs}/bin/npx";
-        args = [ "-y" "@modelcontextprotocol/server-filesystem" "/home/neo" ];
+        args = [ "-y" "@modelcontextprotocol/server-filesystem" "/home/${username}" ];
       };
     };
     
