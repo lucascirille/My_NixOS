@@ -9,9 +9,6 @@
   networking.hostName = "nixos-btw";
   system.stateVersion = "25.11";
 
-# --- TEMPORARY FIX: Gag libvirtd to break the crash loop ---
-  # virtualisation.libvirtd.enable = lib.mkForce false;
-  virtualisation.libvirtd.enable = true;
   
 
   # VM / Baremetal Overrides
