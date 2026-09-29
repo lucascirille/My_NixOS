@@ -10,7 +10,7 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
+  thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
     TARGET="$1"
     
     if [ -d "$TARGET" ]; then
