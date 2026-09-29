@@ -11,56 +11,29 @@ let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
-    # Redirigimos TODO el texto y los errores a un archivo temporal
-    exec > /tmp/thunar-debug.log 2>&1
-    set -x # Activa el modo debug de bash
-
-    echo "--- INICIANDO SCRIPT DE THUNAR ---"
-    
-    # 1. Verificamos los parámetros
     TARGET="$1"
-    echo "Argumento recibido de Thunar: '$TARGET'"
-
-    # 2. Verificamos la ruta
+    
     if [ -d "$TARGET" ]; then
       DIR="$TARGET"
     else
       DIR=$(${pkgs.coreutils}/bin/dirname "$TARGET")
     fi
-    echo "Directorio de trabajo resuelto: '$DIR'"
 
-    cd "$DIR" || { echo "CRÍTICO: No se pudo hacer cd a $DIR"; exit 1; }
+    cd "$DIR" || exit 1
 
-    # 3. Forzamos variables de entorno gráficas vitales
     export DISPLAY="''${DISPLAY:-:0}"
-    # A veces X11 necesita saber la autoridad
     export XAUTHORITY="''${XAUTHORITY:-$HOME/.Xauthority}"
-    
-    echo "DISPLAY actual: $DISPLAY"
-    echo "XAUTHORITY actual: $XAUTHORITY"
 
-    # 4. Inspeccionamos qué hay realmente en el portapapeles
-    echo "Formato actual del portapapeles (TARGETS):"
-    ${pkgs.xclip}/bin/xclip -selection clipboard -t TARGETS -o || echo "xclip falló al leer los TARGETS"
-
-    # 5. Intentamos guardar la imagen
     FILENAME="imagen_$(date +%Y%m%d_%H%M%S).png"
-    echo "Intentando guardar en: $FILENAME"
-    
-    ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME"
-    XCLIP_EXIT_CODE=$?
-    echo "Código de salida de xclip: $XCLIP_EXIT_CODE"
 
-    # 6. Verificamos el resultado
-    ls -lh "$FILENAME"
-
-    if [ -s "$FILENAME" ]; then
-      echo "ÉXITO: El archivo tiene datos."
-      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen guardada."
+    # Intenta pegar desde el 'clipboard' normal. Si falla, intenta desde el 'primary'.
+    if ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME" 2>/dev/null; then
+      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen pegada con éxito."
+    elif ${pkgs.xclip}/bin/xclip -selection primary -t image/png -o > "$FILENAME" 2>/dev/null; then
+      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen pegada (desde portapapeles primario)."
     else
-      echo "ERROR: El archivo está vacío o no se creó."
       rm -f "$FILENAME"
-      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "Revisa /tmp/thunar-debug.log" -u critical
+      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "El portapapeles está vacío o no es una imagen." -u critical
     fi
   '';
 # wrapFirejail: A Nix function that wraps an application's binaries in Firejail.
