@@ -1161,7 +1161,7 @@ programs.chromium = {
     };
   };
 
-  xdg.configFile."Thunar/uca.xml".text = ''
+xdg.configFile."Thunar/uca.xml".text = ''
     <?xml version="1.0" encoding="UTF-8"?>
     <actions>
       <action>
@@ -1174,6 +1174,28 @@ programs.chromium = {
         <range></range>
         <patterns>*</patterns>
         <directories/>
+      </action>
+
+      <action>
+        <icon>edit-paste</icon>
+        <name>Pegar imagen del portapapeles</name>
+        <submenu></submenu>
+        <unique-id>paste-image-clipboard</unique-id>
+        <!-- Comando para Wayland -->
+        <command>sh -c 'dir=$1; [ -d "$1" ] || dir=$2; cd "$dir" &amp;&amp; f="imagen_$$.png"; wl-paste --type image/png &gt; "$f"; [ -s "$f" ] || rm -f "$f"' _ "%f" "%d"</command>
+        
+        <!-- Si usas X11, elimina el comando superior y descomenta el siguiente:
+        <command>sh -c 'dir=$1; [ -d "$1" ] || dir=$2; cd "$dir" &amp;&amp; f="imagen_$$.png"; xclip -selection clipboard -t image/png -o &gt; "$f"; [ -s "$f" ] || rm -f "$f"' _ "%f" "%d"</command>
+        -->
+        
+        <description>Guarda la imagen del portapapeles como archivo PNG</description>
+        <range></range>
+        <patterns>*</patterns>
+        <!-- Habilitado para hacer clic derecho tanto en el fondo vacío como sobre otros archivos -->
+        <directories/>
+        <image-files/>
+        <other-files/>
+        <text-files/>
       </action>
     </actions>
   '';
