@@ -11,32 +11,56 @@ let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
-    TARGET="$1"
+    # Redirigimos TODO el texto y los errores a un archivo temporal
+    exec > /tmp/thunar-debug.log 2>&1
+    set -x # Activa el modo debug de bash
+
+    echo "--- INICIANDO SCRIPT DE THUNAR ---"
     
-    # Determinamos el directorio real de forma segura
+    # 1. Verificamos los parámetros
+    TARGET="$1"
+    echo "Argumento recibido de Thunar: '$TARGET'"
+
+    # 2. Verificamos la ruta
     if [ -d "$TARGET" ]; then
       DIR="$TARGET"
     else
       DIR=$(${pkgs.coreutils}/bin/dirname "$TARGET")
     fi
+    echo "Directorio de trabajo resuelto: '$DIR'"
 
-    cd "$DIR" || exit 1
+    cd "$DIR" || { echo "CRÍTICO: No se pudo hacer cd a $DIR"; exit 1; }
 
-    # FORZAMOS la conexión a X11 (Esto es lo que causaba que xclip fallara en silencio)
+    # 3. Forzamos variables de entorno gráficas vitales
     export DISPLAY="''${DISPLAY:-:0}"
+    # A veces X11 necesita saber la autoridad
+    export XAUTHORITY="''${XAUTHORITY:-$HOME/.Xauthority}"
+    
+    echo "DISPLAY actual: $DISPLAY"
+    echo "XAUTHORITY actual: $XAUTHORITY"
 
+    # 4. Inspeccionamos qué hay realmente en el portapapeles
+    echo "Formato actual del portapapeles (TARGETS):"
+    ${pkgs.xclip}/bin/xclip -selection clipboard -t TARGETS -o || echo "xclip falló al leer los TARGETS"
+
+    # 5. Intentamos guardar la imagen
     FILENAME="imagen_$(date +%Y%m%d_%H%M%S).png"
+    echo "Intentando guardar en: $FILENAME"
+    
+    ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME"
+    XCLIP_EXIT_CODE=$?
+    echo "Código de salida de xclip: $XCLIP_EXIT_CODE"
 
-    # Extraemos la imagen. Probamos tanto el buffer 'clipboard' como el 'primary'
-    # por si tu capturador de pantalla (Flameshot/maim) usa el secundario.
-    ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME" 2>/dev/null || \
-    ${pkgs.xclip}/bin/xclip -selection primary -t image/png -o > "$FILENAME" 2>/dev/null
+    # 6. Verificamos el resultado
+    ls -lh "$FILENAME"
 
     if [ -s "$FILENAME" ]; then
-      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen pegada con éxito en: $DIR"
+      echo "ÉXITO: El archivo tiene datos."
+      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen guardada."
     else
+      echo "ERROR: El archivo está vacío o no se creó."
       rm -f "$FILENAME"
-      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "El portapapeles no contiene una imagen." -u critical
+      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "Revisa /tmp/thunar-debug.log" -u critical
     fi
   '';
 # wrapFirejail: A Nix function that wraps an application's binaries in Firejail.
@@ -1277,8 +1301,8 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar Imagen del Portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <!-- Usamos %f. El script bash decidirá si es archivo o carpeta -->
-        <command>${thunarPasteImage}/bin/thunar-paste-image "%f"</command>
+        <!-- Forzamos a Thunar a pasarlo a través de Bash (sh -c) para que no falle -->
+        <command>sh -c '"${thunarPasteImage}/bin/thunar-paste-image" "$1"' _ "%f"</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
