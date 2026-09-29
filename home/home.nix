@@ -10,6 +10,35 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
+  thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
+    # Recibimos el directorio o archivo seleccionado (%f)
+    TARGET="$1"
+
+    # Verificamos si es una carpeta o un archivo para posicionarnos correctamente
+    if [ -d "$TARGET" ]; then
+      DIR="$TARGET"
+    else
+      DIR=$(${pkgs.coreutils}/bin/dirname "$TARGET")
+    fi
+
+    cd "$DIR" || exit 1
+
+    # Generamos un nombre único con la fecha y hora exacta
+    FILENAME="imagen_$(date +%Y%m%d_%H%M%S).png"
+
+    # Extraemos la imagen
+    ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME"
+
+    # Comprobamos el tamaño del archivo resultante
+    if [ -s "$FILENAME" ]; then
+      # Si el archivo tiene datos, enviamos notificación de éxito
+      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen guardada: $FILENAME"
+    else
+      # Si el archivo está vacío, lo borramos y avisamos del error
+      rm -f "$FILENAME"
+      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "El portapapeles no contiene una imagen PNG." -u critical
+    fi
+  '';
 # wrapFirejail: A Nix function that wraps an application's binaries in Firejail.
 # It intercepts the binaries and .desktop files to ensure they run sandboxed.
 # `lib.hiPrio` ensures these wrapped versions take priority in your $PATH.
@@ -342,6 +371,7 @@ in
     # Normal / System Apps
   [
     
+    thunarPasteImage
 
 
     networkmanagerapplet
@@ -1181,7 +1211,7 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar imagen del portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <command>sh -c 'dir="$1"; [ -d "$dir" ] || dir=$(${pkgs.coreutils}/bin/dirname "$dir"); cd "$dir" &amp;&amp; out="imagen_$$.png" &amp;&amp; ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o &gt; "$out"; [ -s "$out" ] || rm -f "$out"' _ "%f"</command>
+        <command>thunar-paste-image "%f"</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
