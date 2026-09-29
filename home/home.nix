@@ -340,8 +340,8 @@ in
   home.username = username;
   home.homeDirectory = "/home/${username}";
   home.sessionVariables = {
-    SUDO_EDITOR = "nvim";
-    EDITOR = "nvim";
+    SUDO_EDITOR = "${pkgs.neovim}/bin/nvim";
+    EDITOR = "${pkgs.neovim}/bin/nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
     SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
@@ -1315,6 +1315,15 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <other-files/>
       </action>
     </actions>
+  '';
+
+  # Configuración declarativa de los atajos de teclado de Thunar
+  xdg.configFile."Thunar/accels.scm".text = ''
+    ; Atajo para pegar imagen del portapapeles (Ctrl + Shift + V)
+    (gtk_accel_path "<Actions>/ThunarActions/uca-paste-image-clipboard" "<Primary><Shift>v")
+    
+    ; Opcional: Atajo para abrir Ghostty (F4) usando el unique-id que ya definimos
+    (gtk_accel_path "<Actions>/ThunarActions/uca-ghostty-open-here" "F4")
   '';
 
   systemd.user.services.hermes-agent = {
