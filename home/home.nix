@@ -11,22 +11,29 @@ let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
 thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
-    # %d de Thunar siempre nos da el directorio actual, es mucho más seguro
-    DIR="$1"
+    TARGET="$1"
     
-    # Aseguramos que xclip tenga acceso al entorno gráfico de X11
-    export DISPLAY="''${DISPLAY:-:0}"
+    # Determinamos el directorio real de forma segura
+    if [ -d "$TARGET" ]; then
+      DIR="$TARGET"
+    else
+      DIR=$(${pkgs.coreutils}/bin/dirname "$TARGET")
+    fi
 
     cd "$DIR" || exit 1
 
+    # FORZAMOS la conexión a X11 (Esto es lo que causaba que xclip fallara en silencio)
+    export DISPLAY="''${DISPLAY:-:0}"
+
     FILENAME="imagen_$(date +%Y%m%d_%H%M%S).png"
 
-    # Extraemos la imagen
-    ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME"
+    # Extraemos la imagen. Probamos tanto el buffer 'clipboard' como el 'primary'
+    # por si tu capturador de pantalla (Flameshot/maim) usa el secundario.
+    ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o > "$FILENAME" 2>/dev/null || \
+    ${pkgs.xclip}/bin/xclip -selection primary -t image/png -o > "$FILENAME" 2>/dev/null
 
-    # Comprobamos el tamaño del archivo resultante
     if [ -s "$FILENAME" ]; then
-      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen guardada: $FILENAME"
+      ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen pegada con éxito en: $DIR"
     else
       rm -f "$FILENAME"
       ${pkgs.libnotify}/bin/notify-send "Thunar Error" "El portapapeles no contiene una imagen." -u critical
@@ -1251,32 +1258,64 @@ programs.chromium = {
 xdg.configFile."Thunar/uca.xml".text = ''
     <?xml version="1.0" encoding="UTF-8"?>
     <actions>
+      <!-- Acción 1: Abrir Ghostty -->
       <action>
         <icon>utilities-terminal</icon>
-        <name>Open Terminal Here</name>
+        <name>Abrir Terminal Aquí</name>
         <submenu></submenu>
         <unique-id>ghostty-open-here</unique-id>
         <command>ghostty --working-directory="%f"</command>
-        <description>Open Ghostty in this directory</description>
+        <description>Abrir Ghostty en este directorio</description>
         <range></range>
         <patterns>*</patterns>
         <directories/>
       </action>
 
+      <!-- Acción 2: Pegar Imagen Corregido -->
       <action>
         <icon>edit-paste</icon>
-        <name>Pegar imagen del portapapeles</name>
+        <name>Pegar Imagen del Portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <command>${thunarPasteImage}/bin/thunar-paste-image "%d"</command>
+        <!-- Usamos %f. El script bash decidirá si es archivo o carpeta -->
+        <command>${thunarPasteImage}/bin/thunar-paste-image "%f"</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
-        <!-- Habilitado para hacer clic derecho tanto en el fondo vacío como sobre otros archivos -->
         <directories/>
         <image-files/>
         <other-files/>
         <text-files/>
+      </action>
+
+      <!-- Acción 3: Copiar Ruta Absoluta (Ideal para desarrollo) -->
+      <action>
+        <icon>edit-copy</icon>
+        <name>Copiar Ruta al Portapapeles</name>
+        <submenu></submenu>
+        <unique-id>copy-path-clipboard</unique-id>
+        <command>sh -c 'echo -n "%f" | ${pkgs.xclip}/bin/xclip -selection clipboard'</command>
+        <description>Copia la ruta completa de este archivo/carpeta</description>
+        <range></range>
+        <patterns>*</patterns>
+        <directories/>
+        <image-files/>
+        <other-files/>
+        <text-files/>
+      </action>
+
+      <!-- Acción 4: Editar archivo de sistema como Root -->
+      <action>
+        <icon>dialog-password</icon>
+        <name>Editar como Root (Neovim)</name>
+        <submenu></submenu>
+        <unique-id>edit-as-root</unique-id>
+        <command>ghostty -e "sudo nvim '%f'"</command>
+        <description>Edita el archivo usando permisos de administrador</description>
+        <range></range>
+        <patterns>*</patterns>
+        <text-files/>
+        <other-files/>
       </action>
     </actions>
   '';
