@@ -17,10 +17,6 @@
 
   };
   
-  # TPM 2.0 support
-  security.tpm2.enable = true;
-  # enables Software TPM (swtpm) for VM security.
-  virtualisation.libvirtd.qemu.swtpm.enable = true;
 
 
   virtualisation.hypervGuest.enable = false;

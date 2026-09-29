@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs,lib, ... }: {
   # ===========================================================================
   # 1. VIRTUALIZATION & HYPERVISOR
   # ===========================================================================
@@ -10,6 +10,7 @@
     qemu = { 
       package = pkgs.qemu_kvm; 
       runAsRoot = true; 
+      swtpm.enable = lib.mkDefault false;
     };
   };
 
