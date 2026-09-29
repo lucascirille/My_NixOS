@@ -1181,13 +1181,10 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar imagen del portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        
         <command>sh -c 'dir=$1; [ -d "$1" ] || dir=$2; cd "$dir" &amp;&amp; f="imagen_$$.png"; xclip -selection clipboard -t image/png -o &gt; "$f"; [ -s "$f" ] || rm -f "$f"' _ "%f" "%d"</command>
-        
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
-        <!-- Habilitado para hacer clic derecho tanto en el fondo vacío como sobre otros archivos -->
         <directories/>
         <image-files/>
         <other-files/>
