@@ -1301,8 +1301,8 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar Imagen del Portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <!-- ¡Cero comillas alrededor de %d! Thunar las pondrá automáticamente -->
-        <command>${thunarPasteImage}/bin/thunar-paste-image %d</command>
+        <!-- Cambiamos a %f sin comillas. Thunar pondrá las comillas y pasará la ruta exacta -->
+        <command>${thunarPasteImage}/bin/thunar-paste-image %f</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
