@@ -373,6 +373,12 @@ in
     
     thunarPasteImage
 
+    ffmpegthumbnailer
+    poppler
+    fzf
+    jq
+    zoxide
+
 
     networkmanagerapplet
 
@@ -475,6 +481,64 @@ in
 
   
   programs.ttyper.enable = true;
+
+  programs.yazi = {
+    enable = true;
+    
+    # Habilita la integración con tu shell para cambiar de directorio al salir de Yazi (opcional)
+    enableBashIntegration = true; 
+    # enableZshIntegration = true; # Descomenta si usas Zsh
+
+    # 2. Configuración General (yazi.toml)
+    settings = {
+      manager = {
+        show_hidden = false;
+        sort_by = "alphabetical";
+        sort_dir_first = true;
+        linemode = "size";
+        show_symlink = true;
+      };
+      preview = {
+        max_width = 1000;
+        max_height = 1000;
+        image_filter = "lanczos3"; # Filtro de alta calidad para imágenes
+        image_quality = 90;
+      };
+    };
+
+    # 3. Atajos de Teclado Personalizados (keymap.toml)
+    keymap = {
+      manager.prepend_keymap = [
+        # --- Atajo 1: Pegar imagen del portapapeles ---
+        {
+          on = [ "p" "i" ]; # Presiona 'p' y luego 'i' (Paste Image)
+          run = "shell 'xclip -selection clipboard -t image/png -o > \"imagen_$(date +%Y%m%d_%H%M%S).png\"' --confirm";
+          desc = "Pegar imagen del portapapeles (X11)";
+        }
+        
+        # --- Atajo 2: Abrir Ghostty en esta carpeta ---
+        {
+          on = [ "o" "t" ]; # Presiona 'o' y luego 't' (Open Terminal)
+          run = "shell 'ghostty &' --confirm";
+          desc = "Abrir Ghostty aquí";
+        }
+
+        # --- Atajo 3: Extraer archivo con Xarchiver ---
+        {
+          on = [ "e" "x" ]; # Presiona 'e' y luego 'x' (Extract)
+          run = "shell 'xarchiver -x \"$1\"' --confirm";
+          desc = "Extraer archivo con Xarchiver";
+        }
+        
+        # --- Atajo 4: Comprimir archivo con Xarchiver ---
+        {
+          on = [ "c" "x" ]; # Presiona 'c' y luego 'x' (Compress)
+          run = "shell 'xarchiver -c \"$1\"' --confirm";
+          desc = "Comprimir archivo con Xarchiver";
+        }
+      ];
+    };
+  };
 
     programs.mangohud = {
     enable = true;
