@@ -1181,7 +1181,7 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar imagen del portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <command>sh -c 'dir=$1; [ -d "$1" ] || dir=$2; cd "$dir" &amp;&amp; f="imagen_$$.png"; xclip -selection clipboard -t image/png -o &gt; "$f"; [ -s "$f" ] || rm -f "$f"' _ "%f" "%d"</command>
+        <command>sh -c 'dir="$1"; [ -d "$dir" ] || dir=$(${pkgs.coreutils}/bin/dirname "$dir"); cd "$dir" &amp;&amp; out="imagen_$$.png" &amp;&amp; ${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -o &gt; "$out"; [ -s "$out" ] || rm -f "$out"' _ "%f"</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
