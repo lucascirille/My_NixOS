@@ -482,8 +482,8 @@ in
     enable = true;
     
     # Habilita la integración con tu shell para cambiar de directorio al salir de Yazi (opcional)
-    enableBashIntegration = true; 
-    # enableZshIntegration = true; # Descomenta si usas Zsh
+    enableZshIntegration = true;
+    shellWrapperName = "y";
 
     # 2. Configuración General (yazi.toml)
     settings = {
