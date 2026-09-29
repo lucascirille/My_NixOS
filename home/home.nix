@@ -117,7 +117,6 @@ EOF
 
 # Build & Commit (nos)
   nos-script = pkgs.writeShellScriptBin "nos" ''
-    export SUDO_ASKPASS="${nixos-askpass}/bin/nixos-askpass"
 
     # --- HELPER FUNCTIONS ---
 
@@ -340,11 +339,11 @@ in
   home.username = username;
   home.homeDirectory = "/home/${username}";
   home.sessionVariables = {
-    SUDO_EDITOR = "nvim";
-    EDITOR = "nvim";
+    SUDO_EDITOR = "${pkgs.neovim}/bin/nvim";
+    EDITOR = "${pkgs.neovim}/bin/nvim";
     # Tells 'nh' where your flake lives so you don't need to pass paths manually
     NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
-    SUDO_ASKPASS = "${config.home.homeDirectory}/.local/bin/nixos-askpass";
+    SUDO_ASKPASS = "${nixos-askpass}/bin/nixos-askpass";
   };
 
 
@@ -1307,33 +1306,15 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Editar como Root (Neovim)</name>
         <submenu></submenu>
         <unique-id>edit-as-root</unique-id>
-        <command>ghostty -e "sudoedit '%f'"</command>
+        <command>ghostty -e sh -c 'sudoedit "%f"'</command>
         <description>Edita el archivo usando permisos de administrador</description>
         <range></range>
         <patterns>*</patterns>
         <text-files/>
         <other-files/>
       </action>
-    </actions>
   '';
 
-# Inyecta los atajos de teclado directamente en el archivo escribible de Thunar
-  home.activation.updateThunarAccels = config.lib.dag.entryAfter ["writeBoundary"] ''
-    ACCELS_FILE="$HOME/.config/Thunar/accels.scm"
-    
-    # Nos aseguramos de que el archivo exista y sea escribible
-    mkdir -p "$HOME/.config/Thunar"
-    touch "$ACCELS_FILE"
-    chmod 644 "$ACCELS_FILE"
-
-    # Limpiamos las entradas anteriores para no duplicarlas con cada rebuild
-    sed -i '/uca-paste-image-clipboard/d' "$ACCELS_FILE"
-    sed -i '/uca-ghostty-open-here/d' "$ACCELS_FILE"
-
-    # Inyectamos los atajos
-    echo '(gtk_accel_path "<Actions>/ThunarActions/uca-paste-image-clipboard" "<Primary><Shift>v")' >> "$ACCELS_FILE"
-    echo '(gtk_accel_path "<Actions>/ThunarActions/uca-ghostty-open-here" "F4")' >> "$ACCELS_FILE"
-  '';
 
   systemd.user.services.hermes-agent = {
     Service = {
