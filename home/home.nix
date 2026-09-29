@@ -1211,7 +1211,7 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar imagen del portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <command>thunar-paste-image "%f"</command>
+        <command>${thunarPasteImage}/bin/thunar-paste-image "%f"</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
