@@ -10,20 +10,15 @@
 let
   # Define the absolute path to your dotfiles directory
   dotfiles = "${config.home.homeDirectory}/.dotfiles";
-  thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
-    # Recibimos el directorio o archivo seleccionado (%f)
-    TARGET="$1"
-
-    # Verificamos si es una carpeta o un archivo para posicionarnos correctamente
-    if [ -d "$TARGET" ]; then
-      DIR="$TARGET"
-    else
-      DIR=$(${pkgs.coreutils}/bin/dirname "$TARGET")
-    fi
+thunarPasteImage = pkgs.writeShellScriptBin "thunar-paste-image" ''
+    # %d de Thunar siempre nos da el directorio actual, es mucho más seguro
+    DIR="$1"
+    
+    # Aseguramos que xclip tenga acceso al entorno gráfico de X11
+    export DISPLAY="''${DISPLAY:-:0}"
 
     cd "$DIR" || exit 1
 
-    # Generamos un nombre único con la fecha y hora exacta
     FILENAME="imagen_$(date +%Y%m%d_%H%M%S).png"
 
     # Extraemos la imagen
@@ -31,12 +26,10 @@ let
 
     # Comprobamos el tamaño del archivo resultante
     if [ -s "$FILENAME" ]; then
-      # Si el archivo tiene datos, enviamos notificación de éxito
       ${pkgs.libnotify}/bin/notify-send "Thunar" "Imagen guardada: $FILENAME"
     else
-      # Si el archivo está vacío, lo borramos y avisamos del error
       rm -f "$FILENAME"
-      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "El portapapeles no contiene una imagen PNG." -u critical
+      ${pkgs.libnotify}/bin/notify-send "Thunar Error" "El portapapeles no contiene una imagen." -u critical
     fi
   '';
 # wrapFirejail: A Nix function that wraps an application's binaries in Firejail.
@@ -1275,10 +1268,11 @@ xdg.configFile."Thunar/uca.xml".text = ''
         <name>Pegar imagen del portapapeles</name>
         <submenu></submenu>
         <unique-id>paste-image-clipboard</unique-id>
-        <command>${thunarPasteImage}/bin/thunar-paste-image "%f"</command>
+        <command>${thunarPasteImage}/bin/thunar-paste-image "%d"</command>
         <description>Guarda la imagen del portapapeles como archivo PNG</description>
         <range></range>
         <patterns>*</patterns>
+        <!-- Habilitado para hacer clic derecho tanto en el fondo vacío como sobre otros archivos -->
         <directories/>
         <image-files/>
         <other-files/>
