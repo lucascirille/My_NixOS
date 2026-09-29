@@ -4,13 +4,12 @@
   # ===========================================================================
   # Enables the libvirtd daemon to manage virtual machines and containers.
   # Configures QEMU/KVM as the backend hypervisor, running as root to ensure 
-  # full hardware access, and enables Software TPM (swtpm) for VM security.
+  # full hardware access
   virtualisation.libvirtd = {
     enable = true;
     qemu = { 
       package = pkgs.qemu_kvm; 
       runAsRoot = true; 
-      swtpm.enable = true; 
     };
   };
 
