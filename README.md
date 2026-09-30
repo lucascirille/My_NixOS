@@ -39,7 +39,7 @@ Este repositorio centraliza la configuración del sistema operativo y el entorno
 El proyecto instancia configuraciones específicas por equipo usando dependencias comunes:
 
 * 🖥️ **`nixos-btw` (Base)**: Host principal optimizado para la portabilidad.
-* Incluye una "Especialización" llamada `baremetal` (activable en arranque) orientada a máxima potencia: habilita control de ventiladores, *overclocking* de GPU (`amdgpu`), monitoreo avanzado de discos (SMART), y desactiva virtualización pesada de Hyper-V.
+    * Incluye una "Especialización" llamada `baremetal` (activable en arranque) orientada a máxima potencia: habilita control de ventiladores, *overclocking* de GPU (`amdgpu`), monitoreo avanzado de discos (SMART), y desactiva virtualización pesada de Hyper-V.
 
 
 * 💻 **`laptop`**: Perfil diseñado para hardware Intel. Prioriza la seguridad física y la movilidad, soportando arranque cifrado LUKS (raiz y intercambio/swap), periféricos Thunderbolt y anclaje de llaves criptográficas TPM2.
@@ -97,15 +97,15 @@ El entorno gráfico está construido sobre **X11** utilizando **Qtile** (escrito
 La infraestructura aplica múltiples capas defensivas tanto a nivel de núcleo como de usuario.
 
 * **Restricciones del Kernel (`sysctl` & boot parameters)**:
-* Eliminación de punteros en los registros de fallos (dmesg) y ocultación de acceso a depuradores (debugfs).
-* Bloqueo estricto del trazado de procesos cruzados (Yama `ptrace_scope`).
-* Desactivación de sistemas de archivos y protocolos de red propensos a exploits (cramfs, firewire, tipc).
-* Prevención contra ataques TOCTOU mediante enlaces simbólicos y rígidos protegidos.
-* Entre otros . . .
+    * Eliminación de punteros en los registros de fallos (dmesg) y ocultación de acceso a depuradores (debugfs).
+    * Bloqueo estricto del trazado de procesos cruzados (Yama `ptrace_scope`).
+    * Desactivación de sistemas de archivos y protocolos de red propensos a exploits (cramfs, firewire, tipc).
+    * Prevención contra ataques TOCTOU mediante enlaces simbólicos y rígidos protegidos.
+    * Entre otros . . .
 
 * **Entornos Aislados (Sandboxing con Firejail)**:
-* Una función Nix personalizada (`wrapFirejail`) intercepta automáticamente binarios como Brave, Vesktop (Discord), Steam y LibreOffice.
-* Los procesos son encapsulados con permisos de hardware delimitados y comunicaciones D-Bus estrictamente filtradas para evitar escaladas de privilegios gráficas.
+    * Una función Nix personalizada (`wrapFirejail`) intercepta automáticamente binarios como Brave, Vesktop (Discord), Steam y LibreOffice.
+    * Los procesos son encapsulados con permisos de hardware delimitados y comunicaciones D-Bus estrictamente filtradas para evitar escaladas de privilegios gráficas.
 
 
 * **Filtros de Red y Privacidad**: Bloqueo de redirecciones ICMP y resolución estricta a servidores DNS seguros (Quad9) a través de conexiones cifradas TLS, mitigando la interceptación de ISP.
@@ -118,8 +118,8 @@ Para pruebas forenses y análisis de red, el sistema despliega dinámicamente un
 
 * **Puente Virtual (`br-lab`)**: Una interfaz puente estática (aislada del gestor de red principal) que funciona como puerta de enlace (10.0.10.1). Un servicio `systemd` gestiona su ciclo de vida, levantándolo exclusivamente cuando el entorno de laboratorio está activo.
 * **Sensor Aislado (`lab-sensor`)**: Un contenedor rootless (`systemd-nspawn`) configurado para monitoreo:
-* Ejecuta **Suricata** como IDS, descargando automáticamente las últimas reglas de *Emerging Threats* durante el arranque.
-* Ejecuta **Zeek** en paralelo para registrar metadatos de las conexiones, deshabilitando la validación de *checksums* para poder procesar correctamente el tráfico capturado en el puente de red.
+    * Ejecuta **Suricata** como IDS, descargando automáticamente las últimas reglas de *Emerging Threats* durante el arranque.
+    * Ejecuta **Zeek** en paralelo para registrar metadatos de las conexiones, deshabilitando la validación de *checksums* para poder procesar correctamente el tráfico capturado en el puente de red.
 
 
 * **Análisis de Paquetes Seguros**: Integración local con herramientas como Wireshark y Termshark.
