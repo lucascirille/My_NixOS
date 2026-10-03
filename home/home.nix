@@ -366,6 +366,7 @@ in
     ++ 
     # Normal / System Apps
   [
+    gemini-cli
 
     inputs.workmux.packages.${pkgs.system}.default
     
