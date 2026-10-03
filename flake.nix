@@ -28,13 +28,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent";
-    };
-
     cua = {
       url = "github:trycua/cua";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    workmux = {
+      url = "github:raine/workmux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
     };
 
     mattpocock-skills = {
@@ -45,6 +50,7 @@
       url = "github:calesthio/OpenMontage";
       flake = false;
     };
+
   };
 
   outputs =
