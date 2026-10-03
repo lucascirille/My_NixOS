@@ -367,7 +367,7 @@ in
     # Normal / System Apps
   [
 
-    inputs.workmux.packages.${pkgs.system}.default
+    inputs.workmux.packages.${pkgs.stdenv.hostPlatform.system}.default
     
     thunarPasteImage
 
@@ -483,7 +483,7 @@ in
   programs.antigravity-cli = {
     enable = true;
     # Tell the module to use the flake's package instead of looking in standard nixpkgs
-    package = inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-cli;
+    package = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli;
   };
   programs.github-copilot-cli.enable = true;
 
