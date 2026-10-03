@@ -485,6 +485,7 @@ in
     # Tell the module to use the flake's package instead of looking in standard nixpkgs
     package = inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-cli;
   };
+  programs.github-copilot-cli.enable = true;
 
   programs.yazi = {
     enable = true;
@@ -571,6 +572,7 @@ in
   programs.keepassxc.enable = true;
 
     xdg.configFile."workmux/config.yaml".text = ''
+    nerdfont: true
     merge_strategy: rebase
     agent: claude
     panes:
