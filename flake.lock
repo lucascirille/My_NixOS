@@ -584,7 +584,8 @@
         "nixpkgs": "nixpkgs_2",
         "openmontage-skill": "openmontage-skill",
         "sops-nix": "sops-nix",
-        "stylix": "stylix"
+        "stylix": "stylix",
+        "workmux": "workmux"
       }
     },
     "rust-overlay": {
@@ -778,6 +779,26 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
+        "type": "github"
+      }
+    },
+    "workmux": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790968889,
+        "narHash": "sha256-FJwhdLZr8ny4/J7g5hA5IwoHivGbv+YhDZZSSE6VaEc=",
+        "owner": "raine",
+        "repo": "workmux",
+        "rev": "cf8516270afde59804e94fa90da931db9ee99a36",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raine",
+        "repo": "workmux",
         "type": "github"
       }
     }

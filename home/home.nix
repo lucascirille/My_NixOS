@@ -366,6 +366,8 @@ in
     ++ 
     # Normal / System Apps
   [
+
+    inputs.workmux.packages.${pkgs.system}.default
     
     thunarPasteImage
 
@@ -561,6 +563,15 @@ in
   stylix.targets.feh.enable = false;
 
   programs.keepassxc.enable = true;
+
+    xdg.configFile."workmux/config.yaml".text = ''
+    merge_strategy: rebase
+    agent: claude
+    panes:
+      - command: <agent>
+        focus: true
+      - split: horizontal
+  '';
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
   base00 = config.lib.stylix.colors.withHashtag.base00; # Default Background
