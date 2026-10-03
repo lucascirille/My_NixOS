@@ -574,7 +574,7 @@ in
     xdg.configFile."workmux/config.yaml".text = ''
     nerdfont: true
     merge_strategy: rebase
-    agent: hermes --tui
+    agent: hermes --tui .
     panes:
       - command: <agent>
         focus: true
