@@ -90,7 +90,7 @@
     config.common.default = "gtk";
   };
 
-  services.gnome.gnome-keyring.enable = false;
+  services.gnome.gnome-keyring.enable = true;
   security.pam.services.ly.enableGnomeKeyring = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
