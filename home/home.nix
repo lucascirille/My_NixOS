@@ -366,7 +366,6 @@ in
     ++ 
     # Normal / System Apps
   [
-    gemini-cli
 
     inputs.workmux.packages.${pkgs.system}.default
     
@@ -480,6 +479,12 @@ in
 
   
   programs.ttyper.enable = true;
+
+  programs.antigravity-cli = {
+    enable = true;
+    # Tell the module to use the flake's package instead of looking in standard nixpkgs
+    package = inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-cli;
+  };
 
   programs.yazi = {
     enable = true;
