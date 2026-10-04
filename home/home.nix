@@ -1080,47 +1080,47 @@ programs.tmux = {
       })
     ];
 
-    extraConfig = ''
-      # Terminal overrides (True Color Support)
+extraConfig = ''
+      # Terminal overrides (Soporte True Color)
       set-option -sa terminal-features ',xterm-256color:RGB'
       set-option -g terminal-overrides ',xterm-256color:RGB'
       set -g default-terminal "''${TERM}"
 
-      # Core behavior
+      # Comportamiento principal
       set -g detach-on-destroy off
       set -g renumber-windows on
       set -g set-clipboard on
       set -g status-position top
 
-      # --- STYLIX THEME ---
-      # Clear the default left side
-      set-option -g status-left ""
+      # --- STYLIX THEME (Recreación exacta del layout de la imagen) ---
+      set-option -g status-bg default
+      set-option -g status-left-length 100
+      set-option -g status-right-length 100
 
-      # Active window (The one you are currently using)
-      set-window-option -g window-status-current-format "#[fg=#${config.lib.stylix.colors.base0D},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] #I  #W #[fg=#${config.lib.stylix.colors.base0D},bg=default] "
+      # Izquierda: Nombre de la sesión (Imitando el verde de la imagen con base0B)
+      set-option -g status-left "#[fg=#${config.lib.stylix.colors.base0B},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0B},bold] 󰄛 #S #[fg=#${config.lib.stylix.colors.base0B},bg=default] "
 
-      # Inactive windows (The ones running in the background)
-      set-window-option -g window-status-format "#[fg=#${config.lib.stylix.colors.base03},bg=default]#[fg=#${config.lib.stylix.colors.base05},bg=#${config.lib.stylix.colors.base03}] #I  #W #[fg=#${config.lib.stylix.colors.base03},bg=default] "
+      # Ventanas inactivas (Imitando el texto gris de la imagen)
+      set-window-option -g window-status-format "#[fg=#${config.lib.stylix.colors.base03},bg=default] #[fg=#${config.lib.stylix.colors.base05},bg=#${config.lib.stylix.colors.base03}] #W #I #[fg=#${config.lib.stylix.colors.base03},bg=default]"
 
-      # Remove the default space between windows so our pills sit neatly next to each other
+      # Ventana activa (Imitando el bloque azul central de la imagen)
+      set-window-option -g window-status-current-format "#[fg=#${config.lib.stylix.colors.base0D},bg=default] #[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] #W #I #[fg=#${config.lib.stylix.colors.base0D},bg=default]"
+      
+      # Separador nulo para mantener las píldoras juntas
       set-window-option -g window-status-separator ""
 
-      # Make the main status bar background transparent so the pill stands out
-      set-option -g status-bg default
+      # Derecha: Directorio (Rosa con base0E) y Hora (Azul claro con base0C)
+      set-option -g status-right "#[fg=#${config.lib.stylix.colors.base0E},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0E},bold]  #{b:pane_current_path} #[fg=#${config.lib.stylix.colors.base0E},bg=default] #[fg=#${config.lib.stylix.colors.base0C},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0C},bold] 󰃰 %H:%M #[fg=#${config.lib.stylix.colors.base0C},bg=default] "
 
-      # Create the pill shape for the session name on the right side
-      set-option -g status-right "#[fg=#${config.lib.stylix.colors.base0D},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] 󰀘 #S #[fg=#${config.lib.stylix.colors.base0D},bg=default] "
-      set-option -g status-right-length 50
-
-      # Pane borders with Stylix colors
+      # Colores de los bordes de los paneles
       set -g pane-active-border-style "fg=#${config.lib.stylix.colors.base0D},bg=default"
       set -g pane-border-style "fg=#${config.lib.stylix.colors.base03},bg=default"
 
       # --- FLOAX & SESSIONX CONFIG ---
       set -g @floax-width '80%'
       set -g @floax-height '80%'
-      set -g @floax-border-color 'magenta'
-      set -g @floax-text-color 'blue'
+      set -g @floax-border-color '#${config.lib.stylix.colors.base0D}'
+      set -g @floax-text-color '#${config.lib.stylix.colors.base05}'
       set -g @floax-bind 'p'
       set -g @floax-change-path 'true'
       
