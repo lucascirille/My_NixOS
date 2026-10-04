@@ -1127,8 +1127,8 @@ programs.tmux = {
       set -g @sessionx-bind 'o'
       set -g @sessionx-bind-zo-new-window 'ctrl-y'
       set -g @sessionx-auto-accept 'off'
-      set -g @sessionx-custom-paths '~/.dotfiles'
-      set -g @sessionx-x-path '~/.dotfiles'
+      set -g @sessionx-custom-paths "$HOME/.dotfiles"
+      set -g @sessionx-x-path "$HOME/.dotfiles"
       set -g @sessionx-window-height '85%'
       set -g @sessionx-window-width '75%'
       set -g @sessionx-zoxide-mode 'on'
