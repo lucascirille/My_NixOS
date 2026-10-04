@@ -577,8 +577,7 @@ xdg.configFile."workmux/config.yaml".text = ''
       merge_strategy: rebase
       base_branch: auto
       
-      # FIX: Revert this back to a simple string
-      agent: hermes
+      agent: agy
         
       files:
         symlink:
