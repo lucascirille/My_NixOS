@@ -1064,7 +1064,7 @@ programs.tmux = {
       tmux-thumbs
       tmux-fzf
       fzf-tmux-url
-      tmux-sessionx
+      tmux-sessionx # This plugin creates the popup menu seen in the image
       
       # Custom build for floax directly from GitHub
       (mkTmuxPlugin {
@@ -1074,45 +1074,44 @@ programs.tmux = {
           owner = "omerxx";
           repo = "tmux-floax";
           rev = "main";
-          # We use a fake hash to force Nix to download it and tell us the real one
-          hash = "sha256-9Hb9dn2qHF6KcIhtogvycX3Z0MoQrLPLCzZXtjGlPHw=";
+          hash = "sha256-9Hb9dn2qHF6KcIhtogvycX3Z0MoQrLPLCzZXtjGlPHw="; # Put your real hash here
         };
       })
     ];
 
-extraConfig = ''
-      # Terminal overrides (Soporte True Color)
+    extraConfig = ''
+      # Terminal overrides (True Color Support)
       set-option -sa terminal-features ',xterm-256color:RGB'
       set-option -g terminal-overrides ',xterm-256color:RGB'
       set -g default-terminal "''${TERM}"
 
-      # Comportamiento principal
+      # Core behavior
       set -g detach-on-destroy off
       set -g renumber-windows on
       set -g set-clipboard on
       set -g status-position top
 
-      # --- STYLIX THEME (Recreación exacta del layout de la imagen) ---
+      # --- STYLIX THEME (Exact layout matching the image) ---
       set-option -g status-bg default
       set-option -g status-left-length 100
       set-option -g status-right-length 100
 
-      # Izquierda: Nombre de la sesión (Imitando el verde de la imagen con base0B)
+      # Left: Session name
       set-option -g status-left "#[fg=#${config.lib.stylix.colors.base0B},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0B},bold] 󰄛 #S #[fg=#${config.lib.stylix.colors.base0B},bg=default] "
 
-      # Ventanas inactivas (Imitando el texto gris de la imagen)
+      # Inactive windows
       set-window-option -g window-status-format "#[fg=#${config.lib.stylix.colors.base03},bg=default] #[fg=#${config.lib.stylix.colors.base05},bg=#${config.lib.stylix.colors.base03}] #W #I #[fg=#${config.lib.stylix.colors.base03},bg=default]"
 
-      # Ventana activa (Imitando el bloque azul central de la imagen)
+      # Active window
       set-window-option -g window-status-current-format "#[fg=#${config.lib.stylix.colors.base0D},bg=default] #[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] #W #I #[fg=#${config.lib.stylix.colors.base0D},bg=default]"
       
-      # Separador nulo para mantener las píldoras juntas
+      # Null separator to keep pills tightly packed
       set-window-option -g window-status-separator ""
 
-      # Derecha: Directorio (Rosa con base0E) y Hora (Azul claro con base0C)
+      # Right: Directory and Time
       set-option -g status-right "#[fg=#${config.lib.stylix.colors.base0E},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0E},bold]  #{b:pane_current_path} #[fg=#${config.lib.stylix.colors.base0E},bg=default] #[fg=#${config.lib.stylix.colors.base0C},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0C},bold] 󰃰 %H:%M #[fg=#${config.lib.stylix.colors.base0C},bg=default] "
 
-      # Colores de los bordes de los paneles
+      # Pane borders
       set -g pane-active-border-style "fg=#${config.lib.stylix.colors.base0D},bg=default"
       set -g pane-border-style "fg=#${config.lib.stylix.colors.base03},bg=default"
 
@@ -1124,6 +1123,7 @@ extraConfig = ''
       set -g @floax-bind 'p'
       set -g @floax-change-path 'true'
       
+      # This configures the SessionX popup to look exactly like the image
       set -g @sessionx-bind-zo-new-window 'ctrl-y'
       set -g @sessionx-auto-accept 'off'
       set -g @sessionx-custom-paths '~/dotfiles'
