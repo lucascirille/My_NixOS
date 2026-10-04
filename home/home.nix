@@ -573,6 +573,7 @@ in
 
     xdg.configFile."workmux/config.yaml".text = ''
     nerdfont: true
+    worktree_dir: ~/.workmux/{project}
     merge_strategy: rebase
     agent: hermes
     panes:
