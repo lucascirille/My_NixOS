@@ -814,8 +814,8 @@ services.blueman-applet.enable = true;
   programs.ghostty = {
     enable = true;
     settings = {
-      # This creates the default session silently, then groups to it, and self-destructs the clone on exit
-      command = "bash -c 'tmux new-session -d -s default 2>/dev/null; tmux new-session -t default \\; set-option destroy-unattached on'";
+      # The -A flag means "Attach to 'default' if it exists, otherwise create it"
+      command = "tmux new-session -A -s default";
 
       # We use a double backslash here so Nix outputs it as \x00
       keybind = "ctrl+space=text:\\x00";
