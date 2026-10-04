@@ -571,16 +571,35 @@ in
 
   programs.keepassxc.enable = true;
 
-    xdg.configFile."workmux/config.yaml".text = ''
-    nerdfont: true
-    worktree_dir: ~/.workmux/{project}
-    merge_strategy: rebase
-    agent: hermes
-    panes:
-      - command: <agent>
-        focus: true
-      - split: horizontal
-  '';
+xdg.configFile."workmux/config.yaml".text = ''
+      nerdfont: true
+      worktree_dir: ~/.workmux/{project}
+      merge_strategy: rebase
+      
+      # Always branch from main/master to prevent accidental chained histories
+      base_branch: auto
+      
+      # Hermes Agent connection (using your custom port)
+      agent:
+        provider: "hermes"
+        url: "http://localhost:9119"
+        
+      # Automatically symlink heavy folders and secrets to save time and disk space
+      files:
+        symlink:
+          - "node_modules"
+          - ".env"
+          
+      # Automatically authorize Nix flake environments if using direnv
+      post_create:
+        - "direnv allow"
+
+      # Global default tmux layout
+      panes:
+        - command: <agent>
+          focus: true
+        - split: horizontal
+    '';
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
   base00 = config.lib.stylix.colors.withHashtag.base00; # Default Background
@@ -805,7 +824,8 @@ services.blueman-applet.enable = true;
   programs.ghostty = {
     enable = true;
     settings = {
-      command = "tmux";
+      # This command prevents terminal mirroring and session clutter
+      command = "bash -c 'tmux new-session -t default || tmux new-session -s default'";
 
       # We use a double backslash here so Nix outputs it as \x00
       keybind = "ctrl+space=text:\\x00";
