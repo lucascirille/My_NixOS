@@ -585,8 +585,6 @@ xdg.configFile."workmux/config.yaml".text = ''
           - "node_modules"
           - ".env"
           
-      post_create:
-        - "direnv allow"
 
       panes:
         - command: <agent>
