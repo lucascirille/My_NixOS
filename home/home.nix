@@ -1152,41 +1152,31 @@ programs.tmux = {
       set -g @fzf-url-fzf-options '-p 60%,30% --prompt="   " --border-label=" Open URL "'
       set -g @fzf-url-history-limit '2000'
 
-      # --- CUSTOM KEYBINDINGS ---
-      bind ^X lock-server
-      bind ^C new-window -c "$HOME"
-      bind ^D detach
-      bind * list-clients
-      bind H previous-window
-      bind L next-window
-      bind r command-prompt "rename-window %%"
-      bind R source-file ~/.config/tmux/tmux.conf
-      bind ^A last-window
-      bind ^W list-windows
-      bind w list-windows
-      bind z resize-pane -Z
-      bind ^L refresh-client
-      bind l refresh-client
-      bind | split-window
-      bind s split-window -v -c "#{pane_current_path}"
-      bind v split-window -h -c "#{pane_current_path}"
-      bind '"' choose-window
+    # --- CUSTOM KEYBINDINGS ---
+      # Navegación entre paneles estilo Vim
       bind h select-pane -L
       bind j select-pane -D
       bind k select-pane -U
       bind l select-pane -R
+
+      # Swap windows left and right with Shift+H and Shift+L
+      bind -r H swap-window -t -1 \; select-window -t -1
+      bind -r L swap-window -t +1 \; select-window -t +1
+
+      # Swap panes down and up with Shift+J and Shift+K
+      bind -r J swap-pane -D
+      bind -r K swap-pane -U
+
+      # Abrir nuevas ventanas y splits en el directorio actual
+      bind c new-window -c "#{pane_current_path}"
+      bind '"' split-window -v -c "#{pane_current_path}"
+      bind % split-window -h -c "#{pane_current_path}"
+
+      # Vim-style pane resizing (Added from the new config)
       bind -r -T prefix , resize-pane -L 20
       bind -r -T prefix . resize-pane -R 20
       bind -r -T prefix - resize-pane -D 7
       bind -r -T prefix = resize-pane -U 7
-      bind : command-prompt
-      bind * setw synchronize-panes
-      bind P set pane-border-status
-      bind c kill-pane
-      bind x swap-pane -D
-      bind S choose-session
-      bind K send-keys "clear"\; send-keys "Enter"
-      bind-key -T copy-mode-vi v send-keys -X begin-selection
     '';
 };
 
