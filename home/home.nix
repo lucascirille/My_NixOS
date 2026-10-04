@@ -815,8 +815,8 @@ services.blueman-applet.enable = true;
   programs.ghostty = {
     enable = true;
     settings = {
-      # The -A flag means "Attach to 'default' if it exists, otherwise create it"
-      # command = "tmux new-session -A -s default";
+      # The -A flag means "Attach to 'main' if it exists, otherwise create it"
+      command = "tmux new-session -A -s main";
 
       # We use a double backslash here so Nix outputs it as \x00
       keybind = "ctrl+space=text:\\x00";
