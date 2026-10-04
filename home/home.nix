@@ -376,6 +376,7 @@ in
     fzf
     jq
     zoxide
+    bat
 
 
     networkmanagerapplet
@@ -1050,17 +1051,48 @@ programs.tmux = {
     mouse = true;
     baseIndex = 1;
     keyMode = "vi";
-    terminal = "tmux-256color";
+    terminal = "screen-256color";
     prefix = "C-a";
+    escapeTime = 0;
+    historyLimit = 1000000;
+
+    plugins = with pkgs.tmuxPlugins; [
+      sensible
+      yank
+      resurrect
+      continuum
+      tmux-thumbs
+      tmux-fzf
+      fzf-tmux-url
+      tmux-sessionx
+      
+      # Custom build for floax directly from GitHub
+      (mkTmuxPlugin {
+        pluginName = "floax";
+        version = "unstable-2024";
+        src = pkgs.fetchFromGitHub {
+          owner = "omerxx";
+          repo = "tmux-floax";
+          rev = "main";
+          # We use a fake hash to force Nix to download it and tell us the real one
+          hash = "sha256-9Hb9dn2qHF6KcIhtogvycX3Z0MoQrLPLCzZXtjGlPHw=";
+        };
+      })
+    ];
 
     extraConfig = ''
-      # Soporte True Color (necesario para Stylix/Base16)
+      # Terminal overrides (True Color Support)
       set-option -sa terminal-features ',xterm-256color:RGB'
+      set-option -g terminal-overrides ',xterm-256color:RGB'
+      set -g default-terminal "''${TERM}"
 
-      # Empezar a numerar los paneles en 1 y renumerar ventanas al cerrar
-      set-window-option -g pane-base-index 1
-      set-option -g renumber-windows on
+      # Core behavior
+      set -g detach-on-destroy off
+      set -g renumber-windows on
+      set -g set-clipboard on
+      set -g status-position top
 
+      # --- STYLIX THEME ---
       # Clear the default left side
       set-option -g status-left ""
 
@@ -1078,35 +1110,75 @@ programs.tmux = {
 
       # Create the pill shape for the session name on the right side
       set-option -g status-right "#[fg=#${config.lib.stylix.colors.base0D},bg=default]#[fg=#${config.lib.stylix.colors.base00},bg=#${config.lib.stylix.colors.base0D},bold] 󰀘 #S #[fg=#${config.lib.stylix.colors.base0D},bg=default] "
-      
-      # Ensure there is enough space to render the text
       set-option -g status-right-length 50
 
-      # Navegación entre paneles estilo Vim
+      # Pane borders with Stylix colors
+      set -g pane-active-border-style "fg=#${config.lib.stylix.colors.base0D},bg=default"
+      set -g pane-border-style "fg=#${config.lib.stylix.colors.base03},bg=default"
+
+      # --- FLOAX & SESSIONX CONFIG ---
+      set -g @floax-width '80%'
+      set -g @floax-height '80%'
+      set -g @floax-border-color 'magenta'
+      set -g @floax-text-color 'blue'
+      set -g @floax-bind 'p'
+      set -g @floax-change-path 'true'
+      
+      set -g @sessionx-bind-zo-new-window 'ctrl-y'
+      set -g @sessionx-auto-accept 'off'
+      set -g @sessionx-custom-paths '~/dotfiles'
+      set -g @sessionx-bind 'o'
+      set -g @sessionx-x-path '~/dotfiles'
+      set -g @sessionx-window-height '85%'
+      set -g @sessionx-window-width '75%'
+      set -g @sessionx-zoxide-mode 'on'
+      set -g @sessionx-custom-paths-subdirectories 'false'
+      set -g @sessionx-filter-current 'false'
+      
+      set -g @continuum-restore 'on'
+      set -g @resurrect-strategy-nvim 'session'
+
+      # --- FZF URL ---
+      set -g @fzf-url-fzf-options '-p 60%,30% --prompt="   " --border-label=" Open URL "'
+      set -g @fzf-url-history-limit '2000'
+
+      # --- CUSTOM KEYBINDINGS ---
+      bind ^X lock-server
+      bind ^C new-window -c "$HOME"
+      bind ^D detach
+      bind * list-clients
+      bind H previous-window
+      bind L next-window
+      bind r command-prompt "rename-window %%"
+      bind R source-file ~/.config/tmux/tmux.conf
+      bind ^A last-window
+      bind ^W list-windows
+      bind w list-windows
+      bind z resize-pane -Z
+      bind ^L refresh-client
+      bind l refresh-client
+      bind | split-window
+      bind s split-window -v -c "#{pane_current_path}"
+      bind v split-window -h -c "#{pane_current_path}"
+      bind '"' choose-window
       bind h select-pane -L
       bind j select-pane -D
       bind k select-pane -U
       bind l select-pane -R
-
-      # Swap windows left and right with Shift+H and Shift+L
-      bind -r H swap-window -t -1 \; select-window -t -1
-      bind -r L swap-window -t +1 \; select-window -t +1
-
-      # Swap panes down and up with Shift+J and Shift+K
-      bind -r J swap-pane -D
-      bind -r K swap-pane -U
-
-      # Abrir nuevas ventanas y splits en el directorio actual
-      bind c new-window -c "#{pane_current_path}"
-      bind '"' split-window -v -c "#{pane_current_path}"
-      bind % split-window -h -c "#{pane_current_path}"
+      bind -r -T prefix , resize-pane -L 20
+      bind -r -T prefix . resize-pane -R 20
+      bind -r -T prefix - resize-pane -D 7
+      bind -r -T prefix = resize-pane -U 7
+      bind : command-prompt
+      bind * setw synchronize-panes
+      bind P set pane-border-status
+      bind c kill-pane
+      bind x swap-pane -D
+      bind S choose-session
+      bind K send-keys "clear"\; send-keys "Enter"
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
     '';
-
-    plugins = with pkgs.tmuxPlugins; [
-      sensible
-      yank
-    ];
-  };
+};
 
 programs.zsh = {
       enable = true;
