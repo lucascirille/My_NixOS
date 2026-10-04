@@ -575,26 +575,19 @@ xdg.configFile."workmux/config.yaml".text = ''
       nerdfont: true
       worktree_dir: ~/.workmux/{project}
       merge_strategy: rebase
-      
-      # Always branch from main/master to prevent accidental chained histories
       base_branch: auto
       
-      # Hermes Agent connection (using your custom port)
-      agent:
-        provider: "hermes"
-        url: "http://localhost:9119"
+      # FIX: Revert this back to a simple string
+      agent: hermes
         
-      # Automatically symlink heavy folders and secrets to save time and disk space
       files:
         symlink:
           - "node_modules"
           - ".env"
           
-      # Automatically authorize Nix flake environments if using direnv
       post_create:
         - "direnv allow"
 
-      # Global default tmux layout
       panes:
         - command: <agent>
           focus: true
@@ -824,8 +817,8 @@ services.blueman-applet.enable = true;
   programs.ghostty = {
     enable = true;
     settings = {
-      # This command prevents terminal mirroring and session clutter
-      command = "bash -c 'tmux new-session -t default || tmux new-session -s default'";
+      # This creates the default session silently, then groups to it, and self-destructs the clone on exit
+      command = "bash -c 'tmux new-session -d -s default 2>/dev/null; tmux new-session -t default \\; set-option destroy-unattached on'";
 
       # We use a double backslash here so Nix outputs it as \x00
       keybind = "ctrl+space=text:\\x00";
