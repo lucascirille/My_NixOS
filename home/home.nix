@@ -1115,7 +1115,7 @@ programs.tmux = {
       set -g pane-active-border-style "fg=#${config.lib.stylix.colors.base0D},bg=default"
       set -g pane-border-style "fg=#${config.lib.stylix.colors.base03},bg=default"
 
-      # --- FLOAX & SESSIONX CONFIG ---
+      # --- FLOAX CONFIG ---
       set -g @floax-width '80%'
       set -g @floax-height '80%'
       set -g @floax-border-color '#${config.lib.stylix.colors.base0D}'
@@ -1123,17 +1123,27 @@ programs.tmux = {
       set -g @floax-bind 'p'
       set -g @floax-change-path 'true'
       
-      # This configures the SessionX popup to look exactly like the image
+      # --- SESSIONX CONFIG ---
+      set -g @sessionx-bind 'o'
       set -g @sessionx-bind-zo-new-window 'ctrl-y'
       set -g @sessionx-auto-accept 'off'
       set -g @sessionx-custom-paths '~/dotfiles'
-      set -g @sessionx-bind 'o'
       set -g @sessionx-x-path '~/dotfiles'
       set -g @sessionx-window-height '85%'
       set -g @sessionx-window-width '75%'
       set -g @sessionx-zoxide-mode 'on'
       set -g @sessionx-custom-paths-subdirectories 'false'
       set -g @sessionx-filter-current 'false'
+
+      # Added from the repository README to match the desired look:
+      set -g @sessionx-window-mode 'on'
+      set -g @sessionx-tree-mode 'on'
+      set -g @sessionx-preview-location 'right'
+      set -g @sessionx-preview-ratio '55%'
+      set -g @sessionx-layout 'reverse'
+      set -g @sessionx-prompt " "
+      set -g @sessionx-pointer "▶ "
+      set -g @sessionx-git-branch 'on'
       
       set -g @continuum-restore 'on'
       set -g @resurrect-strategy-nvim 'session'
