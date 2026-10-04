@@ -1089,7 +1089,7 @@ programs.tmux = {
       set -g detach-on-destroy off
       set -g renumber-windows on
       set -g set-clipboard on
-      set -g status-position top
+      set -g status-position bottom
 
       # --- STYLIX THEME (Exact layout matching the image) ---
       set-option -g status-bg default
