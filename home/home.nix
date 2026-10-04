@@ -681,6 +681,9 @@ services.hermes-agent = {
         provider = "gemini";
         base_url = "https://generativelanguage.googleapis.com/v1beta";
       };
+      terminal = {
+        cwd = ".";
+      };
       kanban = {
         dispatch_in_gateway = true;
         dispatch_interval_seconds = 10;
