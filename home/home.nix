@@ -815,7 +815,7 @@ services.blueman-applet.enable = true;
     enable = true;
     settings = {
       # The -A flag means "Attach to 'default' if it exists, otherwise create it"
-      command = "tmux new-session -A -s default";
+      # command = "tmux new-session -A -s default";
 
       # We use a double backslash here so Nix outputs it as \x00
       keybind = "ctrl+space=text:\\x00";
