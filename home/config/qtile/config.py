@@ -131,6 +131,7 @@ ICON_CATEGORIES = {
     "": ["discord", "vesktop", "slack", "teams"],
     "󰓇": ["spotify", "music", "ncmpcpp"],
     "󰓓": ["steam"],
+    "🪨": ["obsidian"],
 }
 DEFAULT_ICON = ""
 _app_cache: dict[str, str] = {}
@@ -231,7 +232,11 @@ def get_next_event():
                 start_time = parts[1].strip()
                 end_date = parts[2].strip() if len(parts) > 2 else start_date
                 end_time = parts[3].strip() if len(parts) > 3 else ""
+                
+                # --- NEW: Parse title and limit to 10 characters ---
                 title = parts[4].strip() if len(parts) > 4 else "Event"
+                if len(title) > 10:
+                    title = title[:10] + "..."
                 
                 start_dt = None
                 end_dt = None
@@ -258,7 +263,7 @@ def get_next_event():
                 valid_events.append({
                     "start_str": start_time if start_time else "All Day",
                     "end_str": end_time,
-                    "title": f"{title} {tag}", 
+                    "title": f"{title} {tag}", # Tag is safely added after truncation
                     "start_dt": start_dt,
                     "end_dt": end_dt
                 })
@@ -266,32 +271,16 @@ def get_next_event():
         if not valid_events:
             return "Free schedule"
 
+        # Sort chronologically to get the most upcoming events
         valid_events.sort(key=lambda x: x["start_dt"] if x["start_dt"] else datetime.min)
-        first_event = valid_events[0]
+        
+        # --- NEW: Simply grab the first 2 events ---
         display_items = []
-        
-        def format_event(ev):
+        for ev in valid_events[:2]:
             time_block = f"{ev['start_str']}-{ev['end_str']}" if ev['end_str'] else ev['start_str']
-            return f"{time_block} {ev['title']}"
+            display_items.append(f"{time_block} {ev['title']}")
             
-        display_items.append(format_event(first_event))
-        
-        if first_event["start_str"] == "All Day":
-            current_max_end = first_event["start_dt"] 
-        else:
-            current_max_end = first_event["end_dt"]
-        
-        if current_max_end:
-            for event in valid_events[1:]:
-                if event["start_dt"] and event["start_dt"] < current_max_end:
-                    display_items.append(format_event(event))
-                    if event["end_dt"] and event["end_dt"] > current_max_end:
-                        current_max_end = event["end_dt"]
-                else:
-                    break 
-                    
-        display_text = " / ".join(display_items)
-        return display_text[:85] + "..." if len(display_text) > 85 else display_text
+        return " / ".join(display_items)
 
     except Exception as e:
         return f"Err: {str(e)[:15]}"
@@ -390,7 +379,8 @@ def create_bar(primary=True):
             empty_group_string="Desktop",
             **get_decoration(colors["bg"])
         ),
-        widget.Spacer(),
+        widget.Spacer(length=16),
+        # widget.Spacer(),
     ]
 
     if primary:
@@ -412,7 +402,7 @@ def create_bar(primary=True):
             format='  {MemUsed: .0f}MB',
             update_interval=5.0,
             foreground=colors["bg"],
-            **get_decoration(colors["warning"])
+            **get_decoration(colors["cyan"])
         ),
     ])
 
@@ -428,6 +418,17 @@ def create_bar(primary=True):
                 foreground=colors["bg"],
                 **get_decoration(colors["warning"])
             )
+        )
+
+
+        bar_widgets.append(
+            widget.PulseVolume(
+            fmt='󰕾 {}',
+            limit_max_volume=True,
+            mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
+            foreground=colors["bg"],
+            **get_decoration(colors["warning"])
+        ),
         )
 
     wlan_dev = get_wlan_interface()
@@ -455,6 +456,8 @@ def create_bar(primary=True):
                 charge_char='󱐋 󰁹',
                 discharge_char='󰁹',
                 full_char='󰁹 Full',
+                empty_char='󰂎',         
+                unknown_char='󰁹',        
                 low_percentage=0.2,
                 low_foreground=colors["critical"],
                 update_interval=15,
@@ -464,13 +467,6 @@ def create_bar(primary=True):
         )
 
     bar_widgets.extend([
-        widget.PulseVolume(
-            fmt='󰕾 {}',
-            limit_max_volume=True,
-            mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
-            foreground=colors["bg"],
-            **get_decoration(colors["ok"])
-        ),
         # Reverted back to perfectly valid GenPollText
         widget.GenPollText(
             update_interval=300, 

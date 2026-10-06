@@ -932,8 +932,6 @@ services.blueman-applet.enable = true;
 programs.obsidian = {
   enable = true;
 
-  package = pkgs.obsidian;
-
   vaults.notes = {
     target = "Documents/second_brain";
   };
@@ -942,6 +940,7 @@ programs.obsidian = {
     app = {
       alwaysUpdateLinks = true;
       spellcheck = true;
+      vimMode = true;
     };
 
     corePlugins = [
