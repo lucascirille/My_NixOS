@@ -357,7 +357,7 @@ in
       spotify
       foliate # Ebook reader
       config.programs.chromium.finalPackage
-      config.programs.obsidian.package
+      # config.programs.obsidian.package
       config.programs.vesktop.package
       config.programs.mpv.package
       config.programs.feh.package

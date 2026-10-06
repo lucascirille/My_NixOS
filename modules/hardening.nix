@@ -247,14 +247,14 @@ programs.firejail = {
     };
 
     # --- NOTES & ELECTRON APPS ---
-    obsidian = {
-      executable = "${pkgs.obsidian}/bin/obsidian";
-      profile = "${pkgs.firejail}/etc/firejail/obsidian.profile";
-      extraArgs = [ 
-        "--ignore=private-etc" 
-        
-      ];
-    };
+    # obsidian = {
+    #   executable = "${pkgs.obsidian}/bin/obsidian";
+    #   profile = "${pkgs.firejail}/etc/firejail/obsidian.profile";
+    #   extraArgs = [ 
+    #     "--ignore=private-etc" 
+    #
+    #   ];
+    # };
 
     # --- IMAGE VIEWERS ---
     nsxiv = {
