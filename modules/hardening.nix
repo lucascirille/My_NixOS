@@ -250,7 +250,13 @@ programs.firejail = {
     obsidian = {
       executable = "${pkgs.obsidian}/bin/obsidian";
       profile = "${pkgs.firejail}/etc/firejail/obsidian.profile";
-      extraArgs = [ "--ignore=private-etc" ];
+      extraArgs = [ 
+        "--ignore=private-etc" 
+        
+        # Habilitar D-Bus para permitir la apertura de enlaces externos
+        "--ignore=nodbus"
+        "--dbus-user.talk=org.freedesktop.portal.Desktop"
+      ];
     };
 
     # --- IMAGE VIEWERS ---
