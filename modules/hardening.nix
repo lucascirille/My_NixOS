@@ -255,7 +255,6 @@ programs.firejail = {
         
         # Habilitar D-Bus para permitir la apertura de enlaces externos
         "--ignore=nodbus"
-        "--dbus-user.talk=org.freedesktop.portal.Desktop"
       ];
     };
 
