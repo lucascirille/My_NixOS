@@ -253,8 +253,6 @@ programs.firejail = {
       extraArgs = [ 
         "--ignore=private-etc" 
         
-        # Habilitar D-Bus para permitir la apertura de enlaces externos
-        "--ignore=nodbus"
       ];
     };
 
