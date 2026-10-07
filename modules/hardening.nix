@@ -177,12 +177,13 @@ programs.firejail = {
         "--ignore=private-etc"
         "--ignore=private-dev" 
 
-        # 2. D-Bus Firewall 
-        "--ignore=nodbus"                                # Re-enable D-Bus (blocked by default)
-        "--dbus-user.talk=org.freedesktop.Notifications" # Strictly limit D-Bus to desktop notifications
+        # 2. D-Bus Firewall & File Picker (XDG Desktop Portals)
+        "--ignore=nodbus"                                     # Re-enable D-Bus (blocked by default)
+        "--dbus-user.talk=org.freedesktop.Notifications"      # Limit D-Bus to desktop notifications
+        "--dbus-user.talk=org.freedesktop.portal.*"           # Permite que el navegador use el selector de archivos del sistema
 
         # 3. KeePassXC Integration (Proxy Execution)
-        "--ignore=private-bin"                           # Allow background scripts
+        "--ignore=private-bin"                                # Allow background scripts
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
 
         # 4. KeePassXC Sockets (The Symlink Trap)
@@ -192,6 +193,15 @@ programs.firejail = {
         "--whitelist=/run/user/1000/app"
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+
+        # 5. Whitelisting selectivo para subidas (ej. Documents, Pictures o .dotfiles)
+        # Recuerda que se necesita --noblacklist + --whitelist si la carpeta está oculta o restringida por defecto.
+        "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/Documents"
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/Documents"
+        "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/Pictures"
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/Pictures"
+        # "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/.dotfiles"
+        # "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/.dotfiles"
       ];
     };
 
