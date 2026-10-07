@@ -494,6 +494,14 @@ programs.yazi = {
     enableZshIntegration = true;
     shellWrapperName = "y";
 
+    # Inicializa el plugin y le indica que use Neovim
+    initLua = ''
+      require("yafg"):setup({
+        editor = "nvim",
+        file_arg_format = "+{row} {file}",
+      })
+    '';
+
     settings = {
       manager = {
         show_hidden = false;
@@ -514,16 +522,21 @@ programs.yazi = {
       yafg = inputs.yafg-plugin;
     };
 
-    initLua = ''
-      require("yafg"):setup({
-        editor = "nvim", 
-        file_arg_format = "+{row} {file}", 
-      })
-    '';
-
     keymap = {
       manager.prepend_keymap = [
-        # --- Búsqueda YAFG (Presiona Ctrl + f) ---
+        # --- Búsqueda YAFG: Atajo original del README (Mayús+F y Mayús+G) ---
+        {
+          on = [ "F" "G" ];
+          run = "plugin yafg";
+          desc = "Fuzzy grep (yafg)";
+        }
+        # --- Búsqueda YAFG: Alternativa rápida (minúsculas) ---
+        {
+          on = [ "f" "g" ];
+          run = "plugin yafg";
+          desc = "Fuzzy grep (yafg)";
+        }
+        # --- Búsqueda YAFG: Alternativa de una sola acción ---
         {
           on = [ "<C-f>" ];
           run = "plugin yafg";
