@@ -516,23 +516,9 @@ programs.yazi = {
 
     keymap = {
       manager.prepend_keymap = [
-        # --- 1. Anular 'f' nativo para usarlo como prefijo ---
+        # --- Búsqueda YAFG (Presiona Ctrl + f) ---
         {
-          on = [ "f" ];
-          run = "escape";
-          desc = "Anular f simple";
-        }
-        
-        # --- 2. Mover el filtro original de Yazi a 'f' + 'f' ---
-        {
-          on = [ "f" "f" ];
-          run = "filter --smart";
-          desc = "Filtrar archivos nativo";
-        }
-
-        # --- 3. Búsqueda YAFG (Presionar 'f' y luego 'g') ---
-        {
-          on = [ "f" "g" ];
+          on = [ "<C-f>" ];
           run = "plugin yafg";
           desc = "Fuzzy grep (yafg)";
         }
