@@ -490,17 +490,16 @@ in
 
 programs.yazi = {
     enable = true;
-    
     enableZshIntegration = true;
     shellWrapperName = "y";
 
-    # Inicializa el plugin y le indica que use Neovim
-    initLua = ''
-      require("yafg"):setup({
-        editor = "nvim",
-        file_arg_format = "+{row} {file}",
-      })
-    '';
+    # Dependencias críticas inyectadas al entorno de Yazi
+    extraPackages = with pkgs; [
+      fzf
+      ripgrep
+      bat
+      bash
+    ];
 
     settings = {
       manager = {
@@ -519,30 +518,25 @@ programs.yazi = {
     };
 
     plugins = {
-      yafg = inputs.yafg-plugin;
+      yafg = {
+        package = inputs.yafg-plugin;
+        # CORRECCIÓN: Los parámetros van en 'settings', no en 'setup'
+        settings = {
+          editor = "nvim";
+          file_arg_format = "+{row} {file}";
+        };
+      };
     };
 
     keymap = {
       manager.prepend_keymap = [
-        # --- Búsqueda YAFG: Atajo original del README (Mayús+F y Mayús+G) ---
+        # --- Búsqueda YAFG ---
         {
-          on = [ "F" "G" ];
+          on = [ "f" "g" ]; 
           run = "plugin yafg";
           desc = "Fuzzy grep (yafg)";
         }
-        # --- Búsqueda YAFG: Alternativa rápida (minúsculas) ---
-        {
-          on = [ "f" "g" ];
-          run = "plugin yafg";
-          desc = "Fuzzy grep (yafg)";
-        }
-        # --- Búsqueda YAFG: Alternativa de una sola acción ---
-        {
-          on = [ "<C-f>" ];
-          run = "plugin yafg";
-          desc = "Fuzzy grep (yafg)";
-        }
-
+        
         # --- pegar imagen del portapapeles ---
         {
           on = [ "p" "i" ];
