@@ -514,6 +514,13 @@ programs.yazi = {
       yafg = inputs.yafg-plugin;
     };
 
+    initLua = ''
+      require("yafg"):setup({
+        editor = "nvim", 
+        file_arg_format = "+{row} {file}", 
+      })
+    '';
+
     keymap = {
       manager.prepend_keymap = [
         # --- Búsqueda YAFG (Presiona Ctrl + f) ---
