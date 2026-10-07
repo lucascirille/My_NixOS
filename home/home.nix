@@ -525,7 +525,7 @@ programs.yazi = {
       manager.prepend_keymap = [
         # --- Búsqueda YAFG (Presiona Ctrl + f) ---
         {
-          on = [ "<C-g>" ];
+          on = [ "<C-f>" ];
           run = "plugin yafg";
           desc = "Fuzzy grep (yafg)";
         }
