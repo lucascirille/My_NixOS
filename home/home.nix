@@ -522,12 +522,11 @@ programs.yazi = {
         package = inputs.yafg-plugin;
         settings = {
           editor = "nvim";
-          file_arg_format = "+{row} {file}";
+          file_arg_format = "{file} -c {row}"; 
         };
       };
     };
 
-    # 🚨 LA CORRECCIÓN CLAVE: Aquí debe decir 'mgr', no 'manager'
     keymap = {
       mgr.prepend_keymap = [
         # --- Búsqueda YAFG ---
