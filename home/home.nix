@@ -585,17 +585,17 @@ programs.yazi = {
 programs.anki = {
   enable = true;
   reduceMotion = true;
-  profiles = {
-    "Main" = {
-      default = true;
-      sync = {
-        username = "lucas.cirille@gmail.com";
-        # keyFile = osConfig.sops.secrets."anki_password".path;
-        autoSync = true;
-        autoSyncMediaMinutes = 15;
-      };
-    };
-  };
+  # profiles = {
+  #   "Main" = {
+  #     default = true;
+  #     sync = {
+  #       username = "lucas.cirille@gmail.com";
+  #       # keyFile = osConfig.sops.secrets."anki_password".path;
+  #       autoSync = true;
+  #       autoSyncMediaMinutes = 15;
+  #     };
+  #   };
+  # };
 };
 
   programs.mpv.enable = true;
