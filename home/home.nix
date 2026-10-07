@@ -1153,7 +1153,7 @@ programs.tmux = {
           --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
           --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
           --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' \
-          --bind "ctrl-e:execute(tmux run-shell 'sesh connect ~/.dotfiles')+abort"
+          --bind 'ctrl-e:execute(sesh connect ~/.dotfiles)+abort'
       )\""
 
       # Integrations
