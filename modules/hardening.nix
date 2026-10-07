@@ -168,37 +168,32 @@ programs.firejail = {
   wrappedBinaries = {
     
     # --- WEB BROWSER ---
-brave = {
-  executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
-  profile = "${pkgs.firejail}/etc/firejail/brave.profile";
-  extraArgs = [
-    # 1. System & Hardware
-    "--ignore=private-etc"
-    "--ignore=private-dev" 
+    brave = {
+      # Points directly to the Home Manager Chromium/Brave package built previously
+      executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
+      profile = "${pkgs.firejail}/etc/firejail/brave.profile";
+      extraArgs = [
+        # 1. System & Hardware
+        "--ignore=private-etc"
+        "--ignore=private-dev" 
 
-    # 2. D-Bus Firewall 
-    "--ignore=nodbus"                                # Re-enable D-Bus
-    "--dbus-user.talk=org.freedesktop.Notifications" # Desktop notifications
+        # 2. D-Bus Firewall 
+        "--ignore=nodbus"                                # Re-enable D-Bus (blocked by default)
+        "--dbus-user.talk=org.freedesktop.Notifications" # Strictly limit D-Bus to desktop notifications
 
-    # --- NEW: XDG Desktop Portal (Required for File Pickers / Uploads) ---
-    "--dbus-user.talk=org.freedesktop.portal.*"      # Allow all portal interfaces (FileChooser, etc.)
-    "--dbus-user.talk=org.freedesktop.FileManager1"  # Allow "Show in File Manager" context menu
+        # 3. KeePassXC Integration (Proxy Execution)
+        "--ignore=private-bin"                           # Allow background scripts
+        "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
 
-    # 3. KeePassXC Integration (Proxy Execution)
-    "--ignore=private-bin"                           
-    "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
-
-    # 4. KeePassXC Sockets (The Symlink Trap)
-    "--noblacklist=/run/user/1000/app"
-    "--whitelist=/run/user/1000/app"
-    "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
-    "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
-
-    # --- NEW: Environment Variables for Portal & Wayland ---
-    "--env=GTK_USE_PORTAL=1"                         # Force GTK apps to use the portal
-    "--env=NIXOS_OZONE_WL=1"                         # Crucial if you are using Wayland
-  ];
-};
+        # 4. KeePassXC Sockets (The Symlink Trap)
+        # Firejail requires BOTH noblacklist (to erase default security blocks) 
+        # AND whitelist (to mount the path) to see the socket and its symlink.
+        "--noblacklist=/run/user/1000/app"
+        "--whitelist=/run/user/1000/app"
+        "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
+        "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+      ];
+    };
 
     # --- MESSAGING ---
     vesktop = {
