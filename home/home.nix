@@ -584,16 +584,7 @@ programs.yazi = {
 
   programs.anki = {
     enable = true;
-    
-    # UI option
     reduceMotion = true;
-
-    # Profile & Syncing Configuration
-    profiles = {
-      "Main" = {
-        default = true;
-      };
-    };
   };
 
   programs.mpv.enable = true;
