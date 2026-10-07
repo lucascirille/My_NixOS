@@ -1142,18 +1142,18 @@ programs.tmux = {
       set -g @floax-change-path 'true'
       
       # --- SESH CONFIG ---
-      # Binds 'prefix + o' to open the sesh popup menu
       bind-key "o" run-shell "sesh connect \"$(
         sesh list --icons | fzf-tmux -p 75%,85% \
           --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
-          --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
+          --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find ^e dotfiles' \
           --bind 'tab:down,btab:up' \
           --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
           --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
           --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' \
           --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
           --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
-          --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)'
+          --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' \
+          --bind "ctrl-e:execute(tmux run-shell 'sesh connect ~/.dotfiles')+abort"
       )\""
 
       # Integrations
@@ -1189,6 +1189,9 @@ programs.tmux = {
       bind -r -T prefix . resize-pane -R 20
       bind -r -T prefix - resize-pane -D 7
       bind -r -T prefix = resize-pane -U 7
+
+      # Instant jump to dotfiles
+      bind . run-shell "sesh connect ~/.dotfiles"
     '';
 };
 
