@@ -592,15 +592,6 @@ programs.yazi = {
     profiles = {
       "Main" = {
         default = true;
-        sync = {
-          username = "lucas.cirille@gmail.com";
-          
-          # Path to your decrypted sops-nix secret
-          keyFile = osConfig.sops.secrets."anki_password".path; 
-          
-          autoSync = true;
-          autoSyncMediaMinutes = 15;
-        };
       };
     };
   };
