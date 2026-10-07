@@ -493,7 +493,6 @@ programs.yazi = {
     enableZshIntegration = true;
     shellWrapperName = "y";
 
-    # Dependencias críticas que hicieron funcionar fzf
     extraPackages = with pkgs; [
       fzf
       ripgrep
@@ -510,11 +509,8 @@ programs.yazi = {
 
     settings = {
       manager = {
-        show_hidden = false;
-        sort_by = "alphabetical";
-        sort_dir_first = true;
+        # Yazi defaults (show_hidden, sort_by, sort_dir_first, show_symlink) removed
         linemode = "size";
-        show_symlink = true;
       };
       preview = {
         max_width = 1000;
@@ -525,7 +521,6 @@ programs.yazi = {
     };
 
     plugins = {
-      # Asignación simple del repositorio, ya que initLua hace el resto
       yafg = inputs.yafg-plugin;
     };
 
