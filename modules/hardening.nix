@@ -200,8 +200,14 @@ programs.firejail = {
         "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/Documents"
         "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/Pictures"
         "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/Pictures"
-        # "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/.dotfiles"
-        # "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/.dotfiles"
+        "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/.dotfiles"
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/.dotfiles"
+        "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/projects"
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/projects"
+        "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/Videos"
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/Videos"
+        "--noblacklist=${config.home-manager.users.${username}.home.homeDirectory}/scripts"
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/scripts"
       ];
     };
 
