@@ -493,7 +493,6 @@ programs.yazi = {
     enableZshIntegration = true;
     shellWrapperName = "y";
 
-    # Dependencias críticas inyectadas al entorno de Yazi
     extraPackages = with pkgs; [
       fzf
       ripgrep
@@ -501,6 +500,7 @@ programs.yazi = {
       bash
     ];
 
+    # Aquí se mantiene 'manager' porque esto va a yazi.toml
     settings = {
       manager = {
         show_hidden = false;
@@ -520,7 +520,6 @@ programs.yazi = {
     plugins = {
       yafg = {
         package = inputs.yafg-plugin;
-        # CORRECCIÓN: Los parámetros van en 'settings', no en 'setup'
         settings = {
           editor = "nvim";
           file_arg_format = "+{row} {file}";
@@ -528,11 +527,12 @@ programs.yazi = {
       };
     };
 
+    # 🚨 LA CORRECCIÓN CLAVE: Aquí debe decir 'mgr', no 'manager'
     keymap = {
-      manager.prepend_keymap = [
-        # --- Búsqueda YAFG (Presiona Ctrl + f) ---
+      mgr.prepend_keymap = [
+        # --- Búsqueda YAFG ---
         {
-          on = [ "<C-f>" ];
+          on = [ "f" "g" ]; 
           run = "plugin yafg";
           desc = "Fuzzy grep (yafg)";
         }
