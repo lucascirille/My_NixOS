@@ -582,6 +582,28 @@ programs.yazi = {
 
   programs.vesktop.enable = true;
 
+  programs.anki = {
+    enable = true;
+    
+    # UI option
+    reduceMotion = true;
+
+    # Profile & Syncing Configuration
+    profiles = {
+      "Main" = {
+        default = true;
+        sync = {
+          username = "lucas.cirille@gmail.com";
+          
+          # Path to your decrypted sops-nix secret
+          keyFile = osConfig.sops.secrets."anki_password".path; 
+          
+          autoSync = true;
+          autoSyncMediaMinutes = 15;
+        };
+      };
+    };
+  };
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
