@@ -488,24 +488,14 @@ in
   };
   programs.github-copilot-cli.enable = true;
 
-programs.yazi = {
+  programs.yazi = {
     enable = true;
     
-    # Nota: en Home Manager estas opciones van en camelCase
+    # habilita la integración con tu shell para cambiar de directorio al salir de yazi (opcional)
     enableZshIntegration = true;
     shellWrapperName = "y";
 
-    plugins = {
-      fg = pkgs.fetchFromGitHub {
-        owner = "DreamMaoMao";
-        repo = "fg.yazi";
-        rev = "master"; 
-        hash = "sha256-ZoIYzXATPjLYSF7kH5UXgj6Ax1+HwL007iSG59x17qA="; 
-      };
-    };
-
-
-    # 2. configuración general (yazi.toml)
+    #  configuración general (yazi.toml)
     settings = {
       manager = {
         show_hidden = false;
@@ -517,67 +507,50 @@ programs.yazi = {
       preview = {
         max_width = 1000;
         max_height = 1000;
-        image_filter = "lanczos3";
+        image_filter = "lanczos3"; # filtro de alta calidad para imágenes
         image_quality = 90;
       };
     };
 
-    # 3. atajos de teclado personalizados (keymap.toml)
+    plugins = {
+      yafg = inputs.yafg-plugin;
+    };
+
+    # atajos de teclado personalizados (keymap.toml)
     keymap = {
       manager.prepend_keymap = [
-        
-        # Anula el comando por defecto de la tecla 'f' para usarla como prefijo
+        # --- pegar imagen del portapapeles ---
         {
-          on = [ "f" ];
-          run = "escape";
-          desc = "Anular f simple";
-        }
-        
-        # Mueve el filtro original de Yazi a 'f' + 'f'
-        {
-          on = [ "f" "f" ];
-          run = "filter --smart";
-          desc = "Filtrar archivos (Comportamiento original de Yazi)";
-        }
-        
-        # atajos de búsqueda
-        {
-          on = [ "f" "g" ];
-          run = "plugin fg";
-          desc = "Fuzzy find dentro de archivos";
-        }
-        {
-          on = [ "f" "G" ];
-          run = "plugin fg --args='rg'";
-          desc = "Ripgrep dentro de archivos";
-        }
-
-        # pegar imagen del portapapeles
-        {
-          on = [ "p" "i" ];
+          on = [ "p" "i" ]; # presiona 'p' y luego 'i' (paste image)
           run = "shell 'xclip -selection clipboard -t image/png -o > \"imagen_$(date +%y%m%d_%h%m%s).png\"' --confirm";
           desc = "pegar imagen del portapapeles (x11)";
         }
         
-        # abrir ghostty en esta carpeta
+        # --- abrir ghostty en esta carpeta ---
         {
-          on = [ "o" "t" ];
+          on = [ "o" "t" ]; # presiona 'o' y luego 't' (open terminal)
           run = "shell 'ghostty &' --confirm";
           desc = "abrir ghostty aquí";
         }
 
-        # extraer archivo con xarchiver
+        # --- extraer archivo con xarchiver ---
         {
-          on = [ "e" "x" ];
+          on = [ "e" "x" ]; # presiona 'e' y luego 'x' (extract)
           run = "shell 'xarchiver -x \"$1\"' --confirm";
           desc = "extraer archivo con xarchiver";
         }
         
-        # comprimir archivo con xarchiver
+        # --- comprimir archivo con xarchiver ---
         {
-          on = [ "c" "x" ];
+          on = [ "c" "x" ]; # presiona 'c' y luego 'x' (compress)
           run = "shell 'xarchiver -c \"$1\"' --confirm";
           desc = "comprimir archivo con xarchiver";
+        }
+
+        {
+          on = [ "F" "G" ];
+          run = "plugin yafg";
+          desc = "Fuzzy grep (yafg)";
         }
       ];
     };

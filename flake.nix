@@ -56,6 +56,11 @@
       flake = false;
     };
 
+    yafg-plugin = {
+      url = "github:XYenon/yafg.yazi";
+      flake = false; 
+    };
+
   };
 
   outputs =

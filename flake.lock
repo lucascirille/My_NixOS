@@ -625,7 +625,8 @@
         "openmontage-skill": "openmontage-skill",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
-        "workmux": "workmux"
+        "workmux": "workmux",
+        "yafg-plugin": "yafg-plugin"
       }
     },
     "rust-overlay": {
@@ -854,6 +855,22 @@
       "original": {
         "owner": "raine",
         "repo": "workmux",
+        "type": "github"
+      }
+    },
+    "yafg-plugin": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791175469,
+        "narHash": "sha256-CsJuHn4L6rhsrTKFzIuQWtDp0uj+kUsCri1UogMA2n0=",
+        "owner": "XYenon",
+        "repo": "yafg.yazi",
+        "rev": "1202b2ca9ebb7bf537927ba07df1aa96ff532502",
+        "type": "github"
+      },
+      "original": {
+        "owner": "XYenon",
+        "repo": "yafg.yazi",
         "type": "github"
       }
     }
