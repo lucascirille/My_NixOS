@@ -493,6 +493,7 @@ programs.yazi = {
     enableZshIntegration = true;
     shellWrapperName = "y";
 
+    # Dependencias críticas que hicieron funcionar fzf
     extraPackages = with pkgs; [
       fzf
       ripgrep
@@ -500,7 +501,13 @@ programs.yazi = {
       bash
     ];
 
-    # Aquí se mantiene 'manager' porque esto va a yazi.toml
+    initLua = ''
+      require("yafg"):setup({
+        editor = "nvim",
+        file_arg_format = "+{row} {file}",
+      })
+    '';
+
     settings = {
       manager = {
         show_hidden = false;
@@ -518,20 +525,15 @@ programs.yazi = {
     };
 
     plugins = {
-      yafg = {
-        package = inputs.yafg-plugin;
-        settings = {
-          editor = "nvim";
-          file_arg_format = "{file} -c {row}"; 
-        };
-      };
+      # Asignación simple del repositorio, ya que initLua hace el resto
+      yafg = inputs.yafg-plugin;
     };
 
     keymap = {
       mgr.prepend_keymap = [
         # --- Búsqueda YAFG ---
         {
-          on = [ "f" "g" ]; 
+          on = [ "<C-f>" ];
           run = "plugin yafg";
           desc = "Fuzzy grep (yafg)";
         }
