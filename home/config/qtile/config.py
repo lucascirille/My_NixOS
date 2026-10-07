@@ -676,7 +676,8 @@ floating_layout = layout.Floating(
         Match(title="linux-wallpaperengine"),
         Match(title="branchdialog"),
         Match(title="pinentry"),
-        Match(wm_class="nm-connection-editor")
+        Match(wm_class="nm-connection-editor"),
+        Match(wm_class="Thunar")
     ],
     border_focus=colors["accent"],
     border_normal=colors["surface"],
