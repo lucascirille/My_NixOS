@@ -371,6 +371,8 @@ in
     
     thunarPasteImage
 
+    sesh
+
     ffmpegthumbnailer
     poppler
     fzf
@@ -1081,7 +1083,6 @@ programs.tmux = {
       tmux-thumbs
       tmux-fzf
       fzf-tmux-url
-      tmux-sessionx # This plugin creates the popup menu seen in the image
       
       # Custom build for floax directly from GitHub
       (mkTmuxPlugin {
@@ -1140,28 +1141,22 @@ programs.tmux = {
       set -g @floax-bind 'p'
       set -g @floax-change-path 'true'
       
-      # --- SESSIONX CONFIG ---
-      set -g @sessionx-bind 'o'
-      set -g @sessionx-bind-zo-new-window 'ctrl-y'
-      set -g @sessionx-auto-accept 'off'
-      set -g @sessionx-custom-paths "$HOME/.dotfiles"
-      set -g @sessionx-x-path "$HOME/.dotfiles"
-      set -g @sessionx-window-height '85%'
-      set -g @sessionx-window-width '75%'
-      set -g @sessionx-zoxide-mode 'on'
-      set -g @sessionx-custom-paths-subdirectories 'false'
-      set -g @sessionx-filter-current 'false'
+      # --- SESH CONFIG ---
+      # Binds 'prefix + o' to open the sesh popup menu
+      bind-key "o" run-shell "sesh connect \"$(
+        sesh list --icons | fzf-tmux -p 75%,85% \
+          --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
+          --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
+          --bind 'tab:down,btab:up' \
+          --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
+          --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
+          --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' \
+          --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
+          --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
+          --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)'
+      )\""
 
-      # Added from the repository README to match the desired look:
-      set -g @sessionx-window-mode 'on'
-      set -g @sessionx-tree-mode 'on'
-      set -g @sessionx-preview-location 'right'
-      set -g @sessionx-preview-ratio '55%'
-      set -g @sessionx-layout 'reverse'
-      set -g @sessionx-prompt " "
-      set -g @sessionx-pointer "▶ "
-      set -g @sessionx-git-branch 'on'
-      
+      # Integrations
       set -g @continuum-restore 'on'
       set -g @resurrect-strategy-nvim 'session'
 
@@ -1189,7 +1184,7 @@ programs.tmux = {
       bind '"' split-window -v -c "#{pane_current_path}"
       bind % split-window -h -c "#{pane_current_path}"
 
-      # Vim-style pane resizing (Added from the new config)
+      # Vim-style pane resizing
       bind -r -T prefix , resize-pane -L 20
       bind -r -T prefix . resize-pane -R 20
       bind -r -T prefix - resize-pane -D 7
