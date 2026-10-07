@@ -590,7 +590,7 @@ programs.anki = {
       default = true;
       sync = {
         username = "lucas.cirille@gmail.com";
-        keyFile = osConfig.sops.secrets."anki_password".path;
+        # keyFile = osConfig.sops.secrets."anki_password".path;
         autoSync = true;
         autoSyncMediaMinutes = 15;
       };
