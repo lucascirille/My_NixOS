@@ -526,7 +526,21 @@ programs.yazi = {
     keymap = {
       manager.prepend_keymap = [
         
-        # --- NUEVO 3: Atajos para invocar la búsqueda ---
+        # Anula el comando por defecto de la tecla 'f' para usarla como prefijo
+        {
+          on = [ "f" ];
+          run = "escape";
+          desc = "Anular f simple";
+        }
+        
+        # Mueve el filtro original de Yazi a 'f' + 'f'
+        {
+          on = [ "f" "f" ];
+          run = "filter --smart";
+          desc = "Filtrar archivos (Comportamiento original de Yazi)";
+        }
+        
+        # atajos de búsqueda
         {
           on = [ "f" "g" ];
           run = "plugin fg";
@@ -535,31 +549,31 @@ programs.yazi = {
         {
           on = [ "f" "G" ];
           run = "plugin fg --args='rg'";
-          desc = "Ripgrep dentro de archivos (mejor para directorios enormes)";
+          desc = "Ripgrep dentro de archivos";
         }
 
-        # --- atajo 1: pegar imagen del portapapeles ---
+        # pegar imagen del portapapeles
         {
           on = [ "p" "i" ];
           run = "shell 'xclip -selection clipboard -t image/png -o > \"imagen_$(date +%y%m%d_%h%m%s).png\"' --confirm";
           desc = "pegar imagen del portapapeles (x11)";
         }
         
-        # --- atajo 2: abrir ghostty en esta carpeta ---
+        # abrir ghostty en esta carpeta
         {
           on = [ "o" "t" ];
           run = "shell 'ghostty &' --confirm";
           desc = "abrir ghostty aquí";
         }
 
-        # --- atajo 3: extraer archivo con xarchiver ---
+        # extraer archivo con xarchiver
         {
           on = [ "e" "x" ];
           run = "shell 'xarchiver -x \"$1\"' --confirm";
           desc = "extraer archivo con xarchiver";
         }
         
-        # --- atajo 4: comprimir archivo con xarchiver ---
+        # comprimir archivo con xarchiver
         {
           on = [ "c" "x" ];
           run = "shell 'xarchiver -c \"$1\"' --confirm";
