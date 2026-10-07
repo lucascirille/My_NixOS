@@ -168,8 +168,7 @@ programs.firejail = {
   wrappedBinaries = {
     
     # --- WEB BROWSER ---
-    brave = {
-      # Points directly to the Home Manager Chromium/Brave package built previously
+brave = {
       executable = "${config.home-manager.users.${username}.programs.chromium.finalPackage}/bin/brave";
       profile = "${pkgs.firejail}/etc/firejail/brave.profile";
       extraArgs = [
@@ -178,20 +177,24 @@ programs.firejail = {
         "--ignore=private-dev" 
 
         # 2. D-Bus Firewall 
-        "--ignore=nodbus"                                # Re-enable D-Bus (blocked by default)
-        "--dbus-user.talk=org.freedesktop.Notifications" # Strictly limit D-Bus to desktop notifications
+        "--ignore=nodbus"
+        "--dbus-user.talk=org.freedesktop.Notifications"
+        "--dbus-user.talk=org.freedesktop.portal.Desktop"   # Permite abrir el selector de archivos
+        "--dbus-user.talk=org.freedesktop.portal.Documents" # Permite transferir el archivo al navegador
 
         # 3. KeePassXC Integration (Proxy Execution)
-        "--ignore=private-bin"                           # Allow background scripts
+        "--ignore=private-bin"
         "--noblacklist=${pkgs.keepassxc}/bin/keepassxc-proxy"
 
-        # 4. KeePassXC Sockets (The Symlink Trap)
-        # Firejail requires BOTH noblacklist (to erase default security blocks) 
-        # AND whitelist (to mount the path) to see the socket and its symlink.
+        # 4. KeePassXC Sockets
         "--noblacklist=/run/user/1000/app"
         "--whitelist=/run/user/1000/app"
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
+
+        # 5. Acceso a carpetas ocultas (Descomentar si subes archivos desde aquí)
+        # "--noblacklist=\${HOME}/.dotfiles"
+        # "--whitelist=\${HOME}/.dotfiles"
       ];
     };
 
