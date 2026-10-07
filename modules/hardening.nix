@@ -179,8 +179,7 @@ brave = {
         # 2. D-Bus Firewall 
         "--ignore=nodbus"
         "--dbus-user.talk=org.freedesktop.Notifications"
-        "--dbus-user.talk=org.freedesktop.portal.Desktop"   # Permite abrir el selector de archivos
-        "--dbus-user.talk=org.freedesktop.portal.Documents" # Permite transferir el archivo al navegador
+        "--dbus-user.talk=org.freedesktop.portal.*"       # Permite todo el subsistema de portales XDG
 
         # 3. KeePassXC Integration (Proxy Execution)
         "--ignore=private-bin"
@@ -192,9 +191,8 @@ brave = {
         "--noblacklist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer"
         "--whitelist=/run/user/1000/org.keepassxc.KeePassXC.BrowserServer" 
 
-        # 5. Acceso a carpetas ocultas (Descomentar si subes archivos desde aquí)
-        # "--noblacklist=\${HOME}/.dotfiles"
-        # "--whitelist=\${HOME}/.dotfiles"
+        # 5. Asegurar acceso a carpetas comunes de usuario
+        "--whitelist=${config.home-manager.users.${username}.home.homeDirectory}/Downloads"
       ];
     };
 
