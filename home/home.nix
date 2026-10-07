@@ -488,14 +488,31 @@ in
   };
   programs.github-copilot-cli.enable = true;
 
-  programs.yazi = {
+programs.yazi = {
     enable = true;
     
-    # Habilita la integración con tu shell para cambiar de directorio al salir de Yazi (opcional)
+    # Nota: en Home Manager estas opciones van en camelCase
     enableZshIntegration = true;
     shellWrapperName = "y";
 
-    # 2. Configuración General (yazi.toml)
+    # --- NUEVO 1: Descargar el plugin de forma declarativa ---
+    plugins = {
+      fg = pkgs.fetchFromGitHub {
+        owner = "DreamMaoMao";
+        repo = "fg.yazi";
+        rev = "master"; 
+        hash = "sha256-ZoIYzXATPjLYSF7kH5UXgj6Ax1+HwL007iSG59x17qA="; 
+      };
+    };
+
+    # --- NUEVO 2: Configurar que al presionar Enter abra Neovim ---
+    initLua = ''
+      require("fg"):setup({ 
+        default_action = "nvim", 
+      })
+    '';
+
+    # 2. configuración general (yazi.toml)
     settings = {
       manager = {
         show_hidden = false;
@@ -507,40 +524,53 @@ in
       preview = {
         max_width = 1000;
         max_height = 1000;
-        image_filter = "lanczos3"; # Filtro de alta calidad para imágenes
+        image_filter = "lanczos3";
         image_quality = 90;
       };
     };
 
-    # 3. Atajos de Teclado Personalizados (keymap.toml)
+    # 3. atajos de teclado personalizados (keymap.toml)
     keymap = {
       manager.prepend_keymap = [
-        # --- Atajo 1: Pegar imagen del portapapeles ---
-        {
-          on = [ "p" "i" ]; # Presiona 'p' y luego 'i' (Paste Image)
-          run = "shell 'xclip -selection clipboard -t image/png -o > \"imagen_$(date +%Y%m%d_%H%M%S).png\"' --confirm";
-          desc = "Pegar imagen del portapapeles (X11)";
-        }
         
-        # --- Atajo 2: Abrir Ghostty en esta carpeta ---
+        # --- NUEVO 3: Atajos para invocar la búsqueda ---
         {
-          on = [ "o" "t" ]; # Presiona 'o' y luego 't' (Open Terminal)
-          run = "shell 'ghostty &' --confirm";
-          desc = "Abrir Ghostty aquí";
+          on = [ "f" "g" ];
+          run = "plugin fg";
+          desc = "Fuzzy find dentro de archivos";
+        }
+        {
+          on = [ "f" "G" ];
+          run = "plugin fg --args='rg'";
+          desc = "Ripgrep dentro de archivos (mejor para directorios enormes)";
         }
 
-        # --- Atajo 3: Extraer archivo con Xarchiver ---
+        # --- atajo 1: pegar imagen del portapapeles ---
         {
-          on = [ "e" "x" ]; # Presiona 'e' y luego 'x' (Extract)
-          run = "shell 'xarchiver -x \"$1\"' --confirm";
-          desc = "Extraer archivo con Xarchiver";
+          on = [ "p" "i" ];
+          run = "shell 'xclip -selection clipboard -t image/png -o > \"imagen_$(date +%y%m%d_%h%m%s).png\"' --confirm";
+          desc = "pegar imagen del portapapeles (x11)";
         }
         
-        # --- Atajo 4: Comprimir archivo con Xarchiver ---
+        # --- atajo 2: abrir ghostty en esta carpeta ---
         {
-          on = [ "c" "x" ]; # Presiona 'c' y luego 'x' (Compress)
+          on = [ "o" "t" ];
+          run = "shell 'ghostty &' --confirm";
+          desc = "abrir ghostty aquí";
+        }
+
+        # --- atajo 3: extraer archivo con xarchiver ---
+        {
+          on = [ "e" "x" ];
+          run = "shell 'xarchiver -x \"$1\"' --confirm";
+          desc = "extraer archivo con xarchiver";
+        }
+        
+        # --- atajo 4: comprimir archivo con xarchiver ---
+        {
+          on = [ "c" "x" ];
           run = "shell 'xarchiver -c \"$1\"' --confirm";
-          desc = "Comprimir archivo con Xarchiver";
+          desc = "comprimir archivo con xarchiver";
         }
       ];
     };
