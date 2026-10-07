@@ -41,6 +41,7 @@
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     secrets = {
       "${username}_password".neededForUsers = true;
+      "anki_password".owner = config.users.users.${username}.name; 
       "hermes-env".owner = config.users.users.${username}.name; 
       "gcalcli_oauth" = {
         sopsFile = ../secrets/hosts/gcalcli_oauth.enc;
