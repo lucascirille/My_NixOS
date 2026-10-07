@@ -1357,6 +1357,9 @@ programs.chromium = {
         horizontal_padding = 15;
         separator_height = 2;
         frame_color = "#61afef";
+        mouse_left_click = "do_action, close_current";
+        # Optional: Use middle click to open a context menu if multiple actions exist
+        mouse_middle_click = "context, close_current";
       };
 
       urgency_normal = {
