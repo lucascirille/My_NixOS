@@ -495,7 +495,6 @@ programs.yazi = {
     enableZshIntegration = true;
     shellWrapperName = "y";
 
-    # --- NUEVO 1: Descargar el plugin de forma declarativa ---
     plugins = {
       fg = pkgs.fetchFromGitHub {
         owner = "DreamMaoMao";
@@ -505,12 +504,6 @@ programs.yazi = {
       };
     };
 
-    # --- NUEVO 2: Configurar que al presionar Enter abra Neovim ---
-    initLua = ''
-      require("fg"):setup({ 
-        default_action = "nvim", 
-      })
-    '';
 
     # 2. configuración general (yazi.toml)
     settings = {
