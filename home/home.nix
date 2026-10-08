@@ -366,6 +366,7 @@ in
     ++ 
     # Normal / System Apps
   [
+    anki
 
     inputs.workmux.packages.${pkgs.stdenv.hostPlatform.system}.default
     
@@ -582,21 +583,21 @@ programs.yazi = {
 
   programs.vesktop.enable = true;
 
-programs.anki = {
-  enable = true;
-  reduceMotion = true;
-  # profiles = {
-  #   "Main" = {
-  #     default = true;
-  #     sync = {
-  #       username = "lucas.cirille@gmail.com";
-  #       # keyFile = osConfig.sops.secrets."anki_password".path;
-  #       autoSync = true;
-  #       autoSyncMediaMinutes = 15;
-  #     };
-  #   };
-  # };
-};
+# programs.anki = {
+#   enable = true;
+#   reduceMotion = true;
+#   # profiles = {
+#   #   "Main" = {
+#   #     default = true;
+#   #     sync = {
+#   #       username = "lucas.cirille@gmail.com";
+#   #       # keyFile = osConfig.sops.secrets."anki_password".path;
+#   #       autoSync = true;
+#   #       autoSyncMediaMinutes = 15;
+#   #     };
+#   #   };
+#   # };
+# };
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
