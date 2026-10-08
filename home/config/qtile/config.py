@@ -147,6 +147,7 @@ ICON_CATEGORIES = {
     "󰓇": ["spotify", "music", "ncmpcpp"],
     "󰓓": ["steam"],
     "🪨": ["obsidian"],
+    "📃": ["zathura"],
 }
 DEFAULT_ICON = ""
 _app_cache: dict[str, str] = {}
