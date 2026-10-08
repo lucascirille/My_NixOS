@@ -349,137 +349,110 @@ in
 
 
 
-  home.packages = with pkgs;
-  # Firejailed Apps (No HM modules)
+home.packages = with pkgs;
+    # ==========================================
+    # 🛡️ Firejailed Apps (No HM modules)
+    # ==========================================
     (map wrapFirejail [
-      libreoffice
-      nsxiv # Fast, lightweight image viewer with gallery mode
-      spotify
-      foliate # Ebook reader
       config.programs.chromium.finalPackage
+      config.programs.feh.package
+      config.programs.mpv.package
       config.programs.obsidian.package
       config.programs.vesktop.package
-      config.programs.mpv.package
-      config.programs.feh.package
       config.programs.zathura.package
+      foliate       # Ebook reader
+      libreoffice
+      nsxiv         # Fast, lightweight image viewer
+      spotify
     ]) 
     ++ 
-    # Normal / System Apps
-  [
-    ddnet
+    # ==========================================
+    # 📦 System & User Packages
+    # ==========================================
+    [
+      # --- 📜 Custom Scripts ---
+      changeThemeScript
+      nixos-askpass
+      nos-script
+      not-script
+      thunarPasteImage
 
-    inputs.workmux.packages.${pkgs.stdenv.hostPlatform.system}.default
-    
-    thunarPasteImage
+      # --- 💻 Development & Programming ---
+      fd
+      fzf
+      gcc
+      gnumake
+      inputs.workmux.packages.${pkgs.stdenv.hostPlatform.system}.default
+      jq
+      lua-language-server
+      neovim
+      nil
+      nodejs_22
+      ripgrep
+      sesh
+      silicon
+      sqlite
+      tree-sitter
+      (texlive.withPackages (ps: with ps; [ scheme-medium enumitem fontspec ]))
 
-    sesh
+      # --- 🛠️ CLI Tools & System Utilities ---
+      bat
+      bubblewrap
+      cabextract
+      fio
+      libnotify
+      mat2                  # Metadata stripper
+      nh                    # Nix helper
+      nix-output-monitor
+      qdiskinfo
+      wget
+      xclip
+      xdotool
+      zoxide
 
-    ffmpegthumbnailer
-    poppler
-    fzf
-    jq
-    zoxide
-    bat
+      # --- 🗜️ Archives & Compression ---
+      gnutar
+      ouch                  # Unified compression tool
+      p7zip
+      unzip
+      zip
 
+      # --- 🔐 Security & Pentesting ---
+      bloodhound-ce         # AD Graph analyzer
+      burpsuite             # Web proxy
+      hashcat               # GPU hash cracker
 
-    networkmanagerapplet
+      # --- 🖥️ Virtualization & Containers ---
+      docker-compose
+      spice
+      spice-gtk
+      spice-protocol
+      virt-manager
+      virt-viewer
+      virtio-win
+      win-spice
 
-    cabextract
-    
-    gcalcli
+      # --- 🌐 Networking Lab ---
+      gns3-gui
+      gns3-server
 
-    changeThemeScript
-
-    heroic
-    
-    love
-
-    nixos-askpass
-    nos-script
-    not-script
-
-    qalculate-gtk
-
-
-
-    rofi
-    rofimoji
-
-    sqlite
-
-
-    qdiskinfo
-    fio
-
-    # Neovim & tooling
-    neovim
-    nil
-    lua-language-server
-    ripgrep
-    fd
-    gcc
-    gnumake
-    tree-sitter
-    silicon
-    (texlive.withPackages (ps: with ps; [
-      scheme-medium
-      enumitem
-      fontspec
-    ]))
-    nodejs_22
-
-    mat2 # CLI tool to strip metadata (GPS, EXIF) from files/images before sharing
-
-
-
-    # --- Ciberseguridad (Host Seguro) ---
-    burpsuite # Proxy e interceptor web
-    bloodhound-ce # Analizador de grafos para Active Directory
-    hashcat # Rompedor de hashes acelerado por GPU
-    # ------------------------------------
-
-    ouch # Unified compression/decompression tool
-
-    docker-compose
-
-    zip
-    unzip
-    p7zip
-    gnutar
-
-
-
-    linux-wallpaperengine
-
-
-    # Screenshot tools
-    maim
-    xdotool
-
-    # Virtualization
-    virt-manager
-    virt-viewer
-    spice
-    spice-gtk
-    spice-protocol
-    virtio-win
-    win-spice
-
-    # Networking lab
-    gns3-gui
-    gns3-server
-
-    nh
-    nix-output-monitor
-    wget
-    pamixer
-    pavucontrol
-    xclip
-    libnotify
-    bubblewrap
-
-    mangojuice
-  ];
+      # --- 🎨 Desktop, GUI & Media ---
+      ddnet                 # Game
+      ffmpegthumbnailer
+      gcalcli
+      heroic                # Game launcher
+      linux-wallpaperengine
+      love
+      maim                  # Screenshot tool
+      mangojuice
+      networkmanagerapplet
+      pamixer
+      pavucontrol
+      poppler
+      qalculate-gtk
+      rofi
+      rofimoji
+    ];
 
   
   programs.ttyper.enable = true;
