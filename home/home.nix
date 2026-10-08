@@ -366,6 +366,7 @@ in
     ++ 
     # Normal / System Apps
   [
+    ddnet
 
     inputs.workmux.packages.${pkgs.stdenv.hostPlatform.system}.default
     
@@ -592,6 +593,8 @@ programs.anki = {
     };
   };
 };
+
+  programs.prismlauncher.enable = true;
 
   programs.mpv.enable = true;
   programs.feh.enable = true;
