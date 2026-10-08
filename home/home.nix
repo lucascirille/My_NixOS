@@ -873,7 +873,10 @@ services.gnome-keyring = {
   };
   stylix.targets.ghostty.enable = false;
 
-  programs.zathura.enable = true;
+  programs.zathura = {
+    enable = true;
+    options."selection-clipboard" = "clipboard";
+  };
 
   # Configure virt-manager default connection URI via dconf
   dconf.settings = {
