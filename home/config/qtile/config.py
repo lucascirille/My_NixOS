@@ -594,7 +594,7 @@ for vt in range(1, 8):
 # =========================================================================
 # 6. GROUPS & SCRATCHPAD
 # =========================================================================
-groups = [Group(str(i)) for i in range(1, 10)]
+groups = [Group(str(i)) for i in range(1, 5)]
 
 for i in groups:
     keys.extend([
