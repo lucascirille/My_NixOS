@@ -110,7 +110,6 @@
     powerOnBoot = false;
     settings.General.AutoEnable = "false";
   };
-  systemd.services.bluetooth.wantedBy = lib.mkForce [ ];
 
   hardware.graphics = {
     enable = true;

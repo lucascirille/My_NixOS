@@ -879,6 +879,9 @@ services.blueman-applet.enable = true;
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
     };
+  "org/blueman/plugins/powermanager" = {
+    auto-power-on = false;
+  };
   };
 
   programs.btop.enable = true;
