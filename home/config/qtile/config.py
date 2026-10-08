@@ -250,8 +250,8 @@ def get_next_event():
                 
                 # --- NEW: Parse title and limit to 10 characters ---
                 title = parts[4].strip() if len(parts) > 4 else "Event"
-                if len(title) > 10:
-                    title = title[:10] + "..."
+                if len(title) > 8:
+                    title = title[:8] + "-"
                 
                 start_dt = None
                 end_dt = None
