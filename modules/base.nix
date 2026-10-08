@@ -85,6 +85,6 @@
   environment.systemPackages = with pkgs; [
     ncdu smartmontools gdb file polkit_gnome
     stdenv.cc.cc zlib arandr lxrandr brightnessctl xarchiver
-    ubridge vpcs dynamips inetutils libsecret
+    ubridge vpcs dynamips inetutils
   ];
 }
