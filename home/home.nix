@@ -1346,19 +1346,6 @@ programs.chromium = {
 
 
 
-  # xdg.desktopEntries."brave-browser" = {
-  #   name = "Brave Browser";
-  #   genericName = "Web Browser";
-  #   exec = "${braveWrapper} %U";
-  #   icon = "brave-browser";
-  #   terminal = false;
-  #   type = "Application";
-  #   categories = [ "Network" "WebBrowser" ];
-  #   mimeType = [ "text/html" "text/xml" "application/xhtml+xml" "x-scheme-handler/http" "x-scheme-handler/https" ];
-  # };
-
-
-
   services.dunst = {
     enable = true;
     settings = {

@@ -71,6 +71,21 @@ extension_defaults = widget_defaults.copy()
 # =========================================================================
 # 2. HOOKS & DYNAMIC WORKSPACES
 # =========================================================================
+@hook.subscribe.client_new
+def force_active_workspace(client):
+    """Intercepts X11 IPC to force specific apps to the active group."""
+    stubborn_apps = ["brave"]
+    
+    try:
+        wm_class = client.window.get_wm_class()
+        if wm_class:
+            # Check if any part of the wm_class matches our stubborn_apps list
+            class_lower = [c.lower() for c in wm_class]
+            if any(app in c for c in class_lower for app in stubborn_apps):
+                client.togroup(qtile.current_group.name)
+    except Exception:
+        pass
+
 # --- Wallpaper State Management ---
 _wallpaper_paused = False
 
