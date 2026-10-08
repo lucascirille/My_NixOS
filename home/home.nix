@@ -839,6 +839,11 @@ systemd.user.services.linux-wallpaperengine = {
 
 services.blueman-applet.enable = true;
 
+services.gnome-keyring = {
+  enable = true;
+  components = [ "pkcs11" "secrets" "ssh" ];
+};
+
   services.flameshot.enable = true;
   services.playerctld.enable = true;
 
