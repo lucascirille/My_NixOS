@@ -409,6 +409,8 @@ home.packages = with pkgs;
       xclip
       xdotool
       zoxide
+      ani-cli               # Anime browser & player
+      ani-skip              # Anime skip tool
 
       # --- 🗜️ Archives & Compression ---
       gnutar
