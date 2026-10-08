@@ -33,6 +33,13 @@ services.tlp = {
     CPU_MAX_PERF_ON_BAT = 75; 
   };
 };
+
+services.libinput = {
+  enable = true;
+  touchpad = {
+    disableWhileTyping = true;
+  };
+};
   
   # TPM 2.0 support
   security.tpm2.enable = true;
