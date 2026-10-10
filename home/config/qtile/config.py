@@ -386,10 +386,10 @@ def get_ddcutil_brightness():
         pass
     return "󰃟  ---"
 
-def power_menu_cmd():
+def power_menu_cmd(cancel_keys="Escape"):
     return (
         "sh -c 'choice=$(printf \"󰐥 Power Off\\n󰜉 Reboot\\n󰤄 Suspend\\n󰌾 Lock\\n󰍃 Logout\" | "
-        "rofi -dmenu -i -p \"Power\") && "
+        f"rofi -dmenu -i -p \"Power\" -kb-cancel \"{cancel_keys}\") && "
         "case \"$choice\" in "
         "\"󰐥 Power Off\") systemctl poweroff ;; "
         "\"󰜉 Reboot\") systemctl reboot ;; "
@@ -563,10 +563,10 @@ def create_bar(primary=True):
         widget.TextBox(
             text="󰐥",
             fontsize=14,
-            mouse_callbacks={'Button1': lazy.spawn(power_menu_cmd())},
+            mouse_callbacks={'Button1': lazy.spawn(power_menu_cmd("Escape"))},
             foreground=colors["bg"],
             **get_decoration(colors["critical"]),
-        ), 
+        ),
     ])
 
     return bar.Bar(
@@ -630,7 +630,8 @@ keys = [
     Key([mod, "shift"], "Down", lazy.spawn(brightness_osd("down")), desc="Decrease brightness"),
 
     Key([], "XF86PowerOff", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
-    Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
+    # power_menu needs know how to close it (handling both uppercase and lowercase E):
+    Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd("Super+Shift+E,Super+E,Escape")), desc="Open Power Menu"),
 
     Key([mod, "shift"], "s", lazy.spawn("flameshot gui")),
     Key([], "Print", lazy.spawn(
