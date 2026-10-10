@@ -18,8 +18,8 @@
   systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
   virtualisation.hypervGuest.enable = lib.mkDefault true;
 
-  boot.kernelPackages = pkgs.linuxPackages;
-  boot.kernelModules = [ "i2c-dev" "ddcci_backlight" ];
-  boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
-
+  # for brightness control
+  hardware.i2c.enable = true;
+  environment.systemPackages = [ pkgs.ddcutil ];
+  users.users.neo.extraGroups = [ "i2c" ];
 }
