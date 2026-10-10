@@ -22,4 +22,6 @@
   hardware.i2c.enable = true;
   environment.systemPackages = [ pkgs.ddcutil ];
   users.users.neo.extraGroups = [ "i2c" ];
+  # Ensure ddcutil's own advanced udev rules are loaded
+  services.udev.packages = [ pkgs.ddcutil ];
 }
