@@ -629,8 +629,8 @@ keys = [
     Key([mod, "shift"], "Up", lazy.spawn(brightness_osd("up")), desc="Increase brightness"),
     Key([mod, "shift"], "Down", lazy.spawn(brightness_osd("down")), desc="Decrease brightness"),
 
-    Key([], "XF86PowerOff", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
     # power_menu needs know how to close it (handling both uppercase and lowercase E):
+    Key([], "XF86PowerOff", lazy.spawn(power_menu_cmd("XF86PowerOff,Escape")), desc="Open Power Menu"),
     Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd("Super+Shift+E,Super+E,Escape")), desc="Open Power Menu"),
 
     Key([mod, "shift"], "s", lazy.spawn("flameshot gui")),
