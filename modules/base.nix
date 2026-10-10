@@ -42,7 +42,7 @@
     secrets = {
       "${username}_password".neededForUsers = true;
       "anki_password".owner = config.users.users.${username}.name; 
-      "hermes-env".owner = config.users.users.${username}.name; 
+      "ai_models".owner = config.users.users.${username}.name; 
       "gcalcli_oauth" = {
         sopsFile = ../secrets/hosts/gcalcli_oauth.enc;
         format = "binary";

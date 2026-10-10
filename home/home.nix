@@ -338,6 +338,7 @@ in
   ];
   home.username = username;
   home.homeDirectory = "/home/${username}";
+
   home.sessionVariables = {
     SUDO_EDITOR = "${pkgs.neovim}/bin/nvim";
     EDITOR = "${pkgs.neovim}/bin/nvim";
@@ -740,7 +741,7 @@ services.hermes-agent = {
     ];
 
     environmentFiles = [
-      osConfig.sops.secrets."hermes-env".path
+      osConfig.sops.secrets."ai_models".path
     ];
   };
 
