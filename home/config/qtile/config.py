@@ -216,6 +216,26 @@ def update_group_labels(*args, **kwargs):
 # =========================================================================
 # 3. HARDWARE & UTILITY FUNCTIONS
 # =========================================================================
+_cached_ddc_bus = None
+
+def get_ddc_bus():
+    """Finds the primary monitor's I2C bus dynamically and caches it to prevent lag."""
+    global _cached_ddc_bus
+    if _cached_ddc_bus:
+        return _cached_ddc_bus
+        
+    try:
+        # Runs the slow scan only once
+        output = subprocess.check_output(["ddcutil", "detect"], text=True, stderr=subprocess.DEVNULL)
+        for line in output.splitlines():
+            if "I2C bus:" in line:
+                # Extracts '7' from 'I2C bus:  /dev/i2c-7'
+                _cached_ddc_bus = line.split("i2c-")[1].strip()
+                return _cached_ddc_bus
+    except Exception:
+        pass
+    return ""
+
 def get_next_event():
     my_calendars = {
         "lucas.cirille@gmail.com": " ",
@@ -305,7 +325,8 @@ def get_wlan_interface():
     sys_net = "/sys/class/net"
     if os.path.exists(sys_net):
         for dev in os.listdir(sys_net):
-            if dev.startswith("w") and dev != "wg0":
+            # Explicitly match standard Linux wireless naming conventions
+            if dev.startswith("wl") or dev.startswith("wlp") or dev.startswith("wlan"):
                 return dev
     return None
 
@@ -333,11 +354,37 @@ def volume_osd(action):
     return f"sh -c \"{cmd}\""
 
 def brightness_osd(action):
-    if action == "up":
-        cmd = "brightnessctl set +5% && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
-    elif action == "down":
-        cmd = "brightnessctl set 5%- && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
+    if get_backlight_name():
+        # LAPTOP (Native, Instant)
+        if action == "up":
+            cmd = "brightnessctl set +5% && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
+        elif action == "down":
+            cmd = "brightnessctl set 5%- && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(brightnessctl -m | cut -d, -f4 | tr -d '%') 'Brightness 󰃟'"
+    else:
+        # DESKTOP (Dynamic Bus + Optimized)
+        bus = get_ddc_bus()
+        bus_arg = f"--bus {bus}" if bus else ""
+        
+        if action == "up":
+            cmd = "ddcutil " + bus_arg + " setvcp 10 + 5 --noverify && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(ddcutil " + bus_arg + " getvcp 10 --terse | awk '{print $4}') 'Brightness 󰃟'"
+        elif action == "down":
+            cmd = "ddcutil " + bus_arg + " setvcp 10 - 5 --noverify && dunstify -a System -u low -h string:x-dunst-stack-tag:brightness -h int:value:$(ddcutil " + bus_arg + " getvcp 10 --terse | awk '{print $4}') 'Brightness 󰃟'"
+            
     return f"sh -c \"{cmd}\""
+
+def get_ddcutil_brightness():
+    bus = get_ddc_bus()
+    if not bus:
+        return "󰃟  ---"
+        
+    try:
+        output = subprocess.check_output(["ddcutil", "--bus", bus, "getvcp", "10", "--terse"], text=True, stderr=subprocess.DEVNULL)
+        parts = output.split()
+        if len(parts) >= 4:
+            return f"󰃟  {parts[3]}%"
+    except Exception:
+        pass
+    return "󰃟  ---"
 
 def power_menu_cmd():
     return (
@@ -409,42 +456,53 @@ def create_bar(primary=True):
     bar_widgets.extend([
         widget.CPU(
             format='  {load_percent}%',
-            update_interval=5.0,
+            update_interval=10.0,
             mouse_callbacks={'Button1': lazy.group["scratchpad"].dropdown_toggle("btop")},
             foreground=colors["bg"],
             **get_decoration(colors["cyan"])
         ),
         widget.Memory(
             format='  {MemUsed: .0f}MB',
-            update_interval=5.0,
+            update_interval=10.0,
             foreground=colors["bg"],
             **get_decoration(colors["cyan"])
         ),
     ])
 
     backlight_dev = get_backlight_name()
+    
     if backlight_dev:
+        # LAPTOP: Native hardware backlight detected
         bar_widgets.append(
             widget.Backlight(
                 backlight_name=backlight_dev,
                 format='󰃟  {percent:2.0%}',
                 step=5, 
                 change_command='brightnessctl set {0}%',
-                update_interval=2.0, 
+                update_interval=5.0, 
+                foreground=colors["bg"],
+                **get_decoration(colors["warning"])
+            )
+        )
+    else:
+        # DESKTOP: No native backlight, fallback to ddcutil polling
+        bar_widgets.append(
+            widget.GenPollText(
+                update_interval=5.0, 
+                func=get_ddcutil_brightness,
                 foreground=colors["bg"],
                 **get_decoration(colors["warning"])
             )
         )
 
-
     bar_widgets.append(
         widget.PulseVolume(
-        fmt='󰕾 {}',
-        limit_max_volume=True,
-        mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
-        foreground=colors["bg"],
-        **get_decoration(colors["warning"])
-    ),
+            fmt='󰕾 {}',
+            limit_max_volume=True,
+            mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
+            foreground=colors["bg"],
+            **get_decoration(colors["warning"])
+        )
     )
 
     wlan_dev = get_wlan_interface()
@@ -454,7 +512,7 @@ def create_bar(primary=True):
                 interface=wlan_dev,
                 format='󰤨  {essid} {percent:2.0%}',
                 disconnected_message='󰤭  Offline',
-                update_interval=5.0,
+                update_interval=10.0,
                 mouse_callbacks={
                     'Button1': lazy.group["scratchpad"].dropdown_toggle("nmtui"),
                     'Button3': lazy.spawn("nm-connection-editor"),
@@ -485,7 +543,7 @@ def create_bar(primary=True):
     bar_widgets.extend([
         # Reverted back to perfectly valid GenPollText
         widget.GenPollText(
-            update_interval=300, 
+            update_interval=900, 
             func=get_next_event,
             fmt='󰃭  {}',
             foreground=colors["bg"],
@@ -566,6 +624,9 @@ keys = [
     Key([], "XF86AudioMute", lazy.spawn(volume_osd("mute"))),
     Key([], "XF86MonBrightnessUp", lazy.spawn(brightness_osd("up")), desc="Increase brightness"),
     Key([], "XF86MonBrightnessDown", lazy.spawn(brightness_osd("down")), desc="Decrease brightness"),
+    # Custom desktop bindings for brightness
+    Key([mod, "shift"], "Up", lazy.spawn(brightness_osd("up")), desc="Increase brightness"),
+    Key([mod, "shift"], "Down", lazy.spawn(brightness_osd("down")), desc="Decrease brightness"),
 
     Key([], "XF86PowerOff", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
     Key([mod, "shift"], "e", lazy.spawn(power_menu_cmd()), desc="Open Power Menu"),
