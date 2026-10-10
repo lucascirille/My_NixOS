@@ -375,7 +375,7 @@ def brightness_osd(action):
 def get_ddcutil_brightness():
     bus = get_ddc_bus()
     if not bus:
-        return "󰃟  ---"
+        return "󰃟  -"
         
     try:
         output = subprocess.check_output(["ddcutil", "--bus", bus, "getvcp", "10", "--terse"], text=True, stderr=subprocess.DEVNULL)

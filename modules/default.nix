@@ -8,5 +8,6 @@
     ./virt-lab.nix
     ./containers.nix
     ./git-deploy-key.nix
+    ./keyd.nix
   ];
 }
