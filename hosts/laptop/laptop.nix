@@ -41,13 +41,6 @@ services.libinput = {
   };
 };
 
-# Tell libinput to treat the keyd virtual keyboard as an internal laptop keyboard
-  # This restores "Disable While Typing" (DWT) functionality
-  environment.etc."libinput/local-overrides.quirks".text = ''
-    [keyd virtual keyboard]
-    MatchName=keyd virtual keyboard
-    AttrKeyboardIntegration=internal
-  '';
   
   # TPM 2.0 support
   security.tpm2.enable = true;
