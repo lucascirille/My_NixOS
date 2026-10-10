@@ -437,15 +437,15 @@ def create_bar(primary=True):
         )
 
 
-        bar_widgets.append(
-            widget.PulseVolume(
-            fmt='󰕾 {}',
-            limit_max_volume=True,
-            mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
-            foreground=colors["bg"],
-            **get_decoration(colors["warning"])
-        ),
-        )
+    bar_widgets.append(
+        widget.PulseVolume(
+        fmt='󰕾 {}',
+        limit_max_volume=True,
+        mouse_callbacks={'Button1': lazy.spawn("pavucontrol")}, 
+        foreground=colors["bg"],
+        **get_decoration(colors["warning"])
+    ),
+    )
 
     wlan_dev = get_wlan_interface()
     if wlan_dev:

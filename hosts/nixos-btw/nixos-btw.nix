@@ -1,4 +1,4 @@
-{ lib, ... }:
+{config, lib, pkgs, ... }:
 
 {
   imports = [
@@ -17,5 +17,9 @@
   };
   systemd.services.libvirtd.unitConfig.ConditionVirtualization = "!vm";
   virtualisation.hypervGuest.enable = lib.mkDefault true;
+
+  boot.kernelPackages = pkgs.linuxPackages;
+  boot.kernelModules = [ "i2c-dev" "ddcci_backlight" ];
+  boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
 
 }
