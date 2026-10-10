@@ -34,9 +34,6 @@ services.tlp = {
   };
 };
 
-# Force off the old driver that ignores Disable-While-Typing
-  services.xserver.synaptics.enable = false;
-
 services.libinput = {
   enable = true;
   touchpad = {
