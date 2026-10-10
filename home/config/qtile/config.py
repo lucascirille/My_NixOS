@@ -556,6 +556,7 @@ def create_bar(primary=True):
         ),
         widget.Clock(
             format='󰃭 %d/%m %H:%M',
+            update_interval=60.0, # Forces the CPU to sleep for a full minute
             foreground=colors["accent"],
             **get_decoration(colors["surface"])
         ),
