@@ -394,7 +394,7 @@ home.packages = with pkgs;
       silicon
       sqlite
       tree-sitter
-      (texlive.withPackages (ps: with ps; [ scheme-medium enumitem fontspec ]))
+      (texlive.withPackages (ps: with ps; [ scheme-medium enumitem fontspec tcolorbox])) # LateX
 
       # --- 🛠️ CLI Tools & System Utilities ---
       bat
