@@ -462,26 +462,18 @@ home.packages = with pkgs;
 programs.opencode = {
     enable = true;
 
-    # Opcional: configurar la interfaz TUI
-    tui = {
-      # Ajustes de interfaz si los necesitás
-    };
-
-    # Toda la configuración de modelos/proveedores va adentro de settings:
+    # Toda la configuración de modelos y proveedores va acá adentro
     settings = {
       model = "ollama/qwen2.5-coder:7b";
       providers = {
         ollama = {
-          name = "Ollama";
           baseURL = "http://127.0.0.1:11434/v1";
         };
       };
     };
 
-    # Habilita soporte nativo de MCP (Model Context Protocol)
     enableMcpIntegration = true;
 
-    # Paquetes adicionales que quieras exponer en el entorno de ejecución
     extraPackages = with pkgs; [
       ripgrep
       git
