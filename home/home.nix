@@ -462,7 +462,7 @@ home.packages = with pkgs;
 programs.opencode = {
     enable = true;
 
-    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.system}.opencode;
+    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.opencode;
 
     settings = {
       model = "ollama/qwen2.5-coder:7b";
