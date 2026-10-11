@@ -463,7 +463,9 @@ programs.opencode = {
     enable = true;
 
     settings = {
-      model = "ollama/qwen3.5:4b";
+      # 1. Establecemos el más rápido como predeterminado al abrir
+      model = "ollama/qwen3.5:4b"; 
+      
       provider = {
         ollama = {
           npm = "@ai-sdk/openai-compatible";
@@ -471,9 +473,13 @@ programs.opencode = {
           options = {
             baseURL = "http://127.0.0.1:11434/v1";
           };
+          # 2. Declaramos ambos modelos en la lista
           models = {
             "qwen3.5:4b" = {
               name = "qwen3.5:4b";
+            };
+            "qwen2.5-coder:7b" = {
+              name = "qwen2.5-coder:7b";
             };
           };
         };
