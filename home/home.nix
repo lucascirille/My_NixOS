@@ -462,14 +462,8 @@ home.packages = with pkgs;
 programs.opencode = {
     enable = true;
 
-    # Toda la configuración de modelos y proveedores va acá adentro
     settings = {
       model = "ollama/qwen2.5-coder:7b";
-      providers = {
-        ollama = {
-          baseURL = "http://127.0.0.1:11434/v1";
-        };
-      };
     };
 
     enableMcpIntegration = true;
