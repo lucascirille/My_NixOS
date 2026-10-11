@@ -462,10 +462,22 @@ home.packages = with pkgs;
 programs.opencode = {
     enable = true;
 
-    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.opencode;
-
     settings = {
       model = "ollama/qwen2.5-coder:7b";
+      provider = {
+        ollama = {
+          npm = "@ai-sdk/openai-compatible";
+          name = "Ollama";
+          options = {
+            baseURL = "http://127.0.0.1:11434/v1";
+          };
+          models = {
+            "qwen2.5-coder:7b" = {
+              name = "qwen2.5-coder:7b";
+            };
+          };
+        };
+      };
     };
 
     enableMcpIntegration = true;
