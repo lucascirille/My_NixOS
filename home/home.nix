@@ -463,7 +463,7 @@ programs.opencode = {
     enable = true;
 
     settings = {
-      model = "ollama/qwen2.5-coder:7b";
+      model = "ollama/qwen3.5:4b";
       provider = {
         ollama = {
           npm = "@ai-sdk/openai-compatible";
@@ -472,8 +472,8 @@ programs.opencode = {
             baseURL = "http://127.0.0.1:11434/v1";
           };
           models = {
-            "qwen2.5-coder:7b" = {
-              name = "qwen2.5-coder:7b";
+            "qwen3.5:4b" = {
+              name = "qwen3.5:4b";
             };
           };
         };
