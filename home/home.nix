@@ -417,6 +417,7 @@ home.packages = with pkgs;
       p7zip
       unzip
       zip
+      unrar
 
       # --- 🔐 Security & Pentesting ---
       bloodhound-ce         # AD Graph analyzer
@@ -922,7 +923,7 @@ services.gnome-keyring = {
     };
   };
 
-  xdg.mimeApps = {
+xdg.mimeApps = {
     enable = true;
     defaultApplications = {
       "image/png" = [ "nsxiv.desktop" ];
@@ -941,6 +942,18 @@ services.gnome-keyring = {
       "application/x-mobipocket-ebook" = [ "com.github.johnfactotum.Foliate.desktop" ];
       "application/vnd.amazon.ebook" = [ "com.github.johnfactotum.Foliate.desktop" ];
       "application/vnd.comicbook+zip" = [ "com.github.johnfactotum.Foliate.desktop" ];
+
+      # Archivos comprimidos (Xarchiver)
+      "application/zip" = [ "xarchiver.desktop" ];
+      "application/vnd.rar" = [ "xarchiver.desktop" ];
+      "application/x-rar" = [ "xarchiver.desktop" ];
+      "application/x-rar-compressed" = [ "xarchiver.desktop" ];
+      "application/x-7z-compressed" = [ "xarchiver.desktop" ];
+      "application/x-tar" = [ "xarchiver.desktop" ];
+      "application/gzip" = [ "xarchiver.desktop" ];
+      "application/x-bzip2" = [ "xarchiver.desktop" ];
+      "application/x-xz" = [ "xarchiver.desktop" ];
+      "application/x-compressed-tar" = [ "xarchiver.desktop" ];
     };
   };
 

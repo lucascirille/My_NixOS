@@ -26,7 +26,7 @@ return {
   },
 
 -- CodeCompanion.nvim (Chat & LLM Interface)
-  {
+{
     "olimorris/codecompanion.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -36,15 +36,11 @@ return {
       -- =====================================================================
       -- 1. SECURE CREDENTIAL LOADER (sops-nix integration)
       -- =====================================================================
-      -- We read the API key directly from the local filesystem via Lua.
-      -- This bypasses Neovim's background shell, preventing pipeline/parsing 
-      -- errors when reading strict root-owned sops-nix secrets.
       local file = io.open("/run/secrets/ai_models", "r") 
       local openrouter_key = ""
       
       if file then
         for line in file:lines() do
-          -- Extract the key strictly from the OPENAI_API_KEY assignment
           if line:match("^OPENAI_API_KEY=") then
             openrouter_key = line:gsub("^OPENAI_API_KEY=", ""):gsub('["\']', '')
             break
@@ -54,35 +50,40 @@ return {
       end
 
       -- =====================================================================
-      -- 2. CODECOMPANION SETUP (v19+ Architecture)
+      -- 2. CODECOMPANION SETUP ("CAVEMAN" MODE)
       -- =====================================================================
       require("codecompanion").setup({
+        -- Overwrite the default friendly personality to save prompt & output tokens
+        opts = {
+          system_prompt = "You are a minimalist, highly efficient AI coding assistant. Obey these rules strictly:\n1. NO reasoning, NO thought process, NO step-by-step explanations.\n2. NO pleasantries, NO greetings, NO conclusions, NO markdown fluff.\n3. Output ONLY the exact code or the direct answer requested.\n4. Be as brief as humanly possible.",
+        },
         adapters = {
-          -- In CodeCompanion v19+, adapters must be nested under the 'http' table
           http = {
             openrouter = function()
               return require("codecompanion.adapters").extend("openrouter", {
                 env = {
-                  -- Inject the parsed key directly into the adapter environment
                   api_key = openrouter_key,
                 },
                 schema = {
                   model = {
-                    -- Use OpenRouter's free model auto-router
-                    default = "openrouter/free",
+                    -- Kept mandatory per your request
+                    default = "openrouter/free", 
                   },
                   max_tokens = {
-                    -- CRITICAL FIX: OpenRouter's free tier has an 8888 credit limit.
-                    -- CodeCompanion defaults to requesting 65536 tokens, triggering
-                    -- a 402 Payment Required error. We force it to 4096 here.
                     default = 4096,
+                  },
+                  -- Instruct OpenRouter API to disable or hide reasoning tokens
+                  reasoning = {
+                    default = {
+                      effort = "none",  -- Disables reasoning for models that allow it
+                      exclude = true,   -- Hides <think> blocks from Neovim if the model forces them
+                    },
                   },
                 },
               })
             end,
           },
         },
-        -- 'interactions' replaces the deprecated 'strategies' table in v19+
         interactions = {
           chat = { adapter = "openrouter" },
           inline = { adapter = "openrouter" },
@@ -93,11 +94,9 @@ return {
     -- 3. KEYMAPS
     -- =====================================================================
     keys = {
-      -- Note: 'Toggle' is explicitly omitted from the Chat command to force 
-      -- Neovim to spawn a fresh chat buffer, preventing old cache corruption.
       { "<leader>cc", "<cmd>CodeCompanionChat<cr>", mode = { "n", "v" }, desc = "CodeCompanion Chat" },
       { "<leader>ca", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "CodeCompanion Actions" },
       { "<leader>ci", "<cmd>CodeCompanion<cr>", mode = { "n", "v" }, desc = "CodeCompanion Inline" },
     },
-  },
+  }
 }
