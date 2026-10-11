@@ -459,8 +459,7 @@ home.packages = with pkgs;
   
   programs.ttyper.enable = true;
 
-  programs.opencode = {
-    # Habilita el módulo e instala el binario en el PATH
+programs.opencode = {
     enable = true;
 
     # Opcional: configurar la interfaz TUI
@@ -468,11 +467,15 @@ home.packages = with pkgs;
       # Ajustes de interfaz si los necesitás
     };
 
-    # Configuración principal del cliente (reemplaza el config.json manual)
+    # Toda la configuración de modelos/proveedores va adentro de settings:
     settings = {
-      provider = "ollama";
-      base_url = "http://localhost:11434/v1";
-      model = "qwen2.5-coder:7b";
+      model = "ollama/qwen2.5-coder:7b";
+      providers = {
+        ollama = {
+          name = "Ollama";
+          baseURL = "http://127.0.0.1:11434/v1";
+        };
+      };
     };
 
     # Habilita soporte nativo de MCP (Model Context Protocol)
