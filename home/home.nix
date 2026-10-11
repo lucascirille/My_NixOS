@@ -459,6 +459,32 @@ home.packages = with pkgs;
   
   programs.ttyper.enable = true;
 
+  programs.opencode = {
+    # Habilita el módulo e instala el binario en el PATH
+    enable = true;
+
+    # Opcional: configurar la interfaz TUI
+    tui = {
+      # Ajustes de interfaz si los necesitás
+    };
+
+    # Configuración principal del cliente (reemplaza el config.json manual)
+    settings = {
+      provider = "ollama";
+      base_url = "http://localhost:11434/v1";
+      model = "qwen2.5-coder:7b";
+    };
+
+    # Habilita soporte nativo de MCP (Model Context Protocol)
+    enableMcpIntegration = true;
+
+    # Paquetes adicionales que quieras exponer en el entorno de ejecución
+    extraPackages = with pkgs; [
+      ripgrep
+      git
+    ];
+  };
+
   programs.antigravity-cli = {
     enable = true;
     # Tell the module to use the flake's package instead of looking in standard nixpkgs
