@@ -8,7 +8,8 @@
       ids = [ "*" ]; 
       settings = {
         main = {
-          leftmeta = "overload(meta, M-d)"; 
+          # The '300' means 300 milliseconds. Adjust higher or lower as needed.
+          leftmeta = "overloadt(meta, M-d, 300)";
         };
       };
     };

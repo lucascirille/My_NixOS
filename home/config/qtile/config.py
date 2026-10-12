@@ -757,7 +757,10 @@ floating_layout = layout.Floating(
         Match(title="branchdialog"),
         Match(title="pinentry"),
         Match(wm_class="nm-connection-editor"),
-        Match(wm_class="Thunar")
+        Match(wm_class="Thunar"),
+        
+        # === Solución para pop-ups de Xarchiver ===
+        Match(title="xarchiver")
     ],
     border_focus=colors["accent"],
     border_normal=colors["surface"],
