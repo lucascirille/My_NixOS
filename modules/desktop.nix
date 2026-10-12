@@ -103,13 +103,25 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+        wireplumber.extraConfig = {
+      "10-disable-headset-autoswitch" = {
+        "wireplumber.settings" = {
+          "bluetooth.autoswitch-to-headset-profile" = false;
+        };
+      };
+    };
   };
 
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = false;
-    settings.General.AutoEnable = "false";
-  };
+      hardware.bluetooth = {
+        enable = true;
+        powerOnBoot = false;
+        settings = {
+          General = {
+            AutoEnable = "false";
+            Experimental = "true"; # Enables modern Bluetooth LE and battery/profile features
+          };
+        };
+      };
 
   hardware.graphics = {
     enable = true;
