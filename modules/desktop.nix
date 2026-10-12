@@ -103,12 +103,31 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    wireplumber = {
+      enable = true;
+      extraConfig = {
+        "10-bluetooth-clean" = {
+          "wireplumber.settings" = {
+            "bluetooth.autoswitch-to-headset-profile" = false;
+          };
+          "monitor.bluez.properties" = {
+            "bluez5.hfphsp-backend" = "none";
+            "bluez5.roles" = [ "a2dp_sink" "a2dp_source" ];
+          };
+        };
+      };
+    };
   };
 
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
-    settings.General.AutoEnable = "false";
+    settings = {
+      General = {
+        AutoEnable = "false";
+        Experimental = "true";
+      };
+    };
   };
 
   hardware.graphics = {
