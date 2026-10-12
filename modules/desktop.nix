@@ -110,10 +110,6 @@
           "wireplumber.settings" = {
             "bluetooth.autoswitch-to-headset-profile" = false;
           };
-          "monitor.bluez.properties" = {
-            "bluez5.hfphsp-backend" = "none";
-            "bluez5.roles" = [ "a2dp_sink" "a2dp_source" ];
-          };
         };
       };
     };
