@@ -22,7 +22,8 @@ from qtile_extras.widget.decorations import RectDecoration
 # =========================================================================
 # 1. GLOBAL VARIABLES & THEME (Stylix Integration)
 # =========================================================================
-mod = "mod4"
+mod = "mod4"   # This is your Super / Windows key
+alt = "mod1"   # This is your Alt key
 terminal = guess_terminal()
 stylix_colors_path = os.path.expanduser("~/.config/stylix/colors.json")
 
@@ -149,6 +150,10 @@ ICON_CATEGORIES = {
     "🪨": ["obsidian"],
     "📃": ["zathura"],
     "🔑": ["keepass"],
+    "": ["blueman", "blueman-manager", "bluetooth"],
+    "🔉": ["pavucontrol", "volume", "audio"],
+    "󰖟": ["virt-manager", "qemu", "vbox"],
+    "󰗄": ["xarchiver", "archive", "zip", "tar", "7z"]
 }
 DEFAULT_ICON = ""
 _app_cache: dict[str, str] = {}
@@ -733,9 +738,9 @@ screens = [
 # 8. MOUSE AND FLOATING RULES
 # =========================================================================
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front()),
+    Drag([alt], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
+    Drag([alt], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Click([alt], "Button2", lazy.window.bring_to_front()),
 ]
 
 dgroups_key_binder = None

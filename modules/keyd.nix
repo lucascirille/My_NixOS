@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ ... }:
 
 {
   # 1. Enable the keyd service and map the Super key
@@ -8,8 +8,7 @@
       ids = [ "*" ]; 
       settings = {
         main = {
-          # The '300' means 300 milliseconds. Adjust higher or lower as needed.
-          leftmeta = "overloadt(meta, M-d, 300)";
+          leftmeta = "overload(meta, M-d)";
         };
       };
     };
