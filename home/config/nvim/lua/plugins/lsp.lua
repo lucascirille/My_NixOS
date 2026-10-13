@@ -39,6 +39,22 @@ return {
         },
       }
       vim.lsp.enable("lua_ls")
+
+      -- Rust Language Server
+      vim.lsp.config.rust_analyzer = {
+        capabilities = capabilities,
+        settings = {
+          ["rust-analyzer"] = {
+            check = {
+              command = "clippy",
+            },
+            cargo = {
+              allFeatures = true,
+            },
+          },
+        },
+      }
+      vim.lsp.enable("rust_analyzer")
     end,
   }
 }

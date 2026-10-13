@@ -396,6 +396,20 @@ home.packages = with pkgs;
       tree-sitter
       (texlive.withPackages (ps: with ps; [ scheme-medium enumitem fontspec tcolorbox])) # LateX
 
+      # --- 🦀 Rust Toolchain & Utilities ---
+      rustc
+      cargo
+      rustfmt
+      clippy
+      rust-analyzer
+      cargo-watch
+      cargo-edit
+      cargo-audit
+      cargo-expand
+      bacon
+      pkg-config
+      openssl
+
       # --- 🛠️ CLI Tools & System Utilities ---
       bat
       bubblewrap
