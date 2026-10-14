@@ -17,9 +17,18 @@ return {
           map("K", vim.lsp.buf.hover, "Hover Documentation")
           map("<leader>rn", vim.lsp.buf.rename, "Rename Symbol")
           map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
+          map("<leader>d", vim.diagnostic.open_float, "Show Diagnostic")
           map("[d", vim.diagnostic.goto_prev, "Previous Diagnostic")
           map("]d", vim.diagnostic.goto_next, "Next Diagnostic")
         end,
+      })
+
+      -- Configure Diagnostics Display (Default Minimalist Style)
+      vim.diagnostic.config({
+        virtual_text = false,
+        signs = true,
+        underline = true,
+        severity_sort = true,
       })
 
       -- Nix Language Server
