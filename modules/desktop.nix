@@ -63,6 +63,10 @@
   services.flatpak = {
     enable = true;
 
+    update.auto = {
+    enable = true;
+    };
+
     # Declaramos los repositorios que queremos usar
     remotes = lib.mkOptionDefault [
       {
