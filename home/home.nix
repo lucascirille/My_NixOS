@@ -630,23 +630,21 @@ programs.anki = {
   programs.keepassxc.enable = true;
 
 xdg.configFile."workmux/config.yaml".text = ''
-      nerdfont: true
-      worktree_dir: ~/.workmux/{project}
-      merge_strategy: rebase
-      base_branch: auto
-      
-      agent: agy
-        
-      files:
-        symlink:
-          - "node_modules"
-          - ".env"
-          
+nerdfont: true
+worktree_dir: ~/.workmux/{project}
+merge_strategy: rebase
+base_branch: auto
+mode: session
+default_session: main # O la sesión principal a la que suelas volver
 
-      panes:
-        - command: <agent>
-          focus: true
-        - split: horizontal
+agent: agy
+
+windows:
+  - name: agente
+    command: <agent>
+    focus: true
+  - name: terminal
+    command: zsh
     '';
 
 xdg.configFile."stylix/colors.json".text = builtins.toJSON {
