@@ -624,6 +624,33 @@ programs.anki = {
   programs.feh.enable = true;
   programs.cava.enable = true;
 
+programs.gh = {
+    enable = true;
+
+    # Allows HTTPS git operations (like flake inputs) to use your gh auth token
+    gitCredentialHelper = {
+      enable = true;
+      hosts = [
+        "https://github.com"
+        "https://gist.github.com"
+      ];
+    };
+
+    settings = {
+      # Matches your programs.ssh "github.com" port 443 config
+      git_protocol = "ssh";
+      prompt = "enabled";
+      editor = "nvim";
+
+      aliases = {
+        co = "pr checkout";
+        pv = "pr view";
+        pc = "pr create";
+        rv = "repo view --web";
+      };
+    };
+  };
+
   stylix.targets.rofi.enable = false;
   stylix.targets.feh.enable = false;
 
@@ -682,24 +709,20 @@ xdg.configFile."stylix/colors.json".text = builtins.toJSON {
 
 programs.ssh = {
     enable = true;
-    
-    # This silences the warning about default values being removed in the future
-    enableDefaultConfig = false; 
+    enableDefaultConfig = false;
 
     settings = {
-      # This manually adds back the standard default that Home Manager used to provide
       "*" = {
         SendEnv = "LANG LC_*";
       };
-      
-      # Your GitHub configuration using the new upstream directive names
+
       "github.com" = {
         HostName = "ssh.github.com";
-        # Change the port to 443 for GitHub SSH over HTTPS
         Port = 443;
         User = "git";
-        # Using the new AddressFamily directive to force IPv4, as GitHub's SSH over HTTPS works better with IPv4
         AddressFamily = "inet";
+        IdentityFile = "~/.ssh/id_ed25519";
+        IdentitiesOnly = true;
       };
     };
   };
@@ -867,9 +890,9 @@ systemd.user.services.linux-wallpaperengine = {
 services.blueman-applet.enable = true;
 
 services.gnome-keyring = {
-  enable = true;
-  components = [ "pkcs11" "secrets" "ssh" ];
-};
+    enable = true;
+    components = [ "pkcs11" "secrets" ];
+  };
 
   services.flameshot.enable = true;
   services.playerctld.enable = true;
