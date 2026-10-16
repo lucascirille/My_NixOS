@@ -2,6 +2,7 @@
 
 ## Environment & OS
 - Operating System: NixOS (fully declarative).
+- System Capability Verification: Inspect the Nix configuration (`flake.nix`, `home/home.nix`, `modules/`, etc.) to know the capabilities of the OS, installed packages, and enabled services before proposing or implementing changes.
 - Package Management: Always use `nix-shell`, `nix run`, `nix profile`, or Flakes. NEVER suggest imperatively installing packages with `apt`, `pacman`, `dnf`, `brew`, etc.
 - Default Shell: zsh.
 - Primary Editor: Neovim.
@@ -12,3 +13,7 @@
 - Keep Nix expressions modular and clean (`lib.mkIf`, `lib.mkMerge`).
 - Follow Conventional Commits for Git commit messages (`feat:`, `fix:`, `chore:`, etc.).
 - Be concise, direct, and avoid unnecessary boilerplate or unsolicited explanations.
+
+## Solution Hierarchy
+- **Nix-Way First**: If a declarative Nix configuration, option, flake input, or NixOS/Home Manager module solves the problem in question, make it PRIORITY over other solutions.
+- **Pragmatic Priority**: If an alternative solution is genuinely better or more practical than the Nix-way solution, make that superior solution PRIORITY ABOVE ALL.
