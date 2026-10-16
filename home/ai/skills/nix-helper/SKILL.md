@@ -16,10 +16,12 @@ Use these guidelines when working with this repository:
 
 ## NixOS QA & Post-Build Validation
 - **Mandatory Passing**: All tests and validations must pass after building or testing. Never conclude a change with failing evaluations or broken units.
+- **Rebuild Confirmation**: Rebuilding or switching the system (`nos` or `nh os switch`) must ALWAYS be the last part of confirmation. Always ask the user first if they want to rebuild their Nix configuration; NEVER run rebuild or switch commands automatically.
 - **Validation Workflow**:
   1. Test configuration changes using `not`.
   2. Inspect system status for runtime regressions (`systemctl --failed`, `systemctl --user --failed`).
-  3. Once verified and stable, apply and commit changes via `nos`.
+  3. Ask the user for confirmation to rebuild.
+  4. Once confirmed by the user, apply and commit changes via `nos`.
 
 ## Solution Hierarchy
 - Prioritize declarative Nix solutions (NixOS/Home Manager options, modules, flakes) first.
