@@ -17,8 +17,22 @@ return {
 
   -- Other Utilities
   { "tpope/vim-fugitive" },
-  { "michaelrommel/nvim-silicon", opts = {} },
-  { "epwalsh/obsidian.nvim", version = "*", lazy = true, ft = "markdown" },
+  {
+    "epwalsh/obsidian.nvim",
+    version = "*",
+    lazy = true,
+    ft = "markdown",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      workspaces = {
+        {
+          name = "second_brain",
+          path = "~/Documents/second_brain",
+        },
+      },
+      ui = { enable = false },
+    },
+  },
   {
     "lervag/vimtex",
     ft = "tex",

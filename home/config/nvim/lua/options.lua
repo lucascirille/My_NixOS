@@ -25,3 +25,5 @@ opt.signcolumn = "yes"
 opt.updatetime = 250
 opt.timeoutlen = 300
 opt.undofile = true
+opt.conceallevel = 2
+opt.concealcursor = ""

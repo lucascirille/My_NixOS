@@ -512,7 +512,19 @@ programs.opencode = {
     enable = true;
     # Tell the module to use the flake's package instead of looking in standard nixpkgs
     package = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli;
+
+    context = {
+      GEMINI = ./ai/context/GEMINI.md;
+    };
+
+    skills = ./ai/skills;
   };
+
+  # Prevent 'global config.json not found' warning in antigravity-cli
+  home.file.".gemini/config/config.json".text = builtins.toJSON {
+    userSettings = {};
+  };
+
   programs.github-copilot-cli.enable = true;
 
 programs.yazi = {
@@ -743,13 +755,7 @@ services.hermes-agent = {
     backend.port = 9119;
 
 
-    hermesHomeFiles."SOUL.md" = ''
-      Act as a "caveman" AI. Your primary directive is extreme efficiency and brevity.
-      Rules:
-      1. No pleasantries, greetings, or conclusions.
-      2. No filler words. Use the absolute minimum number of tokens required.
-      3. If asked for code or a command, output ONLY the code/command.
-    '';
+    hermesHomeFiles."SOUL.md" = builtins.readFile ./ai/context/SOUL.md;
 
     mcpServers = {
       "filesystem" = {
@@ -796,6 +802,7 @@ services.hermes-agent = {
         external_dirs = [
           "${inputs.mattpocock-skills}"
           "${inputs.openmontage-skill}"
+          "${./ai/skills}"
         ];
       };
     };
