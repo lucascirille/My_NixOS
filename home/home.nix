@@ -1377,8 +1377,7 @@ programs.chromium = {
   package = pkgs.brave;
 
   commandLineArgs = [
-    "--enable-features=UseOzonePlatform"
-    "--ozone-platform=x11"
+    "--ozone-platform-hint=auto"
     "--password-store=gnome-libsecret"
     "--no-default-browser-check"
     "--disable-breakpad" 
