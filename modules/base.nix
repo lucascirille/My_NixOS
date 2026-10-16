@@ -16,6 +16,7 @@
     };
     kernelParams = [ "quiet" "loglevel=4" "systemd.show_status=true" ];
     consoleLogLevel = 4;
+    supportedFilesystems = [ "ntfs" ]; #  Habilitar soporte para el sistema de archivos NTFS
   };
 
   security.tpm2.enable = lib.mkDefault false;
@@ -85,6 +86,6 @@
   environment.systemPackages = with pkgs; [
     ncdu smartmontools gdb file polkit_gnome
     stdenv.cc.cc zlib arandr lxrandr brightnessctl xarchiver
-    ubridge vpcs dynamips inetutils
+    ubridge vpcs dynamips inetutils ntfs3g
   ];
 }
