@@ -88,4 +88,10 @@
     stdenv.cc.cc zlib arandr lxrandr brightnessctl xarchiver
     ubridge vpcs dynamips inetutils ntfs3g
   ];
+
+  # Fuerza a udisks2 a utilizar el controlador ntfs-3g por defecto
+  environment.etc."udisks2/mount_options.conf".text = ''
+    [defaults]
+    ntfs_drivers=ntfs,ntfs3
+  '';
 }
