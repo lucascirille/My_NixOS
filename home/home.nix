@@ -195,9 +195,52 @@ EOF
       notify "✅ Build successful! System updated." "normal" "10000"
 
       if ! git diff-index --quiet HEAD --; then
-        echo "📦 Committing working configuration to Git..."
-        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-        
+        echo "🤖 Generating AI commit message..."
+        COMMIT_MSG=""
+
+        if [ -r /run/secrets/ai_models ]; then
+          GEMINI_KEY=$(grep '^GEMINI_API_KEY=' /run/secrets/ai_models | cut -d= -f2- | tr -d '[:space:]' || true)
+
+          if [ -n "$GEMINI_KEY" ]; then
+            DIFF=$(git diff --cached | head -c 50000)
+
+            PAYLOAD=$(${pkgs.jq}/bin/jq -n --arg diff "$DIFF" '{
+              contents: [{
+                parts: [{
+                  text: ("You are a Git commit message generator for a NixOS dotfiles repository. Follow the Conventional Commits specification (feat, fix, chore, docs, refactor, style, etc.).\n\nFormat:\n<type>(<scope>): <imperative summary under 72 chars>\n\n- <bullet point details>\n\nStrict rules: Output ONLY the raw commit message. No markdown codeblocks, no conversational explanations.\n\nDiff:\n" + $diff)
+                }]
+              }],
+              generationConfig: {
+                temperature: 0.2,
+                maxOutputTokens: 1024,
+                thinkingConfig: { thinkingBudget: 0 }
+              }
+            }')
+
+            RESPONSE=$(${pkgs.curl}/bin/curl -s --max-time 6 -X POST \
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+              -H "x-goog-api-key: $GEMINI_KEY" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" || true)
+
+            RAW_MSG=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.candidates[0].content.parts[0].text // empty' 2>/dev/null || true)
+            if [ -n "$RAW_MSG" ]; then
+              COMMIT_MSG=$(echo "$RAW_MSG" | sed -e 's/^\x60\x60\x60[a-zA-Z]*//g' -e 's/\x60\x60\x60$//g' | sed -e '/./,$!d')
+            fi
+          fi
+        fi
+
+        # Fallback to standard timestamp if API is unavailable, offline, or returns empty
+        if [ -z "$(echo "$COMMIT_MSG" | tr -d '[:space:]')" ]; then
+          COMMIT_MSG="Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
+        fi
+
+        echo "📦 Committing configuration to Git:"
+        echo "----------------------------------------"
+        echo "$COMMIT_MSG"
+        echo "----------------------------------------"
+        git commit -m "$COMMIT_MSG"
+
         echo "🚀 Pushing to remote..."
         # Using the helper function for git push
         if ! retry_command "Push" git push; then
