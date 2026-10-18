@@ -675,6 +675,33 @@ programs.anki = {
 
   programs.prismlauncher.enable = true;
 
+  programs.lutris = {
+    enable = true;
+
+    # Share system Steam package to avoid duplicate instances and conflicts
+    steamPackage = osConfig.programs.steam.package;
+
+    # Declarative Proton and Wine runners
+    protonPackages = with pkgs; [
+      proton-ge-bin
+    ];
+    winePackages = with pkgs; [
+      wineWow64Packages.stagingFull
+    ];
+
+    # Default wine runner
+    defaultWinePackage = pkgs.wineWow64Packages.stagingFull;
+
+    # Tools and binaries available inside Lutris PATH and FHS sandbox
+    extraPackages = with pkgs; [
+      mangohud
+      gamemode
+      gamescope
+      winetricks
+      umu-launcher
+    ];
+  };
+
   programs.mpv.enable = true;
   programs.feh.enable = true;
   programs.cava.enable = true;
@@ -1042,6 +1069,19 @@ services.gnome-keyring = {
         "Security"
       ];
       comment = "Analizador de rutas de ataque con grafos";
+    };
+    "albion-online" = {
+      name = "Albion Online";
+      genericName = "MMORPG";
+      comment = "Play Albion Online (Standalone via Lutris)";
+      exec = "lutris lutris:rungame/albion-online";
+      icon = "lutris_albion-online";
+      terminal = false;
+      categories = [
+        "Game"
+        "RolePlaying"
+      ];
+      startupNotify = true;
     };
   };
 
