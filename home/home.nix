@@ -373,7 +373,16 @@ changeThemeScript = pkgs.writeShellScriptBin "change-theme" ''
 
     echo "Theme applied successfully!"
     send_notification -i "$IMAGE_PATH" "Theme Update" "Theme fully applied!" -h int:value:100
-'';
+  '';
+
+  # Provide a wine64 symlink to satisfy winetricks WoW64 checks
+  wineRunner = pkgs.symlinkJoin {
+    name = pkgs.wineWow64Packages.stagingFull.name;
+    paths = [ pkgs.wineWow64Packages.stagingFull ];
+    postBuild = ''
+      ln -sf wine $out/bin/wine64
+    '';
+  };
 in
 {
   imports = [
@@ -684,12 +693,12 @@ programs.anki = {
     protonPackages = with pkgs; [
       proton-ge-bin
     ];
-    winePackages = with pkgs; [
-      wineWow64Packages.stagingFull
+    winePackages = [
+      wineRunner
     ];
 
     # Default wine runner
-    defaultWinePackage = pkgs.wineWow64Packages.stagingFull;
+    defaultWinePackage = wineRunner;
 
     # Tools, store dependencies, and utilities inside Lutris PATH and FHS sandbox
     extraPackages = with pkgs; [
