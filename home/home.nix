@@ -1070,19 +1070,6 @@ services.gnome-keyring = {
       ];
       comment = "Analizador de rutas de ataque con grafos";
     };
-    "albion-online" = {
-      name = "Albion Online";
-      genericName = "MMORPG";
-      comment = "Play Albion Online (Standalone via Lutris)";
-      exec = "lutris lutris:rungame/albion-online";
-      icon = "lutris_albion-online";
-      terminal = false;
-      categories = [
-        "Game"
-        "RolePlaying"
-      ];
-      startupNotify = true;
-    };
   };
 
 xdg.mimeApps = {
