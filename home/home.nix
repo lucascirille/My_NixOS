@@ -499,7 +499,6 @@ home.packages = with pkgs;
       ddnet                 # Game
       ffmpegthumbnailer
       gcalcli
-      heroic                # Game launcher
       linux-wallpaperengine
       love
       maim                  # Screenshot tool
@@ -692,13 +691,27 @@ programs.anki = {
     # Default wine runner
     defaultWinePackage = pkgs.wineWow64Packages.stagingFull;
 
-    # Tools and binaries available inside Lutris PATH and FHS sandbox
+    # Tools, store dependencies, and utilities inside Lutris PATH and FHS sandbox
     extraPackages = with pkgs; [
+      # Performance & overlay tools
       mangohud
       gamemode
       gamescope
-      winetricks
       umu-launcher
+
+      # Wine & Windows compatibility utilities
+      winetricks
+      cabextract
+      p7zip
+      unzip
+      wget
+      curl
+
+      # Store integrations & authentication helpers
+      samba         # Provides ntlm_auth for Epic Games Store, EA App, and Battle.net
+      legendary-gl  # Epic Games Store open-source CLI
+      gogdl         # GOG downloader CLI
+      innoextract   # Unpacks GOG and Inno Setup Windows installers directly
     ];
   };
 
