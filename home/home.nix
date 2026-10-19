@@ -1637,4 +1637,30 @@ systemd.user.services.keepassxc = {
   };
 };
 
+  systemd.user.services.free-games-claimer = {
+    Unit = {
+      Description = "Free Games Claimer one-shot job";
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.podman}/bin/podman run --rm -v ${config.home.homeDirectory}/Containers/free-games-claimer/data:/fgc/data -e TZ=America/Argentina/Buenos_Aires -e RUN_ON_STARTUP=2 -e CLAIM_CMD=epic-games.js ghcr.io/feldorn/free-games-claimer:latest";
+    };
+  };
+
+  systemd.user.timers.free-games-claimer = {
+    Unit = {
+      Description = "Run Free Games Claimer every Thursday at 17:00";
+    };
+    Timer = {
+      OnCalendar = "Thu *-*-* 17:00:00";
+      Persistent = true;
+    };
+    Install = {
+      WantedBy = [ "timers.target" ];
+    };
+  };
+
 }
+
