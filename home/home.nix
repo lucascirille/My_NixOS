@@ -1645,7 +1645,7 @@ systemd.user.services.keepassxc = {
     };
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.podman}/bin/podman run --rm -v ${config.home.homeDirectory}/Containers/free-games-claimer/data:/fgc/data -e TZ=America/Argentina/Buenos_Aires -e RUN_ON_STARTUP=2 -e CLAIM_CMD=epic-games.js ghcr.io/feldorn/free-games-claimer:latest";
+      ExecStart = "${pkgs.podman}/bin/podman run --rm -v ${config.home.homeDirectory}/Containers/free-games-claimer/data:/fgc/data -e TZ=America/Argentina/Buenos_Aires -e RUN_ON_STARTUP=2 -e CLAIM_CMD='epic-games.js; gog.js; prime-gaming.js' ghcr.io/feldorn/free-games-claimer:latest";
     };
   };
 
