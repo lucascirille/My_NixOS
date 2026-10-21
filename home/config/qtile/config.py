@@ -87,6 +87,27 @@ def force_active_workspace(client):
     except Exception:
         pass
 
+@hook.subscribe.client_new
+def auto_albion_ultrawide(client):
+    """Automatically centers and resizes Albion Online to 1920x800 ultrawide."""
+    try:
+        wm_class = client.window.get_wm_class() or []
+        if any("Albion-Online" in c for c in wm_class):
+            client.floating = True
+            # Unity resets display resolution once assets finish loading (~3-5s).
+            # We apply the resize in stages so it catches post-load Unity resets automatically.
+            for delay in (2.0, 4.5, 7.0):
+                qtile.call_later(
+                    delay,
+                    lambda: subprocess.Popen([
+                        "xdotool", "search", "--class", "Albion-Online",
+                        "windowsize", "%@", "1920", "800",
+                        "windowmove", "%@", "0", "140"
+                    ])
+                )
+    except Exception:
+        pass
+
 # --- Wallpaper State Management ---
 _wallpaper_paused = False
 
@@ -609,6 +630,7 @@ keys = [
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod], "f", lazy.window.toggle_fullscreen(), desc="Toggle fullscreen"),
     Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating"),
+    Key([mod], "a", lazy.spawn("xdotool search --class Albion-Online windowsize %@ 1920 800 windowmove %@ 0 140"), desc="Reset Albion to 1920x800 ultrawide"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
 
@@ -765,7 +787,10 @@ floating_layout = layout.Floating(
         Match(wm_class="Thunar"),
         
         # === Solución para pop-ups de Xarchiver ===
-        Match(title="xarchiver")
+        Match(title="xarchiver"),
+
+        # === Albion Online 1920x800 Ultrawide ===
+        Match(wm_class="Albion-Online")
     ],
     border_focus=colors["accent"],
     border_normal=colors["surface"],
