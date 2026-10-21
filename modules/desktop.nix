@@ -115,6 +115,11 @@
             "bluetooth.autoswitch-to-headset-profile" = false;
           };
         };
+        "11-audio-routes" = {
+          "wireplumber.settings" = {
+            "device.restore-routes" = false;
+          };
+        };
       };
     };
   };
