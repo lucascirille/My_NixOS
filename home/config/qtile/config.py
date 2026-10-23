@@ -87,24 +87,25 @@ def force_active_workspace(client):
     except Exception:
         pass
 
+def resize_albion(*args):
+    """Resizes Albion Online to ultrawide centered for the current monitor."""
+    sh = qtile.current_screen.height
+    h = 900 if sh >= 1200 else 800
+    y = (sh - h) // 2
+    subprocess.Popen([
+        "xdotool", "search", "--onlyvisible", "--class", "Albion-Online",
+        "windowsize", "%@", "1920", str(h),
+        "windowmove", "%@", "0", str(y)
+    ])
+
 @hook.subscribe.client_new
 def auto_albion_ultrawide(client):
-    """Automatically centers and resizes Albion Online to 1920x800 ultrawide."""
     try:
         wm_class = client.window.get_wm_class() or []
         if any("Albion-Online" in c for c in wm_class):
             client.floating = True
-            # Unity resets display resolution once assets finish loading (~3-5s).
-            # We apply the resize in stages so it catches post-load Unity resets automatically.
-            for delay in (2.0, 4.5, 7.0):
-                qtile.call_later(
-                    delay,
-                    lambda: subprocess.Popen([
-                        "xdotool", "search", "--class", "Albion-Online",
-                        "windowsize", "%@", "1920", "800",
-                        "windowmove", "%@", "0", "140"
-                    ])
-                )
+            for delay in (2.0, 5.0, 9.0, 14.0):
+                qtile.call_later(delay, resize_albion)
     except Exception:
         pass
 
@@ -630,7 +631,7 @@ keys = [
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod], "f", lazy.window.toggle_fullscreen(), desc="Toggle fullscreen"),
     Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating"),
-    Key([mod], "a", lazy.spawn("xdotool search --class Albion-Online windowsize %@ 1920 800 windowmove %@ 0 140"), desc="Reset Albion to 1920x800 ultrawide"),
+    Key([mod], "a", lazy.function(resize_albion), desc="Reset Albion to ultrawide"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
 
