@@ -639,7 +639,11 @@ keys = [
     Key([mod], "p", lazy.spawn("pkill -STOP -f linux-wallpaperengine"), desc="Freeze Wallpaper"),
     Key([mod, "shift"], "p", lazy.spawn("pkill -CONT -f linux-wallpaperengine"), desc="Resume Wallpaper"),
     
-    Key([mod], "b", lazy.spawn("brave")),
+    Key([mod], "b", lazy.spawn("brave"), desc="Launch Brave Browser"),
+
+    Key([mod], "o", lazy.spawn("obsidian"), desc="Launch Obsidian"),
+
+
     Key([mod], "d", lazy.spawn('rofi -show drun -kb-cancel "Super+d,Escape"'), desc="Toggle application launcher"),
     Key([mod], "r", lazy.spawn('rofi -show run -kb-cancel "Super+r,Escape"'), desc="Toggle terminal command launcher"),
 
