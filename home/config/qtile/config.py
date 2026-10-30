@@ -790,9 +790,9 @@ floating_layout = layout.Floating(
         Match(title="pinentry"),
         Match(wm_class="nm-connection-editor"),
         Match(wm_class="Thunar"),
-        
-        # === Solución para pop-ups de Xarchiver ===
         Match(title="xarchiver"),
+        Match(title="Bluetooth Devices"),  # Blueman
+        Match(wm_class="pavucontrol"),  # PulseAudio Volume Control
 
         # === Albion Online 1920x800 Ultrawide ===
         Match(wm_class="Albion-Online")
