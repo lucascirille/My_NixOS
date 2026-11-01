@@ -21,7 +21,7 @@
   ];
 
   # 2. Configure Restic Backup Service
-  services.restic.backups.daily = {
+services.restic.backups.daily = {
     initialize = true;
 
     repository = "s3:https://708aebc1307b24a58bb55b911786fe4e.r2.cloudflarestorage.com/fallout-shelter";
@@ -30,7 +30,7 @@
 
     extraBackupArgs = [
       "--compression"
-      "auto"
+      "max"
       "--exclude-caches"
       "--exclude-larger-than"
       "500M"
@@ -40,29 +40,32 @@
     paths = [
       "/home"
       "/etc/ssh"
-      # "/var/lib"
     ];
 
     exclude = [
       # Specific user paths & syncs
-      "/home/*/Documents/second_brain" # Backed up via OneDrive
+      "/home/*/Documents/second_brain"
       "/home/*/Downloads"
 
-      # Standard system & user caches
+      # Standard system, Nix, & user caches
       "**/.cache"
       "**/.local/share/Trash"
+      "**/.local/share/nix"
+      "**/.local/state/nix"
       "/var/cache"
       "/var/tmp"
       "/var/log/journal"
 
-      # Flatpak runtimes (User data preserved in ~/.var/app)
+      # Flatpak runtimes AND per-app caches inside ~/.var/app
       "**/.local/share/flatpak"
       "/var/lib/flatpak"
+      "**/.var/app/*/cache"
+      "**/.var/app/**/Cache"
+      "**/.var/app/**/Code Cache"
+      "**/.var/app/**/GPUCache"
 
-      # Rootless Docker
+      # Rootless Docker & UMU
       "/home/*/.local/share/docker"
-      
-      # UMU
       "/home/*/.local/share/umu"
 
       # Games, shader caches, and compatibility data
@@ -70,12 +73,16 @@
       "**/.local/share/Steam"
       "**/.steam"
 
-      # Browser Caches
-      "/home/*/.config/BraveSoftware/Brave-Browser/*/Cache"
-      "/home/*/.config/BraveSoftware/Brave-Browser/*/Code Cache"
-      "/home/*/.config/BraveSoftware/Brave-Browser/*/GPUCache"
+      # All Chromium, Brave, & Electron app caches (Discord, Obsidian, VS Code, etc.)
+      "**/.config/**/Cache"
+      "**/.config/**/Code Cache"
+      "**/.config/**/GPUCache"
+      "**/.config/**/DawnCache"
+      "**/.config/**/Service Worker/CacheStorage"
+      "**/.config/Code/CachedData"
+      "**/.config/Code/CachedExtensionVSIXs"
 
-      # Developer build caches & virtual envs
+      # Developer build caches, IDEs, & virtual envs
       "**/node_modules"
       "**/target"
       "**/.direnv"
@@ -83,8 +90,11 @@
       "**/.npm"
       "**/.bun"
       "**/.local/share/pnpm"
+      "**/.vscode/extensions"
+      "**/.cursor/extensions"
       "/home/*/.cargo"
       "/home/*/.rustup"
+      "/home/*/go/pkg"
 
       # Container, VM, and Virtualization storage
       "/var/lib/docker"
@@ -104,9 +114,11 @@
     ];
 
     pruneOpts = [
+      "--group-by=host"
       "--keep-daily=3"
       "--keep-weekly=2"
       "--keep-monthly=1"
+      "--max-unused=1%"
     ];
 
     timerConfig = {

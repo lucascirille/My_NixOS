@@ -644,7 +644,7 @@ keys = [
     Key([mod], "o", lazy.spawn("obsidian"), desc="Launch Obsidian"),
 
 
-    Key([mod], "d", lazy.spawn('rofi -show drun -kb-cancel "Super+d,Escape"'), desc="Toggle application launcher"),
+    Key([mod], "d", lazy.spawn('rofi -show drun -kb-cancel "Super+d,Super+D,Escape"'), desc="Toggle application launcher"),
     Key([mod], "r", lazy.spawn('rofi -show run -kb-cancel "Super+r,Escape"'), desc="Toggle terminal command launcher"),
 
     Key([mod], "period", lazy.spawn("rofimoji --action type --files emojis nerd_font"), desc="Launch emoji picker"),
