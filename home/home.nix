@@ -527,6 +527,12 @@ home.packages = with pkgs;
       qalculate-gtk
       rofi
       rofimoji
+
+      # --- 🖌️ Graphics & Design ---
+      inkscape
+      gimp
+      kdePackages.kdenlive
+      blender
     ];
 
   
