@@ -1117,6 +1117,10 @@ xdg.mimeApps = {
       "video/mp4" = [ "mpv.desktop" ];
       "video/mkv" = [ "mpv.desktop" ];
       "video/x-matroska" = [ "mpv.desktop" ];
+      "video/webm" = [ "mpv.desktop" ];
+      "video/quicktime" = [ "mpv.desktop" ];
+      "video/x-msvideo" = [ "mpv.desktop" ];
+      "video/avi" = [ "mpv.desktop" ];
 
       # PDFs & PostScript
       "application/pdf" = [ "org.pwmt.zathura.desktop" ];
