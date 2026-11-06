@@ -18,6 +18,19 @@ return {
   -- Other Utilities
   { "tpope/vim-fugitive" },
   {
+  "sindrets/diffview.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" },
+  cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
+  keys = {
+    { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Abrir Diffview / Merge Tool" },
+    { "<leader>gq", "<cmd>DiffviewClose<cr>", desc = "Cerrar Diffview" },
+    { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "Historial del archivo actual" },
+  },
+  config = function()
+    -- La configuración del paso 3 va acá adentro si usás lazy.nvim
+  end,
+},
+  {
     "epwalsh/obsidian.nvim",
     version = "*",
     lazy = true,

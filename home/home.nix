@@ -1210,6 +1210,23 @@ programs.obsidian = {
         defaultBranch = "main";
       };
     };
+    extraConfig = {
+      merge = {
+        conflictStyle = "zdiff3"; # Muestra OURS, BASE (ancestro) y THEIRS
+        tool = "nvimdiff";
+      };
+      mergetool = {
+        keepBackup = false; # Evita que Git deje archivos .orig basura
+        prompt = false;
+      };
+      rerere = {
+        enabled = true; # Recuerda cómo resolviste conflictos previos
+        autoupdate = true; # Stagea automáticamente si rerere lo resolvió
+      };
+      diff = {
+        algorithm = "histogram"; # Diffs más limpios al mover bloques de código
+      };
+    };
   };
   programs.delta = {
     enable = true;
@@ -1224,6 +1241,11 @@ programs.obsidian = {
   programs.lazygit = {
     enable = true;
     settings = {
+      os = {
+        # Cuando presionás 'e' en LazyGit, abre el archivo en Neovim en la línea exacta
+        edit = "nvim {{filename}}";
+        editAtLine = "nvim +{{line}} {{filename}}";
+      };
       gui = {
         theme = {
           activeBorderColor = [
@@ -1241,6 +1263,9 @@ programs.obsidian = {
             pager = "delta --dark --paging=never";
           }
         ];
+        merging = {
+          args = "--no-ff";
+        };
       };
     };
   };
