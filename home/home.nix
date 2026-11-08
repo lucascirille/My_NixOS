@@ -1209,15 +1209,11 @@ programs.obsidian = {
       init = {
         defaultBranch = "main";
       };
-      core = {
-        autocrlf = "input"; # Convierte CRLF a LF al commitear en Linux
-        whitespace = "cr-at-eol"; # No trata \r al final de línea como error de whitespace
-        attributesFile = "~/.config/git/attributes";
-      };
+    };
+    extraConfig = {
       merge = {
         conflictStyle = "zdiff3"; # Muestra OURS, BASE (ancestro) y THEIRS
         tool = "nvimdiff";
-        renormalize = true; # Normaliza automáticamente CRLF a LF al mergear sin banderas
       };
       mergetool = {
         keepBackup = false; # Evita que Git deje archivos .orig basura
@@ -1229,15 +1225,9 @@ programs.obsidian = {
       };
       diff = {
         algorithm = "histogram"; # Diffs más limpios al mover bloques de código
-        renormalize = true; # Normaliza finales de línea al calcular diffs
       };
     };
   };
-
-  # Configuración global de atributos de Git para ignorar discrepancias CRLF/LF en cualquier repositorio
-  home.file.".config/git/attributes".text = ''
-    * text=auto
-  '';
   programs.delta = {
     enable = true;
     enableGitIntegration = true;
