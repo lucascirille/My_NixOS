@@ -58,7 +58,7 @@
   users.mutableUsers = false;
   users.users.${username} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "render" "libvirtd" "wireshark" "ubridge" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "render" "input" "libvirtd" "wireshark" "ubridge" ];
     shell = pkgs.zsh;
     packages = with pkgs; [ tree ];
     hashedPasswordFile = config.sops.secrets."${username}_password".path;

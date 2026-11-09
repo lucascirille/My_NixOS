@@ -175,7 +175,8 @@ ICON_CATEGORIES = {
     "": ["blueman", "blueman-manager", "bluetooth"],
     "🔉": ["pavucontrol", "volume", "audio"],
     "󰖟": ["virt-manager", "qemu", "vbox"],
-    "󰗄": ["xarchiver", "archive", "zip", "tar", "7z"]
+    "󰗄": ["xarchiver", "archive", "zip", "tar", "7z"],
+    "": ["nsxiv", "gimp", "krita", "image", "photo"]
 }
 DEFAULT_ICON = ""
 _app_cache: dict[str, str] = {}

@@ -259,6 +259,7 @@ programs.firejail = {
       extraArgs = [ 
         "--ignore=private-etc" 
         "--ignore=private-dev" # Required for GPU (Vulkan) and game controllers
+        "--ignore=nogroups"    # Retain input/render/video/audio supplementary groups
       ];
     };
 

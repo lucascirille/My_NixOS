@@ -144,6 +144,12 @@
         Experimental = "true";
       };
     };
+    input = {
+      General = {
+        ClassicBondedOnly = false;
+        UserspaceHID = true;
+      };
+    };
   };
 
   hardware.graphics = {
